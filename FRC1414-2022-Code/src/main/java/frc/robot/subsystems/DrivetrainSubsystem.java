@@ -11,14 +11,20 @@ import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.geometry.Translation2d;
 import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.I2C;
 
 import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.util.RollingAverage;
 
 import static frc.robot.Constants.*;
 
@@ -150,6 +156,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
             BACK_RIGHT_MODULE_STEER_ENCODER,
             BACK_RIGHT_MODULE_STEER_OFFSET
     );
+
+    resetGyro();
   }
 
   /**
@@ -182,6 +190,77 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_chassisSpeeds = chassisSpeeds;
   }
 
+  private RollingAverage avg = new RollingAverage();
+
+  public double getGyroAngle() {
+    return m_navx.getAngle();
+  }
+  
+  double kp = 0.0375;//0.03
+  double ki = 0.0; //0.01
+  double kd = 0.0;
+  double lastHeadingError = 0.0;
+  double errorAccumulated = 0.0;
+
+  public double getRequiredTurningSpeedForAngle(double angle) {
+    double error = angle - this.getGyroAngle();
+    this.errorAccumulated += error * Constants.TIME_STEP;
+    double speed = (kp * error) + (ki * this.errorAccumulated) + (kd * (error - this.lastHeadingError));
+    this.lastHeadingError = error;
+
+    return speed;
+  }
+
+  public void resetErrors() {
+    this.lastHeadingError = 0.0;
+    this.errorAccumulated = 0.0;
+  }
+
+  // limelight visionTargeting
+  public double requiredVisionTargetingSpeed() {
+    return this.getRequiredTurningSpeedForAngle(calculateVisionAngle());
+  }
+
+  public double calculateVisionAngle() {
+    NetworkTableInstance.getDefault().startClientTeam(1414);
+    NetworkTableInstance.getDefault().startDSClient();
+    edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry tx = table.getEntry("tx");
+
+    avg.add(this.getGyroAngle() - tx.getDouble(0.0));
+
+    return avg.getAverage();
+  }
+
+  public int detectsTarget() {
+    NetworkTableInstance.getDefault().startClientTeam(1414);
+    NetworkTableInstance.getDefault().startDSClient();
+    edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry tv = table.getEntry("tv");
+
+    return (int)tv.getDouble(0.0);
+  }
+
+  public void setVisionMode(boolean on) {
+    NetworkTableInstance.getDefault().startClientTeam(1414);
+    NetworkTableInstance.getDefault().startDSClient();
+    edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry camMode = table.getEntry("camMode");
+    NetworkTableEntry ledMode = table.getEntry("ledMode");
+    if (on) {
+      camMode.setDouble(0);
+      ledMode.setDouble(3);
+    } else {
+      camMode.setDouble(1);
+      ledMode.setDouble(1);
+    }
+  }
+
+  public void resetGyro() {
+    m_navx.reset();
+
+  }
+
   @Override
   public void periodic() {
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
@@ -191,5 +270,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
     m_frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
     m_backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
     m_backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+
+    SmartDashboard.putNumber("Front Left Angle", m_frontLeftModule.getSteerAngle());
+    SmartDashboard.putNumber("Front Right Angle", m_frontRightModule.getSteerAngle());
+    SmartDashboard.putNumber("Back Left Angle", m_backLeftModule.getSteerAngle());
+    SmartDashboard.putNumber("Back Right Angle", m_backRightModule.getSteerAngle());
+
   }
 }

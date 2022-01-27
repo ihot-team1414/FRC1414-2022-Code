@@ -4,6 +4,8 @@ import com.revrobotics.CANEncoder;
 import com.revrobotics.CANPIDController;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.ControlType;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.SparkMaxPIDController;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -17,17 +19,25 @@ import frc.robot.Constants;
 //import frc.robot.util.RollingAverage;
 import frc.robot.util.RollingAverage;
 
-public class Hood extends SubsystemBase {
+public class HoodSubsytem extends SubsystemBase {
   private final CANSparkMax hoodMotor = new CANSparkMax(Constants.HOOD_MOTOR_ID, MotorType.kBrushless);
 
-  private CANEncoder hoodEncoder;
-  private CANPIDController pidController;
+  private RelativeEncoder hoodEncoder;
+  private SparkMaxPIDController pidController;
 
   private final double maxEncoderTicks = 4.4;
   private double encoderDegree = 0; // TODO
 
-  private double minAngle = 33; // todo
-  private double maxAngle = 60;// todo
+  private double minAngle = 60; // todo
+  private double maxAngle = 90;// todo
+
+  private double kP = 5e-5; 
+  private double kI = 1e-6;
+  private double kD = 0; 
+  private double kIz = 0; 
+  private double kFF = 0.000156; 
+  private double kMaxOutput = 1; 
+  private double kMinOutput = -1;
 
   private double previousError = 0.0;
   private double accumulatedError = 0.0;
@@ -38,7 +48,7 @@ public class Hood extends SubsystemBase {
 
   //private final double height = Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT;
 
-  public Hood() {
+  public HoodSubsytem() {
     this.hoodEncoder = this.hoodMotor.getEncoder();
     this.pidController = this.hoodMotor.getPIDController();
     this.previousError = 0.0;
@@ -54,12 +64,12 @@ public class Hood extends SubsystemBase {
 
     // this.hoodEncoder.setInverted(true)
 
-    this.pidController.setP(Constants.HOOD_MOTOR_kP);
-    this.pidController.setI(Constants.HOOD_MOTOR_kI);
-    this.pidController.setD(Constants.HOOD_MOTOR_kD);
-    this.pidController.setIZone(Constants.HOOD_MOTOR_kIZ);
-    this.pidController.setFF(Constants.HOOD_MOTOR_kFF);
-    this.pidController.setOutputRange(-Constants.HOOD_MOTOR_OUTPUT, Constants.HOOD_MOTOR_OUTPUT);
+    this.pidController.setP(kP);
+    this.pidController.setI(kI);
+    this.pidController.setD(kD);
+    this.pidController.setIZone(kIz);
+    this.pidController.setFF(kFF);
+    this.pidController.setOutputRange(kMinOutput, kMaxOutput);
   }
 
 
@@ -67,34 +77,33 @@ public class Hood extends SubsystemBase {
     return this.hoodEncoder.getPosition();
   }
 
-  public double getK() {
-    return 0.5 * Constants.AIR_DENSITY * Math.PI * Constants.BALL_RADIUS_METERS * Constants.BALL_RADIUS_METERS * Constants.BALL_CX;
-  }
-
-  public double getInitialSpeed() {
-    return Double.valueOf((Constants.SHOOTER_RPM) / 30 * Math.PI * Constants.SHOOTER_WHEEL_RADIUS);
-  }
-
-  public double getDelta(double distance) {
-    return ( distance/height)*(distance/height) - Double.valueOf(2) * Constants.GRAVITY * distance * distance / (this.getInitialSpeed() * this.getInitialSpeed() * height) * (Double.valueOf(1) + this.getK() * distance / (Constants.BALL_MASS * getInitialSpeed())) * (Double.valueOf(1) + Constants.GRAVITY * distance * distance / (Double.valueOf(2) * height * getInitialSpeed() * getInitialSpeed()) + Constants.GRAVITY * getK() * distance * distance * distance / (Double.valueOf(3) * Constants.BALL_MASS * height * getInitialSpeed() * getInitialSpeed() * getInitialSpeed()));
-  }
-
-  public double getOptimalAngle(double distance) {
-    return Math.toDegrees(Math.atan((distance / height - Math.sqrt(getDelta(distance))) / (Constants.GRAVITY * distance * distance / (this.getInitialSpeed() * this.getInitialSpeed() * height) * (1 + this.getK() * distance / (Constants.BALL_MASS * this.getInitialSpeed()))))) + (distance - 4.8) * 5;
-  }
-
   public double calculateDistance() {
-    // return 5;
-    // d = (h2-h1) / tan(a1+a2)
+
      return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
-    //return 7;
+  }
+
+  public double calculateEntryAngle(double distance) {
+    if(distance > 2 && distance < 4) {
+      return Math.toRadians(-60);
+    } else if (distance > 4 && distance < 8) {
+      return Math.toRadians(-50);
+    } else {
+      return Math.toRadians(-80);
+    }
+  }
+
+  public double calculateLaunchAngle(double distance, double entryAngle) {
+    double height = Constants.TARGET_HEIGHT;
+
+    return Math.atan((Math.tan(entryAngle)*distance-2*height)/-distance);
   }
 
   public void visionTargeting() {
-    // if (this.detectsTarget() == 1) {
-    //   this.setAngle(getOptimalAngle(calculateDistance()));
-    // }
-    this.setAngle(this.getOptimalAngle(this.calculateDistance())-5);
+    double distance = calculateDistance();
+    double entryAngle = calculateEntryAngle(distance);
+    double launchAngle = calculateLaunchAngle(distance, entryAngle);
+
+    this.setAngle(Math.toDegrees(launchAngle));
   }
 
   public double calculateVisionAngle() {
@@ -161,9 +170,8 @@ public class Hood extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Hood Encoder", this.getEncoder());
     SmartDashboard.putNumber("Hood Angle", this.getAngle());
-    SmartDashboard.putNumber("Vision Angle", calculateVisionAngle());
     SmartDashboard.putNumber("Distance", calculateDistance());
-    SmartDashboard.putNumber("Optimal Angle", getOptimalAngle(calculateDistance()));
+    SmartDashboard.putNumber("Optimal Angle", Math.toDegrees(calculateLaunchAngle(calculateDistance(), calculateEntryAngle(calculateDistance()))));
   }
 
 
