@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.commands.DefaultDriveCommand;
 import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.SwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -34,6 +35,8 @@ public class RobotContainer {
   // Subsystems
   private final SwerveDrivetrain m_drivetrainSubsystem = new SwerveDrivetrain();
 
+
+  private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
   // Commands
 
   double speedLimiter = 1;
@@ -61,6 +64,11 @@ public class RobotContainer {
   private void configureButtonBindings() {
 
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrainSubsystem.resetGyro());
+
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(25));
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(35));
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(50));
+    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(60));
 
   }
 
