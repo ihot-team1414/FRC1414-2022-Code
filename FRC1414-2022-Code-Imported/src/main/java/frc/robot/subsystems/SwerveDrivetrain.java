@@ -88,7 +88,6 @@ public class SwerveDrivetrain extends SubsystemBase {
 
 
   public SwerveDrivetrain() {
-    this.setVisionMode(false);
     gyro.reset();
   }
 
@@ -137,66 +136,6 @@ public class SwerveDrivetrain extends SubsystemBase {
   public double getGyroAngle() {
     return gyro.getAngle();
   }
-    double kp = 0.0375;//0.03
-    double ki = 0.0; //0.01
-    double kd = 0.0;
-    double lastHeadingError = 0.0;
-    double errorAccumulated = 0.0;
-
-  public void turnToAngle(double angle) {
-    double error = angle - this.getGyroAngle();
-    this.errorAccumulated += error * Constants.TIME_STEP;
-    double speed = (kp * error) + (ki * this.errorAccumulated) + (kd * (error - this.lastHeadingError));
-    this.lastHeadingError = error;
-    this.drive(0, 0, -speed, false);
-  }
-
-  public void resetErrors() {
-    this.lastHeadingError = 0.0;
-    this.errorAccumulated = 0.0;
-  }
-
-
-  // limelight visionTargeting
-  public void visionTargeting() {
-    this.turnToAngle(calculateVisionAngle());
-
-  }
-
-  public double calculateVisionAngle() {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tx = table.getEntry("tx");
-
-    avg.add(this.getGyroAngle() - tx.getDouble(0.0));
-
-    return avg.getAverage();
-  }
-
-  public int detectsTarget() {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tv = table.getEntry("tv");
-
-    return (int)tv.getDouble(0.0);
-  }
-
-  public void setVisionMode(boolean on) {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry camMode = table.getEntry("camMode");
-    NetworkTableEntry ledMode = table.getEntry("ledMode");
-    if (on) {
-      camMode.setDouble(0);
-      ledMode.setDouble(3);
-    } else {
-      camMode.setDouble(1);
-      ledMode.setDouble(1);
-    }
-  }
 
   public void resetGyro() {
     gyro.reset();
@@ -212,12 +151,6 @@ public class SwerveDrivetrain extends SubsystemBase {
     SmartDashboard.putNumber("Back Right Module Angle", backRightModule.getAngleOffset());
     SmartDashboard.putNumber("Gyro Angle", gyro.getAngle());
     SmartDashboard.putBoolean("Field Relative?", fieldRelative);
-  
-    // SmartDashboard.putNumber("frontleftdrive encoder", getEncoderRawFrontLeftDrive());
-    // SmartDashboard.putNumber("frontleftangle encoder", getEncoderRawLeftAngle());
-    // SmartDashboard.putNumber("frontRightdrive encoder", getEncoderRawFrontRightDrive());
-    // SmartDashboard.putNumber("frontBackleftdrive encoder", getEncoderRawBackLeftDrive());
-    // SmartDashboard.putNumber("frontBackRightdrive encoder", getEncoderRawFrontRightDrive());
   }
 
   @Override

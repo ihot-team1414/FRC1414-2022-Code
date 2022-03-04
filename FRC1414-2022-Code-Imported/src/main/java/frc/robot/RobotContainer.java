@@ -51,8 +51,8 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    this.m_drivetrainSubsystem.setVisionMode(true);
     this.m_drivetrainSubsystem.setDefaultCommand(m_driveCommand);
+    
   }
 
   /**

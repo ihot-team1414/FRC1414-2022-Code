@@ -21,7 +21,7 @@ import frc.robot.util.RollingAverage;
 
 public class HoodSubsystem extends SubsystemBase {
 
-    private double target = 0;
+  private double target = 0;
 
   private final Servo leftServo = new Servo(9);
   private final Servo rightServo = new Servo(8);
@@ -40,46 +40,46 @@ public class HoodSubsystem extends SubsystemBase {
     this.accumulatedError = 0.0;
   }
 
-  // public double calculateDistance() {
+  public double calculateDistance() {
 
-  //    return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
-  // }
+     return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
+  }
 
-  // public double calculateEntryAngle(double distance) {
-  //   if(distance > 2 && distance < 4) {
-  //     return Math.toRadians(-60);
-  //   } else if (distance > 4 && distance < 8) {
-  //     return Math.toRadians(-50);
-  //   } else {
-  //     return Math.toRadians(-80);
-  //   }
-  // }
+  public double calculateEntryAngle(double distance) {
+    if(distance > 2 && distance < 4) {
+      return Math.toRadians(-60);
+    } else if (distance > 4 && distance < 8) {
+      return Math.toRadians(-50);
+    } else {
+      return Math.toRadians(-80);
+    }
+  }
 
-  // public double calculateLaunchAngle(double distance, double entryAngle) {
-  //   double height = Constants.TARGET_HEIGHT;
+  public double calculateLaunchAngle(double distance, double entryAngle) {
+    double height = Constants.TARGET_HEIGHT;
 
-  //   return Math.atan((Math.tan(entryAngle)*distance-2*height)/-distance);
-  // }
+    return Math.atan((Math.tan(entryAngle)*distance-2*height)/-distance);
+  }
 
-  // public void visionTargeting() {
-  //   double distance = calculateDistance();
-  //   double entryAngle = calculateEntryAngle(distance);
-  //   double launchAngle = calculateLaunchAngle(distance, entryAngle);
+  public void visionTargeting() {
+    double distance = calculateDistance();
+    double entryAngle = calculateEntryAngle(distance);
+    double launchAngle = calculateLaunchAngle(distance, entryAngle);
 
-  //   this.setAngle(Math.toDegrees(launchAngle));
-  // }
+    this.setAngle(Math.toDegrees(launchAngle));
+  }
 
-  // public double calculateVisionAngle() {
-  //   NetworkTableInstance.getDefault().startClientTeam(1414);
-  //   NetworkTableInstance.getDefault().startDSClient();
-  //   NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-  //   NetworkTableEntry ty = table.getEntry("ty");
+  public double calculateVisionAngle() {
+    NetworkTableInstance.getDefault().startClientTeam(1414);
+    NetworkTableInstance.getDefault().startDSClient();
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    NetworkTableEntry ty = table.getEntry("ty");
 
-  //   avg.add(ty.getDouble(0.0));
+    avg.add(ty.getDouble(0.0));
 
-  //   return avg.getAverage();
+    return avg.getAverage();
 
-  // }
+  }
 
 
   public void setAngle(double angle) {
@@ -106,7 +106,7 @@ public class HoodSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Hood Encoder", target);
     SmartDashboard.putNumber("Hood Angle", maxAngle+target*(maxAngle-minAngle));
-    // SmartDashboard.putNumber("Distance", calculateDistance());
-    // SmartDashboard.putNumber("Optimal Angle", Math.toDegrees(calculateLaunchAngle(calculateDistance(), calculateEntryAngle(calculateDistance()))));
+    SmartDashboard.putNumber("Distance", calculateDistance());
+    SmartDashboard.putNumber("Optimal Angle", Math.toDegrees(calculateLaunchAngle(calculateDistance(), calculateEntryAngle(calculateDistance()))));
   }
 }//end of class
