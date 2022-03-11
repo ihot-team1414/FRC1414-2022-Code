@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.RemoteSensorSource;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -8,13 +9,18 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class SwerveModuleMK3 {
+public class SwerveModuleMK4 {
 
   // TODO: Tune these PID values for your robot
   private static final double kDriveP = 5; // 15.0
@@ -29,35 +35,67 @@ public class SwerveModuleMK3 {
   // CANCoder has 4096 ticks/rotation
   private static double kEncoderTicksPerRotation = 4096;
 
-  private TalonFX driveMotor;
-  private TalonFX angleMotor;
+  private CANSparkMax driveMotor;
+  private CANSparkMax angleMotor;
+  private SparkMaxPIDController m_anglePIDController;
+  private SparkMaxPIDController m_drivePIDController;
+
+
   private CANCoder canCoder;
 
-  public SwerveModuleMK3(TalonFX driveMotor, TalonFX angleMotor, CANCoder canCoder, Rotation2d offset) {
+  public SwerveModuleMK4(CANSparkMax driveMotor, CANSparkMax angleMotor, CANCoder canCoder, Rotation2d offset) {
     this.driveMotor = driveMotor;
     this.angleMotor = angleMotor;
     this.canCoder = canCoder;
 
     TalonFXConfiguration angleTalonFXConfiguration = new TalonFXConfiguration();
+    angleMotor.restoreFactoryDefaults();
 
-    angleTalonFXConfiguration.slot0.kP = kAngleP;
-    angleTalonFXConfiguration.slot0.kI = kAngleI;
-    angleTalonFXConfiguration.slot0.kD = kAngleD;
+    /**
+     * In order to use PID functionality for a controller, a SparkMaxPIDController object
+     * is constructed by calling the getPIDController() method on an existing
+     * CANSparkMax object
+     */
+    m_anglePIDController = angleMotor.getPIDController();
+  
+    /**
+     * The PID Controller can be configured to use the analog sensor as its feedback
+     * device with the method SetFeedbackDevice() and passing the PID Controller
+     * the CANAnalog object. 
+     */
 
-    // Use the CANCoder as the remote sensor for the primary TalonFX PID
-    angleTalonFXConfiguration.remoteFilter0.remoteSensorDeviceID = canCoder.getDeviceID();
-    angleTalonFXConfiguration.remoteFilter0.remoteSensorSource = RemoteSensorSource.CANCoder;
-    angleTalonFXConfiguration.primaryPID.selectedFeedbackSensor = FeedbackDevice.RemoteSensor0;
-    angleMotor.configAllSettings(angleTalonFXConfiguration);
+    // PID coefficients
+    
 
-    TalonFXConfiguration driveTalonFXConfiguration = new TalonFXConfiguration();
+    // set PID coefficients
+    m_anglePIDController.setP(kAngleP);
+    m_anglePIDController.setI(kAngleI);
+    m_anglePIDController.setD(kAngleD);
+    m_anglePIDController.setIZone(0);
+    m_anglePIDController.setFF(0);
+    m_anglePIDController.setOutputRange(-1, 1);
 
-    driveTalonFXConfiguration.slot0.kP = kDriveP;
-    driveTalonFXConfiguration.slot0.kI = kDriveI;
-    driveTalonFXConfiguration.slot0.kD = kDriveD;
-    driveTalonFXConfiguration.slot0.kF = kDriveF;
 
-    driveMotor.configAllSettings(driveTalonFXConfiguration);
+
+    m_drivePIDController = driveMotor.getPIDController();
+  
+    /**
+     * The PID Controller can be configured to use the analog sensor as its feedback
+     * device with the method SetFeedbackDevice() and passing the PID Controller
+     * the CANAnalog object. 
+     */
+
+    // PID coefficients
+    
+
+    // set PID coefficients
+    m_drivePIDController.setP(kDriveP);
+    m_drivePIDController.setI(kDriveI);
+    m_drivePIDController.setD(kDriveD);
+    m_drivePIDController.setIZone(0);
+    m_drivePIDController.setFF(0);
+    m_drivePIDController.setOutputRange(-1, 1);
+    
 
     CANCoderConfiguration canCoderConfiguration = new CANCoderConfiguration();
     canCoderConfiguration.magnetOffsetDegrees = offset.getDegrees();
@@ -94,10 +132,9 @@ public class SwerveModuleMK3 {
     // Convert the CANCoder from it's position reading back to ticks
     double currentTicks = canCoder.getPosition() / canCoder.configGetFeedbackCoefficient();
     double desiredTicks = currentTicks + deltaTicks;
-    angleMotor.set(TalonFXControlMode.Position, desiredTicks);
+    m_anglePIDController.setReference(desiredTicks, ControlType.kPosition);
 
-    double feetPerSecond = Units.metersToFeet(state.speedMetersPerSecond);
-    driveMotor.set(TalonFXControlMode.PercentOutput, feetPerSecond / SwerveDrivetrain.kMaxSpeed);
+    driveMotor.set(state.speedMetersPerSecond / (5880.0 / 60.0 / SdsModuleConfigurations.MK4_L2.getDriveReduction() * SdsModuleConfigurations.MK4_L2.getWheelDiameter() * Math.PI));
   }
 
 
