@@ -19,14 +19,17 @@ public class IndexerSubsystem extends SubsystemBase {
   // private final Rev2mDistanceSensor distanceSensor = new Rev2mDistanceSensor(Port.kMXP);
   private double startTime;
 
-  private double loadingSpeed = 0.5;
-  private double funnelSpeed = 0.5;
+  private double loadingSpeed = 0.85;
+  private double holdingSpeed = 0.75;
+  private double funnelSpeed = 0.25;
 
 
   public IndexerSubsystem() {
     this.loaderFrontMotor.setNeutralMode(NeutralMode.Brake);
     this.loaderBackMotor.setNeutralMode(NeutralMode.Brake);
     this.funnelMotor.setNeutralMode(NeutralMode.Coast);
+    this.loaderFrontMotor.setInverted(true);    
+    this.loaderBackMotor.setInverted(true);
     startTime = Timer.getFPGATimestamp();
   }
 
@@ -36,13 +39,15 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void holdBall() {
-    this.loaderBackMotor.set(ControlMode.PercentOutput, -loadingSpeed);
-    this.loaderFrontMotor.set(ControlMode.PercentOutput, loadingSpeed);  
+    this.loaderBackMotor.set(ControlMode.PercentOutput, -holdingSpeed);
+    this.loaderFrontMotor.set(ControlMode.PercentOutput, holdingSpeed);  
   }
 
   public void stopLoader() {
     this.loaderBackMotor.set(ControlMode.PercentOutput, 0.0);
     this.loaderFrontMotor.set(ControlMode.PercentOutput, 0.0);
+    this.funnelMotor.set(ControlMode.PercentOutput, 0.0);
+
   }
 
   public void funnel() {
@@ -51,10 +56,12 @@ public class IndexerSubsystem extends SubsystemBase {
 
   public void eject() {
     this.funnelMotor.set(ControlMode.PercentOutput, -funnelSpeed);
+    this.loaderBackMotor.set(ControlMode.PercentOutput, -loadingSpeed);
+    this.loaderFrontMotor.set(ControlMode.PercentOutput, -loadingSpeed);  
   }
 
   public void holdBalls() {
-    this.alternateFunnel();
+    this.funnel();
     this.holdBall();
   }
 
@@ -64,13 +71,13 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void alternateFunnel() {
-    double current = Timer.getFPGATimestamp();
-    SmartDashboard.putNumber("Elapsed Time", current - startTime);
-    if ((current - startTime) % 1.0 > 0.25) {
-      this.funnel();
-    } else {
-      this.eject();
-    }
+    // double current = Timer.getFPGATimestamp();
+    // SmartDashboard.putNumber("Elapsed Time", current - startTime);
+    // if ((current - startTime) % 1.0 > 0.25) {
+    //   this.funnel();
+    // } else {
+    //   this.eject();
+    // }
   }
 
 
