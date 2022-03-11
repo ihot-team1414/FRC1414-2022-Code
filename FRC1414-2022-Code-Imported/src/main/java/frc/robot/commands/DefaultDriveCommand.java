@@ -9,13 +9,13 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class DefaultDriveCommand extends CommandBase {
-    private final SwerveDrivetrain m_drivetrainSubsystem;
+    private final DrivetrainSubsystem m_drivetrainSubsystem;
 
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
 
-    public DefaultDriveCommand(SwerveDrivetrain drivetrainSubsystem, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier) {
+    public DefaultDriveCommand(DrivetrainSubsystem drivetrainSubsystem, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
         this.m_translationXSupplier = translationXSupplier;
         this.m_translationYSupplier = translationYSupplier;
@@ -28,10 +28,12 @@ public class DefaultDriveCommand extends CommandBase {
     public void execute() {
         // You can use `new ChassisSpeeds(...)` for robot-oriented movement instead of field-oriented movement
         m_drivetrainSubsystem.drive(
-            m_translationXSupplier.getAsDouble(),
-            m_translationYSupplier.getAsDouble(),
-            m_rotationSupplier.getAsDouble(),
-            true
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        m_translationXSupplier.getAsDouble() * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                        m_translationYSupplier.getAsDouble() * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                        m_rotationSupplier.getAsDouble() * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+                        m_drivetrainSubsystem.getGyroscopeRotation()
+                )
         );
     }
 
