@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
@@ -32,19 +34,20 @@ public class RobotContainer {
 
   // The robot's subsystems and commands are defined here...
 
+  private final Pose2d[] startingPositions = {new Pose2d(5.0, 13.5, new Rotation2d()), new Pose2d(5.0, 13.5, new Rotation2d())};
+
   // Subsystems
-  private final SwerveDrivetrain m_drivetrainSubsystem = new SwerveDrivetrain();
+  private final DrivetrainSubsystem m_drivetrainSubsystem = new DrivetrainSubsystem(startingPositions[0]);
 
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
   // Commands
 
-  double speedLimiter = 1;
 
   private final DefaultDriveCommand m_driveCommand = new DefaultDriveCommand(m_drivetrainSubsystem,
-    () -> -driver.getRightY()*speedLimiter, 
-    () -> -driver.getRightX()*speedLimiter, 
-    () -> driver.getLeftX()*speedLimiter
+    () -> -driver.getRightY(), 
+    () -> -driver.getRightX(),
+    () -> driver.getLeftX()
   );
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -69,6 +72,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(35));
     new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(50));
     new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(60));
+
 
   }
 

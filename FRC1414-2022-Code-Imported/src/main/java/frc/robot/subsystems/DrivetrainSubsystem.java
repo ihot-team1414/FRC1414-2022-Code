@@ -8,6 +8,8 @@ import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
 import com.swervedrivespecialties.swervelib.SwerveModule;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -16,6 +18,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.I2C;
 
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 // import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
@@ -69,6 +72,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
           new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
   );
 
+  private final Pose2d startPos;
+  private Pose2d m_pos;
+
+  private final SwerveDriveOdometry m_odometry;
+
   // By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
   // The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
@@ -83,9 +91,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-  public DrivetrainSubsystem() {
+  public DrivetrainSubsystem(Pose2d startPos) {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
+    this.startPos = startPos;
+    m_odometry = new SwerveDriveOdometry(m_kinematics, getGyroscopeRotation(), startPos);
     // There are 4 methods you can call to create your swerve modules.
     // The method you use depends on what motors you are using.
     //
@@ -106,7 +116,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // By default we will use Falcon 500s in standard configuration. But if you use a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
     // FIXME Setup motor configuration
-    m_frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
+    m_frontLeftModule = Mk3SwerveModuleHelper.createNeo(
             // This parameter is optional, but will allow you to see the current state of the module on the dashboard.
             tab.getLayout("Front Left Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
@@ -124,7 +134,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     );
 
     // We will do the same for the other modules
-    m_frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
+    m_frontRightModule = Mk3SwerveModuleHelper.createNeo(
             tab.getLayout("Front Right Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(2, 0),
@@ -135,7 +145,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             FRONT_RIGHT_MODULE_STEER_OFFSET
     );
 
-    m_backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
+    m_backLeftModule = Mk3SwerveModuleHelper.createNeo(
             tab.getLayout("Back Left Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(4, 0),
@@ -146,7 +156,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
             BACK_LEFT_MODULE_STEER_OFFSET
     );
 
-    m_backRightModule = Mk3SwerveModuleHelper.createFalcon500(
+    m_backRightModule = Mk3SwerveModuleHelper.createNeo(
             tab.getLayout("Back Right Module", BuiltInLayouts.kList)
                     .withSize(2, 4)
                     .withPosition(6, 0),
@@ -167,14 +177,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public void zeroGyroscope() {
     // FIXME Remove if you are using a Pigeon
 //     m_pigeon.setFusedHeading(0.0);
-
     // FIXME Uncomment if you are using a NavX
    m_navx.zeroYaw();
   }
 
   public Rotation2d getGyroscopeRotation() {
-    // FIXME Remove if you are using a Pigeon
-//     return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
 
     // FIXME Uncomment if you are using a NavX
    if (m_navx.isMagnetometerCalibrated()) {
@@ -183,7 +190,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
    }
 
    // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
-   return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
+   return Rotation2d.fromDegrees(360.0 - m_navx.getYaw() + 90);
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
@@ -202,6 +209,18 @@ public class DrivetrainSubsystem extends SubsystemBase {
   double lastHeadingError = 0.0;
   double errorAccumulated = 0.0;
 
+  double ykp = 0.0375;//0.03
+  double yki = 0.0; //0.01
+  double ykd = 0.0;
+  double lastYError = 0.0;
+  double yErrorAccumulated = 0.0;
+
+  double xkp = 0.0375;//0.03
+  double xki = 0.0; //0.01
+  double xkd = 0.0;
+  double lastXError = 0.0;
+  double xErrorAccumulated = 0.0;
+
   public double getRequiredTurningSpeedForAngle(double angle) {
     double error = angle - this.getGyroAngle();
     this.errorAccumulated += error * Constants.TIME_STEP;
@@ -211,50 +230,73 @@ public class DrivetrainSubsystem extends SubsystemBase {
     return speed;
   }
 
+  public ChassisSpeeds getRequiredDrivingSpeeds(Pose2d targetPosition) {
+    double yError = targetPosition.getY() - m_odometry.getPoseMeters().getY();
+    this.yErrorAccumulated += yError * Constants.TIME_STEP;
+    double ySpeed = (ykp * yError) + (yki * this.yErrorAccumulated) + (ykd * (yError - this.lastYError));
+    this.lastYError = yError;
+
+    double xError = targetPosition.getX() - m_odometry.getPoseMeters().getX();
+    this.xErrorAccumulated += xError * Constants.TIME_STEP;
+    double xSpeed = (xkp * xError) + (xki * this.xErrorAccumulated) + (xkd * (xError - this.lastXError));
+    this.lastXError = xError;
+
+    double error = targetPosition.getRotation().getRadians() - this.getGyroscopeRotation().getRadians();
+    this.errorAccumulated += error * Constants.TIME_STEP;
+    double speed = (kp * error) + (ki * this.errorAccumulated) + (kd * (error - this.lastHeadingError));
+    this.lastHeadingError = error;
+
+    return ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, speed, this.getGyroscopeRotation());
+  }
+
+  public void driveToPosition(Pose2d targetPos) {
+    drive(getRequiredDrivingSpeeds(targetPos));
+  }
+
   public void resetErrors() {
     this.lastHeadingError = 0.0;
     this.errorAccumulated = 0.0;
   }
 
   // limelight visionTargeting
-  public double requiredVisionTargetingSpeed() {
-    return this.getRequiredTurningSpeedForAngle(calculateVisionAngle());
-  }
+  // public double requiredVisionTargetingSpeed() {
+  //   return this.getRequiredTurningSpeedForAngle(calculateVisionAngle());
+  // }
 
-  public double calculateVisionAngle() {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tx = table.getEntry("tx");
+  // public double calculateVisionAngle() {
+  //   NetworkTableInstance.getDefault().startClientTeam(1414);
+  //   NetworkTableInstance.getDefault().startDSClient();
+  //   edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  //   NetworkTableEntry tx = table.getEntry("tx");
 
-    avg.add(this.getGyroAngle() - tx.getDouble(0.0));
+  //   avg.add(this.getGyroAngle() - tx.getDouble(0.0));
 
-    return avg.getAverage();
-  }
+  //   return avg.getAverage();
+  // }
 
-  public int detectsTarget() {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tv = table.getEntry("tv");
+  // public int detectsTarget() {
+  //   NetworkTableInstance.getDefault().startClientTeam(1414);
+  //   NetworkTableInstance.getDefault().startDSClient();
+  //   edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  //   NetworkTableEntry tv = table.getEntry("tv");
 
-    return (int)tv.getDouble(0.0);
-  }
+  //   return (int)tv.getDouble(0.0);
+  // }
 
-  public void setVisionMode(boolean on) {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry camMode = table.getEntry("camMode");
-    NetworkTableEntry ledMode = table.getEntry("ledMode");
-    if (on) {
-      camMode.setDouble(0);
-      ledMode.setDouble(3);
-    } else {
-      camMode.setDouble(1);
-      ledMode.setDouble(1);
-    }
-  }
+  // public void setVisionMode(boolean on) {
+  //   NetworkTableInstance.getDefault().startClientTeam(1414);
+  //   NetworkTableInstance.getDefault().startDSClient();
+  //   edu.wpi.first.networktables.NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+  //   NetworkTableEntry camMode = table.getEntry("camMode");
+  //   NetworkTableEntry ledMode = table.getEntry("ledMode");
+  //   if (on) {
+  //     camMode.setDouble(0);
+  //     ledMode.setDouble(3);
+  //   } else {
+  //     camMode.setDouble(1);
+  //     ledMode.setDouble(1);
+  //   }
+  // }
 
   public void resetGyro() {
     m_navx.reset();
@@ -278,6 +320,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
 
+    var gyroAngle = getGyroscopeRotation();
 
-  }
+
+    m_pos = m_odometry.update(gyroAngle, states[0], states[1], states[2], states[3]);
+    }
 }
