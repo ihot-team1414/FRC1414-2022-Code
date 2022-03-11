@@ -28,24 +28,24 @@ public final class Constants {
 
     // public static final int DRIVETRAIN_PIGEON_ID = 0; // FIXME Set Pigeon ID
 
-    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 7; // FIXME Set front left module drive motor ID
-    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 8; // FIXME Set front left module steer motor ID
-    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 18; // FIXME Set front left steer encoder ID
+    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1; // FIXME Set front left module drive motor ID
+    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2; // FIXME Set front left module steer motor ID
+    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 3; // FIXME Set front left steer encoder ID
     public static final Rotation2d FRONT_LEFT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set front left steer offset
 
-    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 5; // FIXME Set front right drive motor ID
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 6; // FIXME Set front right steer motor ID
-    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 56; // FIXME Set front right steer encoder ID
+    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 8; // FIXME Set front right drive motor ID
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 7; // FIXME Set front right steer motor ID
+    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 6; // FIXME Set front right steer encoder ID
     public static final Rotation2d FRONT_RIGHT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set front right steer offset
 
-    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 1; // FIXME Set back left drive motor ID
-    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 2; // FIXME Set back left steer motor ID
-    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 12; // FIXME Set back left steer encoder ID
+    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 21; // FIXME Set back left drive motor ID
+    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 22; // FIXME Set back left steer motor ID
+    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 20; // FIXME Set back left steer encoder ID
     public static final Rotation2d BACK_LEFT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set back left steer offset
 
-    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 3; // FIXME Set back right drive motor ID
-    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 4; // FIXME Set back right steer motor ID
-    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 34; // FIXME Set back right steer encoder ID
+    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 10; // FIXME Set back right drive motor ID
+    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 11; // FIXME Set back right steer motor ID
+    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12; // FIXME Set back right steer encoder ID
     public static final Rotation2d BACK_RIGHT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set back right steer offset
     
     
@@ -59,12 +59,12 @@ public final class Constants {
     public static final double TARGET_HEIGHT = 2.64;
     public static final double FLYWHEEL_RADIUS = 0.05;
 
-    public static final int SHOOTER_ID_1 = 0; // TODO
-    public static final int SHOOTER_ID_2 = 0; // TODO
+    public static final int SHOOTER_ID_1 = 16; // TODO
+    public static final int SHOOTER_ID_2 = 17; // TODO
     public static final int HOOD_SERVO_ID_1 = 0; // TODO
     public static final int HOOD_SERVO_ID_2 = 0; // TODO
 
-    public static final int TURRET_MOTOR_ID = 0; // TODO
+    public static final int TURRET_MOTOR_ID = 15; // TODO
     public static final double TURRET_MOTOR_MAX_OUTPUT = 1; // TODO
 
     public static final double TURRET_MOTOR_kF = 0; // TODO
@@ -73,16 +73,16 @@ public final class Constants {
     public static final double TURRET_MOTOR_kD = 0; // TODO
 
     
-    public static final int LOADER_FRONT_MOTOR_ID = 0; // TODO
-    public static final int LOADER_BACK_MOTOR_ID = 0; // TODO
-    public static final int FUNNEL_MOTOR_ID = 0; // TODO
+    public static final int LOADER_FRONT_MOTOR_ID = 9; // 
+    public static final int LOADER_BACK_MOTOR_ID = 23; // 
+    public static final int FUNNEL_MOTOR_ID = 5; // TODO
 
 
-    public static final int CLIMB_TELESCOPING_ARM_1_MOTOR_ID = 0;
-    public static final int CLIMB_TELESCOPING_ARM_2_MOTOR_ID = 0;
+    public static final int CLIMB_TELESCOPING_ARM_1_MOTOR_ID = 18;
+    public static final int CLIMB_TELESCOPING_ARM_2_MOTOR_ID = 14;
 
-    public static final int CLIMB_ARM_1_MOTOR_ID = 0;
-    public static final int CLIMB_ARM_2_MOTOR_ID = 0;
+    public static final int CLIMB_ARM_1_MOTOR_ID = 13;
+    public static final int CLIMB_ARM_2_MOTOR_ID = 19;
 
 
     public static final double CLIMB_ARM_ALLOWED_ERROR = 0;
@@ -101,7 +101,7 @@ public final class Constants {
     public static final double CLIMB_ELEVATOR_ALLOWED_ERROR = 0;
 
 
-    public static final int INTAKE_ID = 0;
+    public static final int INTAKE_ID = 4;
 
 
     public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.REVPH;

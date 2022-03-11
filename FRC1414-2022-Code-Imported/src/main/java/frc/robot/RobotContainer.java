@@ -40,7 +40,10 @@ public class RobotContainer {
 
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
+
+  private final IndexerSubsystem m_indexersubsystem = new IndexerSubsystem();
   // Commands
+  private final IntakeSubsystem m_intakesubsystem = new IntakeSubsystem();
 
 
   private final DefaultDriveCommand m_driveCommand = new DefaultDriveCommand(m_drivetrainSubsystem,
@@ -67,10 +70,19 @@ public class RobotContainer {
 
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrainSubsystem.resetGyro());
 
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(25));
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(35));
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(50));
-    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(60));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(()->this.m_intakesubsystem.stop());
+
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(()->this.m_indexersubsystem.stopLoader());
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(()->this.m_intakesubsystem.stop());
+
+
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(()->this.m_indexersubsystem.stopLoader());
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(()->this.m_indexersubsystem.stopLoader());
+
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(25));
+    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(35));
+    // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(50));
+    // new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(60));
 
 
   }
