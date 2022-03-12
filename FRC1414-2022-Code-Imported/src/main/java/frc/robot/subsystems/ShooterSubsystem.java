@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
@@ -16,14 +18,10 @@ import frc.robot.util.RollingAverage;
 
 public class ShooterSubsystem extends SubsystemBase{
 
-  public final CANSparkMax shooterMotor1 = new CANSparkMax(Constants.SHOOTER_ID_1, MotorType.kBrushless);
-  public final CANSparkMax shooterMotor2 = new CANSparkMax(Constants.SHOOTER_ID_2, MotorType.kBrushless);
+  public final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
+  public final TalonFX shooterMotor2 = new TalonFX(Constants.SHOOTER_ID_2);
   
-  public final SparkMaxPIDController m_pidController1 = shooterMotor1.getPIDController();
-  public final RelativeEncoder m_encoder1 = shooterMotor1.getEncoder();
-
-  public final SparkMaxPIDController m_pidController2 = shooterMotor2.getPIDController();
-  public final RelativeEncoder m_encoder2 = shooterMotor2.getEncoder();
+  
 
   // PID coefficients
   double kP = 5e-5; 
@@ -39,24 +37,9 @@ public class ShooterSubsystem extends SubsystemBase{
 
   public ShooterSubsystem() {
 
-    shooterMotor2.follow(shooterMotor1, true);
-
-    shooterMotor1.restoreFactoryDefaults();
-    shooterMotor2.restoreFactoryDefaults();
-
-    m_pidController1.setP(kP);
-    m_pidController1.setI(kI);
-    m_pidController1.setD(kD);
-    m_pidController1.setIZone(kIz);
-    m_pidController1.setFF(kFF);
-    m_pidController1.setOutputRange(kMinOutput, kMaxOutput);
-
-    m_pidController2.setP(kP);
-    m_pidController2.setI(kI);
-    m_pidController2.setD(kD);
-    m_pidController2.setIZone(kIz);
-    m_pidController2.setFF(kFF);
-    m_pidController2.setOutputRange(kMinOutput, kMaxOutput);
+    shooterMotor2.follow(shooterMotor1);
+    shooterMotor1.setInverted(true);
+    
 
 
   }
@@ -110,17 +93,27 @@ public class ShooterSubsystem extends SubsystemBase{
     return (linearSpeed*60)/(flywheelRadius*2*Math.PI);
   }
 
-  public void shoot() {
+  // public void shoot() {
 
-    double distance = calculateDistance();
-    double entryAngle = calculateEntryAngle(distance);
-    double launchAngle = calculateLaunchAngle(distance, entryAngle);
-    double linearSpeed = calculateLinearSpeed(distance, launchAngle, entryAngle);
+  //   double distance = calculateDistance();
+  //   double entryAngle = calculateEntryAngle(distance);
+  //   double launchAngle = calculateLaunchAngle(distance, entryAngle);
+  //   double linearSpeed = calculateLinearSpeed(distance, launchAngle, entryAngle);
 
-    double outputVelocity = calculateRPM(linearSpeed); 
+  //   double outputVelocity = calculateRPM(linearSpeed); 
 
-    m_pidController1.setReference(outputVelocity, CANSparkMax.ControlType.kVelocity);
-    m_pidController2.setReference(outputVelocity, CANSparkMax.ControlType.kVelocity);
+  //   m_pidController1.setReference(outputVelocity, CANSparkMax.ControlType.kVelocity);
+  //   m_pidController2.setReference(outputVelocity, CANSparkMax.ControlType.kVelocity);
+  // }
+
+  public void shootMaxRPM() {
+
+    shooterMotor1.set(ControlMode.PercentOutput, 1);
+  }
+
+  public void stopShooting() {
+
+    shooterMotor1.set(ControlMode.PercentOutput, 0.0);
   }
 
   @Override

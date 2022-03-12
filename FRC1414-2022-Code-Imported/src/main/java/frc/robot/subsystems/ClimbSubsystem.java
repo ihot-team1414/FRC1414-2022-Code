@@ -101,6 +101,10 @@ public class ClimbSubsystem extends SubsystemBase {
       this.elevatorPosition = newPos;
   }
 
+  public void moveElevator(double pow) {
+      elevatorMotor.set(ControlMode.PercentOutput, pow);
+  }
+
   public ClimbSubsystem() {
 
     this.armMotor2.follow(armMotor);

@@ -7,11 +7,19 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.IntakeIndexerCommand;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
+import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -45,19 +53,30 @@ public class RobotContainer {
   // Commands
   private final IntakeSubsystem m_intakesubsystem = new IntakeSubsystem();
 
+  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
 
-  private final DefaultDriveCommand m_driveCommand = new DefaultDriveCommand(m_drivetrainSubsystem,
-    () -> -driver.getRightY(), 
-    () -> -driver.getRightX(),
-    () -> driver.getLeftX()
+  private final ClimbSubsystem m_climbSubsystem = new ClimbSubsystem();
+  // private final DefaultDriveCommand m_driveCommand = new DefaultDriveCommand(m_drivetrainSubsystem,
+  //   () -> -driver.getRightY(), 
+  //   () -> -driver.getRightX(),
+  //   () -> driver.getLeftX()
+  // );
+
+  private final IntakeIndexerCommand m_intakeIndexerCommand = new IntakeIndexerCommand(
+    m_intakesubsystem, 
+    m_indexersubsystem,
+    () -> (operator.getXButton()), 
+    () -> operator.getYButton(), 
+    () -> (operator.getBButton())
   );
+
+  private final ClimbCommand m_climbCommand = new ClimbCommand(m_climbSubsystem, () -> operator.getLeftY());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    this.m_drivetrainSubsystem.setDefaultCommand(m_driveCommand);
-    
+    // this.m_drivetrainSubsystem.setDefaultCommand(m_driveCommand);
   }
 
   /**
@@ -70,21 +89,19 @@ public class RobotContainer {
 
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrainSubsystem.resetGyro());
 
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(()->this.m_intakesubsystem.stop());
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(ElevatorPosition.Starting));
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(ElevatorPosition.Extended));
 
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(()->this.m_indexersubsystem.stopLoader());
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(()->this.m_intakesubsystem.stop());
-
-
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(()->this.m_indexersubsystem.stopLoader());
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(()->this.m_indexersubsystem.stopLoader());
+    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(() -> this.m_intakesubsystem.stop());
+    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
 
     // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(25));
     // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(35));
     // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(50));
     // new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(60));
 
-
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_shooterSubsystem.shootMaxRPM()).whenReleased(()->this.m_shooterSubsystem.stopShooting());
   }
 
   /**

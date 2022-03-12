@@ -105,9 +105,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   // These are our modules. We initialize them in the constructor.
   private final SwerveModuleMK4 m_frontLeftModule;
-  private final SwerveModuleMK4 m_frontRightModule;
-  private final SwerveModuleMK4 m_backLeftModule;
-  private final SwerveModuleMK4 m_backRightModule;
+  // private final SwerveModuleMK4 m_frontRightModule;
+  // private final SwerveModuleMK4 m_backLeftModule;
+  // private final SwerveModuleMK4 m_backRightModule;
 
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
@@ -187,10 +187,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
     //         BACK_RIGHT_MODULE_STEER_OFFSET
     // );
 
-    m_frontRightModule = new SwerveModuleMK4(frontRightDriveMotor, frontRightAngleMotor, frontRightAngleEncoder, Constants.FRONT_RIGHT_MODULE_STEER_OFFSET);
-    m_frontLeftModule = new SwerveModuleMK4(frontLeftDriveMotor, frontLeftAngleMotor, frontLeftAngleEncoder, Constants.FRONT_LEFT_MODULE_STEER_OFFSET);
-    m_backRightModule = new SwerveModuleMK4(backRightDriveMotor, backRightAngleMotor, backRightAngleEncoder, Constants.BACK_RIGHT_MODULE_STEER_OFFSET);
-    m_backLeftModule = new SwerveModuleMK4(backLeftDriveMotor, backLeftAngleMotor, backLeftAngleEncoder, Constants.BACK_LEFT_MODULE_STEER_OFFSET);
+    // m_frontRightModule = new SwerveModuleMK4(frontRightDriveMotor, frontRightAngleMotor, frontRightAngleEncoder, Constants.FRONT_RIGHT_MODULE_STEER_OFFSET);
+    m_frontLeftModule = new SwerveModuleMK4(frontRightDriveMotor, frontLeftAngleMotor, frontLeftAngleEncoder, Constants.FRONT_LEFT_MODULE_STEER_OFFSET);
+    // m_backRightModule = new SwerveModuleMK4(backRightDriveMotor, backRightAngleMotor, backRightAngleEncoder, Constants.BACK_RIGHT_MODULE_STEER_OFFSET);
+    // m_backLeftModule = new SwerveModuleMK4(backLeftDriveMotor, backLeftAngleMotor, backLeftAngleEncoder, Constants.BACK_LEFT_MODULE_STEER_OFFSET);
 
     resetGyro();
   }
@@ -333,15 +333,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
     // SwerveDriveKinematics.normalizeWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 
-    m_frontLeftModule.setDesiredState(states[0]);
-    m_frontRightModule.setDesiredState(states[1]);
-    m_backLeftModule.setDesiredState(states[2]);
-    m_backRightModule.setDesiredState(states[3]);
+    // m_frontLeftModule.setDesiredState(states[0]);
+    // m_frontRightModule.setDesiredState(states[1]);
+    // m_backLeftModule.setDesiredState(states[2]);
+    // m_backRightModule.setDesiredState(states[3]);
 
     SmartDashboard.putNumber("Front Left Angle", m_frontLeftModule.getAngle().getDegrees());
-    SmartDashboard.putNumber("Front Right Angle", m_frontRightModule.getAngle().getDegrees());
-    SmartDashboard.putNumber("Back Left Angle", m_backLeftModule.getAngle().getDegrees());
-    SmartDashboard.putNumber("Back Right Angle", m_backRightModule.getAngle().getDegrees());
+    // SmartDashboard.putNumber("Front Right Angle", m_frontRightModule.getAngle().getDegrees());
+    // SmartDashboard.putNumber("Back Left Angle", m_backLeftModule.getAngle().getDegrees());
+    // SmartDashboard.putNumber("Back Right Angle", m_backRightModule.getAngle().getDegrees());
 
     SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
 
