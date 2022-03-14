@@ -18,43 +18,43 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  */
 public final class Constants {
 
-    public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5461; // FIXME Measure and set trackwidth
+    public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.7; // FIXME Measure and set trackwidth
     /**
      * The front-to-back distance between the drivetrain wheels.
      *
      * Should be measured from center to center.
      */
-    public static final double DRIVETRAIN_WHEELBASE_METERS = 0.55245; // FIXME Measure and set wheelbase
+    public static final double DRIVETRAIN_WHEELBASE_METERS = 0.7; // FIXME Measure and set wheelbase
 
     // public static final int DRIVETRAIN_PIGEON_ID = 0; // FIXME Set Pigeon ID
 
-    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1; // FIXME Set front left module drive motor ID
-    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2; // FIXME Set front left module steer motor ID
-    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 3; // FIXME Set front left steer encoder ID
-    public static final Rotation2d FRONT_LEFT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set front left steer offset
+    public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
+    public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
+    public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 3;
+    public static final double FRONT_LEFT_MODULE_STEER_OFFSET = Math.toRadians(90);
 
-    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 8; // FIXME Set front right drive motor ID
-    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 7; // FIXME Set front right steer motor ID
-    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 6; // FIXME Set front right steer encoder ID
-    public static final Rotation2d FRONT_RIGHT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set front right steer offset
+    public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 7;
+    public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 8;
+    public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 6;
+    public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(203+180);
 
-    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 21; // FIXME Set back left drive motor ID
-    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 22; // FIXME Set back left steer motor ID
-    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 20; // FIXME Set back left steer encoder ID
-    public static final Rotation2d BACK_LEFT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set back left steer offset
+    public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 22;
+    public static final int BACK_LEFT_MODULE_STEER_MOTOR = 21;
+    public static final int BACK_LEFT_MODULE_STEER_ENCODER = 20;
+    public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(105+180);
 
-    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 10; // FIXME Set back right drive motor ID
-    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 11; // FIXME Set back right steer motor ID
-    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12; // FIXME Set back right steer encoder ID
-    public static final Rotation2d BACK_RIGHT_MODULE_STEER_OFFSET = Rotation2d.fromDegrees(0); // FIXME Measure and set back right steer offset
+    public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
+    public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 10;
+    public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
+    public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(310);
     
     
     public static final int ROLLING_AVERAGE_SIZE = 5;
     public static final double TIME_STEP = 0.1;
 
 
-    public static final double LIMELIGHT_HEIGHT = 0; // TODO
-    public static final double LIMELIGHT_Y_ANGLE = 0;
+    public static final double LIMELIGHT_HEIGHT = 0.5; // TODO
+    public static final double LIMELIGHT_Y_ANGLE = 35;
 
     public static final double TARGET_HEIGHT = 2.64;
     public static final double FLYWHEEL_RADIUS = 0.05;
@@ -86,19 +86,19 @@ public final class Constants {
 
 
     public static final double CLIMB_ARM_ALLOWED_ERROR = 0;
-    public static final double PIVOT_ARM_MOTOR_MAX_OUTPUT = 0;
+    public static final double PIVOT_ARM_MOTOR_MAX_OUTPUT = 0.7;
     public static final double PIVOT_ARM_MOTOR_kF = 0;
-    public static final double PIVOT_ARM_MOTOR_kP = 0;
+    public static final double PIVOT_ARM_MOTOR_kP = 0.018;
     public static final double PIVOT_ARM_MOTOR_kI = 0;
     public static final double PIVOT_ARM_MOTOR_kD = 0;
 
 
-    public static final double TELESCOPING_ARM_MOTOR_MAX_OUTPUT = 0;
+    public static final double TELESCOPING_ARM_MOTOR_MAX_OUTPUT = 0.75;
     public static final double TELESCOPING_ARM_MOTOR_kF = 0;
-    public static final double TELESCOPING_ARM_MOTOR_kP = 0;
+    public static final double TELESCOPING_ARM_MOTOR_kP = 0.018;
     public static final double TELESCOPING_ARM_MOTOR_kI = 0;
     public static final double TELESCOPING_ARM_MOTOR_kD = 0;
-    public static final double CLIMB_ELEVATOR_ALLOWED_ERROR = 0;
+    public static final double CLIMB_ELEVATOR_ALLOWED_ERROR = 2000;
 
 
     public static final int INTAKE_ID = 4;

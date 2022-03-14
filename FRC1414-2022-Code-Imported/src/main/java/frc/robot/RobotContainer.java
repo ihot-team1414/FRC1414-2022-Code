@@ -4,14 +4,15 @@
 
 package frc.robot;
 
+import java.lang.annotation.ElementType;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import frc.robot.commands.ClimbCommand;
-import frc.robot.commands.DefaultDriveCommand;
+import frc.robot.commands.DriveCommand;
+import frc.robot.commands.HoodCommand;
 import frc.robot.commands.IntakeIndexerCommand;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -19,6 +20,7 @@ import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ClimbSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -44,7 +46,7 @@ public class RobotContainer {
   private final Pose2d[] startingPositions = {new Pose2d(5.0, 13.5, new Rotation2d()), new Pose2d(5.0, 13.5, new Rotation2d())};
 
   // Subsystems
-  private final DrivetrainSubsystem m_drivetrainSubsystem = new DrivetrainSubsystem(startingPositions[0]);
+  private final DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
 
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
@@ -62,21 +64,34 @@ public class RobotContainer {
   //   () -> driver.getLeftX()
   // );
 
-  private final IntakeIndexerCommand m_intakeIndexerCommand = new IntakeIndexerCommand(
-    m_intakesubsystem, 
-    m_indexersubsystem,
-    () -> (operator.getXButton()), 
-    () -> operator.getYButton(), 
-    () -> (operator.getBButton())
-  );
+  // private final IntakeIndexerCommand m_intakeIndexerCommand = new IntakeIndexerCommand(
+  //   m_intakesubsystem, 
+  //   m_indexersubsystem,
+  //   () -> (operator.getXButton()), 
+  //   () -> operator.getYButton(), 
+  //   () -> (operator.getBButton())
+  // );
 
-  private final ClimbCommand m_climbCommand = new ClimbCommand(m_climbSubsystem, () -> operator.getLeftY());
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
+    // this.m_climbSubsystem.setDefaultCommand(m_climbCommand);
+    // this.m_indexersubsystem.setDefaultCommand(m_climbCommand);
     // this.m_drivetrainSubsystem.setDefaultCommand(m_driveCommand);
+
+    drivetrain.register();
+
+    // this.m_hoodSubsystem.setDefaultCommand(m_hoodCommand);
+
+      drivetrain.setDefaultCommand(new DriveCommand(
+              drivetrain,
+              () -> -modifyAxis(-driver.getRightY()), // Axes are flipped here on purpose
+              () -> modifyAxis(driver.getRightX()),
+              () -> -modifyAxis(-driver.getLeftX())
+      ));
+
   }
 
   /**
@@ -85,23 +100,83 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
+
+private static double deadband(double value, double deadband) {
+  if (Math.abs(value) > deadband) {
+      if (value > 0.0) {
+          return (value - deadband) / (1.0 - deadband);
+      } else {
+          return (value + deadband) / (1.0 - deadband);
+      }
+  } else {
+      return 0.0;
+  }
+}
+
+private static double modifyAxis(double value) {
+  // Deadband
+  value = deadband(value, 0.1);
+
+  // Square the axis
+  value = Math.copySign(value * value, value) * 0.5;
+
+  return value;
+}
+double setPoint = 0.25;
   private void configureButtonBindings() {
 
-    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrainSubsystem.resetGyro());
+    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.drivetrain.zeroGyroscope());
 
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(ElevatorPosition.Starting));
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(ElevatorPosition.Extended));
+    ElevatorPosition elevatorStates[] = { 
+      ElevatorPosition.Extended,
+      ElevatorPosition.Starting,
+      ElevatorPosition.Starting,
+      ElevatorPosition.Intermediate,
+      ElevatorPosition.Intermediate,
+      ElevatorPosition.Extended,
+      ElevatorPosition.Starting,
+      ElevatorPosition.Starting 
+    };
+    ArmPosition armStates[] = {
+      ArmPosition.Starting,
+      ArmPosition.Starting,
+      ArmPosition.Grabbing,
+      ArmPosition.Grabbing,
+      ArmPosition.Tilting,
+      ArmPosition.Tilting,
+      ArmPosition.Starting,
+      ArmPosition.Starting,
+      ArmPosition.Grabbing, 
+      ArmPosition.Tilting
+    };
+ 
 
-    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(() -> this.m_intakesubsystem.stop());
+
+    new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Starting));
+    new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Extended));
+    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Intermediate));
+
+
+    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Starting));
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Grabbing));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Tilting));
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Vertical));
+
+    // new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_intakesubsystem.outtake()).whenReleased(() -> this.m_intakesubsystem.stop());
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(() -> this.m_intakesubsystem.stop());
+
     // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
     // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
+    // new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
 
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(25));
-    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(35));
-    // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(50));
-    // new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.setAngle(60));
+    
+ 
+    // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.visionTargeting());
+    // new JoystickButton(operator, Button.kY.value).whenPressed(() -> setPoint+=0.05);
+    
 
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_shooterSubsystem.shootMaxRPM()).whenReleased(()->this.m_shooterSubsystem.stopShooting());
+    // new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> this.m_shooterSubsystem.shoot()).whenReleased(()->this.m_shooterSubsystem.stopShooting());
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.visionTargeting());
   }
 
   /**

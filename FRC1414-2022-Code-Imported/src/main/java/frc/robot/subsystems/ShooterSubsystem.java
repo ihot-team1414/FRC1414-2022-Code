@@ -1,7 +1,10 @@
 package frc.robot.subsystems;
 
 
+import java.security.GuardedObject;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
@@ -24,22 +27,29 @@ public class ShooterSubsystem extends SubsystemBase{
   
 
   // PID coefficients
-  double kP = 5e-5; 
-  double kI = 1e-6;
+  double kP = 0.001; 
+  double kI = 0;
   double kD = 0; 
   double kIz = 0; 
   double kFF = 0.000156; 
   double kMaxOutput = 1; 
   double kMinOutput = -1;
-  double maxRPM = 5700;
+  double maxRPM = 6000;
   double maxVel = 2000; // rpm
   double maxAcc = 1500;
 
   public ShooterSubsystem() {
+    shooterMotor1.selectProfileSlot(0, 0);
 
+    shooterMotor1.config_kF(0, kFF, 0);
+    shooterMotor1.config_kP(0, kP, 0);
+    shooterMotor1.config_kI(0, kI, 0);
+    shooterMotor1.config_kD(0, kD, 0);
+    shooterMotor1.configPeakOutputForward(0.75);
     shooterMotor2.follow(shooterMotor1);
     shooterMotor1.setInverted(true);
-    
+    shooterMotor1.setNeutralMode(NeutralMode.Coast);
+    shooterMotor2.setNeutralMode(NeutralMode.Coast);
 
 
   }
@@ -88,23 +98,33 @@ public class ShooterSubsystem extends SubsystemBase{
     return Math.sqrt(-((9.8*Math.pow(distance, 1)*(1+Math.pow(launchAngle, 2))/(2*height-2*distance*Math.tan(launchAngle)))));
   }
 
-  public double calculateRPM(double linearSpeed) {
+  public double calculateAngularSpeed(double linearSpeed) {
     double flywheelRadius = Constants.FLYWHEEL_RADIUS;
     return (linearSpeed*60)/(flywheelRadius*2*Math.PI);
   }
 
-  // public void shoot() {
+  public double calculateRPM(double angularSpeed) {
+    return angularSpeed * 24/18;
+  }
 
-  //   double distance = calculateDistance();
-  //   double entryAngle = calculateEntryAngle(distance);
-  //   double launchAngle = calculateLaunchAngle(distance, entryAngle);
-  //   double linearSpeed = calculateLinearSpeed(distance, launchAngle, entryAngle);
+  public double getShootingSpeed() {
 
-  //   double outputVelocity = calculateRPM(linearSpeed); 
+    return 330000 + 29000 * calculateDistance();
 
-  //   m_pidController1.setReference(outputVelocity, CANSparkMax.ControlType.kVelocity);
-  //   m_pidController2.setReference(outputVelocity, CANSparkMax.ControlType.kVelocity);
-  // }
+  }
+
+  public void shoot() {
+    // if(calculateDistance() > 2 && calculateDistance() < 5) {
+      // shooterMotor1.set(ControlMode.Velocity, 430000);
+    // } if (calculateDistance() > 5){
+      shooterMotor1.set(ControlMode.Velocity, 330000 + 29000 * calculateDistance());
+      SmartDashboard.putNumber("Shooter Speed", 330000 + 29000 * calculateDistance());
+    // } else {
+    //   shooterMotor1.set(ControlMode.Velocity, 375000);
+    // }
+
+  }
+
 
   public void shootMaxRPM() {
 
@@ -118,6 +138,8 @@ public class ShooterSubsystem extends SubsystemBase{
 
   @Override
   public void periodic() {
+    SmartDashboard.putNumber("Target Shooter Speed", 6500);
+    SmartDashboard.putNumber("Actual Speed", this.shooterMotor1.getSelectedSensorVelocity());
   }
 
-}// end of class
+}// end of clas

@@ -49,9 +49,21 @@ public class IndexerSubsystem extends SubsystemBase {
     this.funnelMotor.set(ControlMode.PercentOutput, 0.0);
 
   }
-
+  
   public void funnel() {
     this.funnelMotor.set(ControlMode.PercentOutput, funnelSpeed);
+  }
+
+  boolean holding = true;
+  public void autoShoot(ShooterSubsystem shooter) {
+    if(shooter.shooterMotor1.getSelectedSensorVelocity()<shooter.getShootingSpeed()) {
+      holdBalls();
+      holding = true;
+    } else {
+      shoot();
+      holding = false;
+    }
+    SmartDashboard.putNumber("currentSPeedAUtoshoot", shooter.shooterMotor1.getSelectedSensorVelocity());
   }
 
   public void eject() {
@@ -83,6 +95,7 @@ public class IndexerSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    
+    SmartDashboard.putBoolean("Holding?", holding);
+
   }
 }

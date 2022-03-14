@@ -21,7 +21,7 @@ public class HoodCommand extends CommandBase {
     @Override
     public void execute() {
 
-        m_hoodSubsystem.visionTargeting();
+        // m_hoodSubsystem.visionTargeting();
         
     }
 

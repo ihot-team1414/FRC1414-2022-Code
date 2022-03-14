@@ -27,7 +27,7 @@ public class HoodSubsystem extends SubsystemBase {
   private final Servo rightServo = new Servo(8);
 
   private double minAngle = 15; // todo
-  private double maxAngle = 60;// todo
+  private double maxAngle = 80;// todo
 
   private double previousError = 0.0;
   private double accumulatedError = 0.0;
@@ -47,11 +47,11 @@ public class HoodSubsystem extends SubsystemBase {
 
   public double calculateEntryAngle(double distance) {
     if(distance > 2 && distance < 4) {
-      return Math.toRadians(-60);
+      return Math.toRadians(-50);
     } else if (distance > 4 && distance < 8) {
       return Math.toRadians(-50);
     } else {
-      return Math.toRadians(-80);
+      return Math.toRadians(-50);
     }
   }
 
@@ -62,11 +62,11 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void visionTargeting() {
-    double distance = calculateDistance();
-    double entryAngle = calculateEntryAngle(distance);
-    double launchAngle = calculateLaunchAngle(distance, entryAngle);
+    // double distance = calculateDistance();
+    // double entryAngle = calculateEntryAngle(distance);
+    // double launchAngle = calculateLaunchAngle(distance, entryAngle);
 
-    this.setAngle(Math.toDegrees(launchAngle));
+    this.setValue(0.015 * calculateDistance() + 0.22);  
   }
 
   public double calculateVisionAngle() {
@@ -89,12 +89,16 @@ public class HoodSubsystem extends SubsystemBase {
       angle = this.minAngle;
     }
 
-    var range = maxAngle-minAngle;
-    var temp = angle-minAngle;
-    target = temp/range;
+    target = -0.00702 * angle + 0.77796;
+
     leftServo.set(target);
     rightServo.set(target);
+  }
 
+  public void setValue(double value) {
+    target = value;
+    leftServo.set(value);
+    rightServo.set(value);
   }
 
   public void resetAngle() {
@@ -104,8 +108,7 @@ public class HoodSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Hood Encoder", target);
-    SmartDashboard.putNumber("Hood Angle", maxAngle+target*(maxAngle-minAngle));
+    SmartDashboard.putNumber("Hood Setpoint", target);
     SmartDashboard.putNumber("Distance", calculateDistance());
     SmartDashboard.putNumber("Optimal Angle", Math.toDegrees(calculateLaunchAngle(calculateDistance(), calculateEntryAngle(calculateDistance()))));
   }
