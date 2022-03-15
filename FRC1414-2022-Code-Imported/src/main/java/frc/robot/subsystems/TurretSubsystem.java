@@ -16,21 +16,16 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class TurretSubsystem extends SubsystemBase {
-
-  // private final double maxEncoderTicks = 200000.0; // TODO
-  private final double encoderDegree = (double)360/(2048*21*20); // Update with gear ratio!
-
-  
   private boolean homed = false;
 
-  double kp = 0.0375; // TODO: NEED TO TUNE
+  double kp = 0.05; // TODO: NEED TO TUNE
   double ki = 0.0; // TODO: NEED TO TUNE
   double kd = 0.0; // TODO: NEED TO TUNE
   double previousError = 0.0;
   double accumulatedError = 0.0;
 
-  private double minAngle = -120; // TODO
-  private double maxAngle = 120; // TODO
+  private double maxEncoder = 5500;
+  private double minEncoder = -5500;
 
   private boolean findingForward = false;
 
@@ -39,7 +34,7 @@ public class TurretSubsystem extends SubsystemBase {
   private RollingAverage avg = new RollingAverage();
 
   public TurretSubsystem() {
-    this.turretMotor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+    this.turretMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
     this.turretMotor.setNeutralMode(NeutralMode.Brake);
     /* Config the peak and nominal outputs, 12V means full */
     this.turretMotor.configNominalOutputForward(0, 0);
@@ -49,46 +44,29 @@ public class TurretSubsystem extends SubsystemBase {
     
     this.turretMotor.configAllowableClosedloopError(0, 0, 0);
 
-    this.turretMotor.config_kF(0, Constants.TURRET_MOTOR_kF, 0);
-	this.turretMotor.config_kP(0, Constants.TURRET_MOTOR_kP, 0);
-	this.turretMotor.config_kI(0, Constants.TURRET_MOTOR_kI, 0);
-	this.turretMotor.config_kD(0, Constants.TURRET_MOTOR_kD, 0);
+    this.turretMotor.selectProfileSlot(0, 0);
 
-    this.resetEncoder();
+    this.turretMotor.config_kF(0, Constants.TURRET_MOTOR_kF, 0);
+    this.turretMotor.config_kP(0, Constants.TURRET_MOTOR_kP, 0);
+    this.turretMotor.config_kI(0, Constants.TURRET_MOTOR_kI, 0);
+    this.turretMotor.config_kD(0, Constants.TURRET_MOTOR_kD, 0);
+
     this.previousError = 0.0;
     this.accumulatedError = 0.0;
 
-    this.setVisionMode(false);
+    this.setVisionMode(true);
   }
 
-  // public void home() {
-  //   if (this.limitSwitch.get()) {
-  //     if (this.getAngle() > this.maxAngle || this.getAngle() < this.minAngle) {
-  //       this.turretMotor.set(ControlMode.PercentOutput, 0.0);
-  //     } else {
-  //       this.turretMotor.set(ControlMode.PercentOutput, 0.5);
-  //     }
-  //   } else {
-  //     this.turretMotor.set(ControlMode.PercentOutput, 0.0);
-  //     this.resetEncoder();
-  //     this.homed = true;
-  //   }
-  // }
-
-  // public boolean getHomed() {
-  //   return this.homed;
-  // }
-
   public void moveTurret(double throttle) {
-    if (this.maxAngle > this.getAngle() && this.getAngle() > this.minAngle) {
+    if (this.maxEncoder > this.getEncoder() && this.getEncoder() > this.minEncoder) {
       this.turretMotor.set(ControlMode.PercentOutput, throttle);
-    } else if (this.maxAngle <= this.getAngle()) {
+    } else if (this.maxEncoder <= this.getEncoder()) {
       if (throttle > 0) {
         this.turretMotor.set(ControlMode.PercentOutput, 0);
       } else {
         this.turretMotor.set(ControlMode.PercentOutput, throttle);
       }
-    } else if (this.minAngle >= this.getAngle()) {
+    } else if (this.minEncoder >= this.getEncoder()) {
       if (throttle > 0) {
         this.turretMotor.set(ControlMode.PercentOutput, throttle);
       } else {
@@ -100,39 +78,21 @@ public class TurretSubsystem extends SubsystemBase {
   public void findTarget() {
     if (findingForward) {
       this.moveTurret(0.5);
-      if (this.getAngle() >= this.maxAngle) {
+      if (this.getEncoder() >= this.maxEncoder) {
         this.moveTurret(0.0);
         this.findingForward = false;
       }
     } else {
       this.moveTurret(-0.5);
-      if (this.getAngle() <= this.minAngle) {
+      if (this.getEncoder() <= this.minEncoder) {
         this.moveTurret(0.0);
         this.findingForward = true;
       }
     }
   }
-
-  public double getAngle() {
-    return this.getEncoder() * this.encoderDegree - this.minAngle;
-  }
-
-  public void setAngle(double angle) {
-    if (angle > this.maxAngle) {
-      angle = this.maxAngle;
-    } else if (angle < this.minAngle) {
-      angle = this.minAngle;
-    }
-    double encoderTicks = angle/this.encoderDegree;
-    this.turretMotor.set(ControlMode.Position, encoderTicks);
-  }
-
-  public void resetAngle() {
-    this.setAngle(0);
-  }
-
+  
   public double getEncoder() {
-    return this.turretMotor.getSelectedSensorPosition(0);
+    return this.turretMotor.getSelectedSensorPosition();
   }
 
   public void resetEncoder() {
@@ -145,19 +105,20 @@ public class TurretSubsystem extends SubsystemBase {
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     NetworkTableEntry tx = table.getEntry("tx");
 
-    avg.add(tx.getDouble(0.0));
+    // avg.add(tx.getDouble(0.0));
 
-    var currentAngle = this.getAngle();
+    // var angleDiff = avg.getAverage();
 
-    var angleDiff = avg.getAverage();
+    double error = tx.getDouble(0.0);
 
+    // this.accumulatedError += error * Constants.TIME_STEP;
+    // double speed = (kp * error) + (ki * this.accumulatedError) + (kd * (error - this.previousError));
+    double speed = kp * -error;
 
-    double error = angleDiff;
-    this.accumulatedError += error * Constants.TIME_STEP;
-    double speed = (kp * error) + (ki * this.accumulatedError) + (kd * (error - this.previousError));
-    this.previousError = error;
+    // this.previousError = error;
 
-    turretMotor.set(ControlMode.PercentOutput, speed);
+    this.moveTurret(speed);
+    SmartDashboard.putNumber("turret_speed", speed);
   }
 
   public int detectsTarget() {
@@ -167,10 +128,6 @@ public class TurretSubsystem extends SubsystemBase {
     NetworkTableEntry tv = table.getEntry("tv");
 
     return (int)tv.getDouble(0.0);
-  }
-
-  public void lowGoal() {
-    this.setAngle(0);
   }
 
   public void setVisionMode(boolean on) {
@@ -192,7 +149,7 @@ public class TurretSubsystem extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     SmartDashboard.putNumber("Turret Encoder", this.getEncoder());
-    SmartDashboard.putNumber("Turret Angle", this.getAngle());
+    
     // SmartDashboard.putBoolean("Turret Limit Switch", !this.limitSwitch.get());
   }
 }

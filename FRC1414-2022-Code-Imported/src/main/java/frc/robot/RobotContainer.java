@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.ArmStartCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.HoodCommand;
 import frc.robot.commands.IntakeIndexerCommand;
@@ -20,6 +22,7 @@ import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -58,6 +61,8 @@ public class RobotContainer {
   private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
 
   private final ClimbSubsystem m_climbSubsystem = new ClimbSubsystem();
+
+  private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
   // private final DefaultDriveCommand m_driveCommand = new DefaultDriveCommand(m_drivetrainSubsystem,
   //   () -> -driver.getRightY(), 
   //   () -> -driver.getRightX(),
@@ -91,7 +96,6 @@ public class RobotContainer {
               () -> modifyAxis(driver.getRightX()),
               () -> -modifyAxis(-driver.getLeftX())
       ));
-
   }
 
   /**
@@ -123,60 +127,85 @@ private static double modifyAxis(double value) {
   return value;
 }
 double setPoint = 0.25;
+int currentState = 0;
   private void configureButtonBindings() {
 
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.drivetrain.zeroGyroscope());
 
+
     ElevatorPosition elevatorStates[] = { 
+      ElevatorPosition.Starting,
       ElevatorPosition.Extended,
       ElevatorPosition.Starting,
       ElevatorPosition.Starting,
       ElevatorPosition.Intermediate,
       ElevatorPosition.Intermediate,
       ElevatorPosition.Extended,
+      ElevatorPosition.Extended,
+      ElevatorPosition.Intermediate,
       ElevatorPosition.Starting,
-      ElevatorPosition.Starting 
+      ElevatorPosition.Starting,
+      ElevatorPosition.Intermediate,
+      ElevatorPosition.Intermediate,
+      ElevatorPosition.Extended,
+      ElevatorPosition.Extended,
+      ElevatorPosition.Intermediate,
+      ElevatorPosition.Starting,
+      ElevatorPosition.Starting,
+      ElevatorPosition.Intermediate,
     };
     ArmPosition armStates[] = {
+      ArmPosition.Vertical,
       ArmPosition.Starting,
       ArmPosition.Starting,
       ArmPosition.Grabbing,
       ArmPosition.Grabbing,
       ArmPosition.Tilting,
       ArmPosition.Tilting,
+      ArmPosition.Vertical,
       ArmPosition.Starting,
       ArmPosition.Starting,
-      ArmPosition.Grabbing, 
-      ArmPosition.Tilting
+      ArmPosition.Grabbing,
+      ArmPosition.Grabbing,
+      ArmPosition.Tilting,
+      ArmPosition.Tilting,
+      ArmPosition.Vertical,
+      ArmPosition.Starting,
+      ArmPosition.Starting,
+      ArmPosition.Grabbing,
+      ArmPosition.Grabbing,
     };
  
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(armStates[currentState]));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(elevatorStates[currentState]));
+    new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> currentState--);
+    new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> currentState++);
+    new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> SmartDashboard.putNumber("Current State", currentState));
 
+    // new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Intermediate));
 
-    new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Starting));
-    new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Extended));
-    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_climbSubsystem.startElevatorMotionMagic(ElevatorPosition.Intermediate));
+    
 
+    // new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Starting));
+    // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Grabbing));
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Tilting));
+    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Vertical));
 
-    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Starting));
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Grabbing));
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Tilting));
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(ArmPosition.Vertical));
+    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_intakesubsystem.outtake()).whenReleased(() -> this.m_intakesubsystem.stop());
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(() -> this.m_intakesubsystem.stop());
 
-    // new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_intakesubsystem.outtake()).whenReleased(() -> this.m_intakesubsystem.stop());
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(() -> this.m_intakesubsystem.stop());
-
-    // new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
-    // new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
+    new JoystickButton(operator, Button.kBack.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
+    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
 
     
  
-    // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_hoodSubsystem.visionTargeting());
+    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_hoodSubsystem.visionTargeting());
     // new JoystickButton(operator, Button.kY.value).whenPressed(() -> setPoint+=0.05);
     
 
-    // new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> this.m_shooterSubsystem.shoot()).whenReleased(()->this.m_shooterSubsystem.stopShooting());
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_hoodSubsystem.visionTargeting());
+    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_shooterSubsystem.shoot()).whenReleased(()->this.m_shooterSubsystem.stopShooting());
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> this.m_turretSubsystem.visionTargeting()).whenInactive(() -> m_turretSubsystem.moveTurret(0));
   }
 
   /**

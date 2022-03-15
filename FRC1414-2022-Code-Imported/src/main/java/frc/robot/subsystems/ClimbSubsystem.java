@@ -41,7 +41,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private volatile ArmState armState = ArmState.Stationary;
 
   public enum ArmPosition {
-      Starting(-2000), Vertical(-70000), Grabbing(-58000), Tilting(-100000);
+      Starting(-2000), Vertical(-70000), Grabbing(-60000), Tilting(-100000);
       
       private int position;
 
@@ -65,7 +65,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum ElevatorPosition {
-      Starting(0), Intermediate(-97081), Extended(-197081);
+      Starting(3000), Intermediate(-97081), Extended(-197081);
       
       private int position;
 
@@ -120,7 +120,7 @@ public class ClimbSubsystem extends SubsystemBase {
 	this.elevatorMotor2.config_kI(0, Constants.TELESCOPING_ARM_MOTOR_kI, 0);
 	this.elevatorMotor2.config_kD(0, Constants.TELESCOPING_ARM_MOTOR_kD, 0);
 
-    this.elevatorMotor2.configMotionCruiseVelocity(20000, 30);
+    this.elevatorMotor2.configMotionCruiseVelocity(15000, 30);
     this.elevatorMotor2.configMotionAcceleration(3000, 30);
 
     this.armMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
@@ -140,7 +140,8 @@ public class ClimbSubsystem extends SubsystemBase {
 	this.armMotor.config_kD(0, Constants.PIVOT_ARM_MOTOR_kD, 0);
 
     this.armMotor.configMotionCruiseVelocity(20000, 30);
-    this.armMotor.configMotionAcceleration(3000, 30);
+    this.armMotor.configMotionAcceleration(5000, 30);
+    
 
     this.armMotor2.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
     this.armMotor2.setNeutralMode(NeutralMode.Brake);
@@ -160,6 +161,10 @@ public class ClimbSubsystem extends SubsystemBase {
 
     this.armMotor2.configMotionCruiseVelocity(10000, 30);
     this.armMotor2.configMotionAcceleration(3000, 30);
+
+    // startArmMotionMagic(ArmPosition.Vertical);
+    // startElevatorMotionMagic(ElevatorPosition.Starting);
+
   }
 
   public void startArmMotionMagic(ArmPosition pos) {

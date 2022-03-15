@@ -71,7 +71,6 @@ public class ShooterSubsystem extends SubsystemBase{
 
   // Calculating Distance in Meters
   public double calculateDistance() {
-    // d = (h2-h1) / tan(a1+a2)
     double height = Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT;
 
     return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
@@ -114,15 +113,8 @@ public class ShooterSubsystem extends SubsystemBase{
   }
 
   public void shoot() {
-    // if(calculateDistance() > 2 && calculateDistance() < 5) {
-      // shooterMotor1.set(ControlMode.Velocity, 430000);
-    // } if (calculateDistance() > 5){
       shooterMotor1.set(ControlMode.Velocity, 330000 + 29000 * calculateDistance());
       SmartDashboard.putNumber("Shooter Speed", 330000 + 29000 * calculateDistance());
-    // } else {
-    //   shooterMotor1.set(ControlMode.Velocity, 375000);
-    // }
-
   }
 
 

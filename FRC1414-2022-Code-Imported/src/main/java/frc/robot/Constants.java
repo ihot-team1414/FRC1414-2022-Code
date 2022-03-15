@@ -65,7 +65,7 @@ public final class Constants {
     public static final int HOOD_SERVO_ID_2 = 0; // TODO
 
     public static final int TURRET_MOTOR_ID = 15; // TODO
-    public static final double TURRET_MOTOR_MAX_OUTPUT = 1; // TODO
+    public static final double TURRET_MOTOR_MAX_OUTPUT = 0.65; // TODO
 
     public static final double TURRET_MOTOR_kF = 0; // TODO
     public static final double TURRET_MOTOR_kI = 0; // TODO
@@ -86,19 +86,19 @@ public final class Constants {
 
 
     public static final double CLIMB_ARM_ALLOWED_ERROR = 0;
-    public static final double PIVOT_ARM_MOTOR_MAX_OUTPUT = 0.7;
+    public static final double PIVOT_ARM_MOTOR_MAX_OUTPUT = 1;
     public static final double PIVOT_ARM_MOTOR_kF = 0;
     public static final double PIVOT_ARM_MOTOR_kP = 0.018;
     public static final double PIVOT_ARM_MOTOR_kI = 0;
     public static final double PIVOT_ARM_MOTOR_kD = 0;
 
 
-    public static final double TELESCOPING_ARM_MOTOR_MAX_OUTPUT = 0.75;
+    public static final double TELESCOPING_ARM_MOTOR_MAX_OUTPUT = 1;
     public static final double TELESCOPING_ARM_MOTOR_kF = 0;
-    public static final double TELESCOPING_ARM_MOTOR_kP = 0.018;
+    public static final double TELESCOPING_ARM_MOTOR_kP = 0.03;
     public static final double TELESCOPING_ARM_MOTOR_kI = 0;
     public static final double TELESCOPING_ARM_MOTOR_kD = 0;
-    public static final double CLIMB_ELEVATOR_ALLOWED_ERROR = 2000;
+    public static final double CLIMB_ELEVATOR_ALLOWED_ERROR = 1000;
 
 
     public static final int INTAKE_ID = 4;
