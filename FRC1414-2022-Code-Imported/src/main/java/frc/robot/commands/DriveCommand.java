@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import frc.robot.Constants;
 import frc.robot.subsystems.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -13,10 +14,10 @@ public class DriveCommand extends CommandBase {
     private final DoubleSupplier rotationSupplier;
 
     public DriveCommand(
-            DrivetrainSubsystem drivetrain,
-            DoubleSupplier translationXSupplier,
-            DoubleSupplier translationYSupplier,
-            DoubleSupplier rotationSupplier
+        DrivetrainSubsystem drivetrain,
+        DoubleSupplier translationXSupplier,
+        DoubleSupplier translationYSupplier,
+        DoubleSupplier rotationSupplier
     ) {
         this.drivetrain = drivetrain;
         this.translationXSupplier = translationXSupplier;
@@ -34,8 +35,8 @@ public class DriveCommand extends CommandBase {
 
         drivetrain.drive(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationXPercent * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
-                        translationYPercent * DrivetrainSubsystem.MAX_VELOCITY_METERS_PER_SECOND,
+                        translationXPercent * Constants.DRIVETRAIN_MAX_VEL,
+                        translationYPercent * Constants.DRIVETRAIN_MAX_VEL,
                         rotationPercent * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
                         drivetrain.getRotation()
                 )
