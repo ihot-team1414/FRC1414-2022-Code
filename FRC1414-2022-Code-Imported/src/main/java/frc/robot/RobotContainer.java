@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.RobotStartCommand;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -23,12 +24,6 @@ import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
 
   // Xbox Controllers
@@ -39,18 +34,14 @@ public class RobotContainer {
     return (value < (center + deadband) && value > (center - deadband)) ? center : value;
   }
 
-  // The robot's subsystems and commands are defined here...
-
   private final Pose2d[] startingPositions = {new Pose2d(5.0, 13.5, new Rotation2d()), new Pose2d(5.0, 13.5, new Rotation2d())};
 
-  // Subsystems
-  private final DrivetrainSubsystem drivetrain = new DrivetrainSubsystem();
-
+  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem();
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
 
   private final IndexerSubsystem m_indexersubsystem = new IndexerSubsystem();
-  // Commands
+
   private final IntakeSubsystem m_intakesubsystem = new IntakeSubsystem();
 
   private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
@@ -58,39 +49,20 @@ public class RobotContainer {
   private final ClimbSubsystem m_climbSubsystem = new ClimbSubsystem();
 
   private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
-  // private final DefaultDriveCommand m_driveCommand = new DefaultDriveCommand(m_drivetrainSubsystem,
-  //   () -> -driver.getRightY(), 
-  //   () -> -driver.getRightX(),
-  //   () -> driver.getLeftX()
-  // );
-
-  // private final IntakeIndexerCommand m_intakeIndexerCommand = new IntakeIndexerCommand(
-  //   m_intakesubsystem, 
-  //   m_indexersubsystem,
-  //   () -> (operator.getXButton()), 
-  //   () -> operator.getYButton(), 
-  //   () -> (operator.getBButton())
-  // );
-
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    // this.m_climbSubsystem.setDefaultCommand(m_climbCommand);
-    // this.m_indexersubsystem.setDefaultCommand(m_climbCommand);
-    // this.m_drivetrainSubsystem.setDefaultCommand(m_driveCommand);
 
-    drivetrain.register();
+    m_climbSubsystem.setDefaultCommand(new RobotStartCommand(m_climbSubsystem));
 
-    // this.m_hoodSubsystem.setDefaultCommand(m_hoodCommand);
-
-      drivetrain.setDefaultCommand(new DriveCommand(
-              drivetrain,
-              () -> -modifyAxis(-driver.getRightY()), // Axes are flipped here on purpose
-              () -> modifyAxis(driver.getRightX()),
-              () -> -modifyAxis(-driver.getLeftX())
-      ));
+    m_drivetrain.setDefaultCommand(new DriveCommand(
+            m_drivetrain,
+            () -> -modifyAxis(-driver.getRightY()), // Axes are flipped here on purpose
+            () -> modifyAxis(driver.getRightX()),
+            () -> -modifyAxis(-driver.getLeftX())
+    ));
   }
 
   /**
@@ -125,8 +97,7 @@ double setPoint = 0.25;
 int currentState = 0;
   private void configureButtonBindings() {
 
-    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.drivetrain.zeroGyroscope());
-
+    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrain.zeroGyroscope());
 
     ElevatorPosition elevatorStates[] = { 
       ElevatorPosition.Neutral,
