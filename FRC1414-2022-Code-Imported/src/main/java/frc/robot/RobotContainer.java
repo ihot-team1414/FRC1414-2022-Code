@@ -10,8 +10,16 @@ import edu.wpi.first.wpilibj.GenericHID;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.DriveAutoCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.HoodAutoCommand;
+import frc.robot.commands.IndexerAutoCommand;
+import frc.robot.commands.IntakeAutoCommand;
 import frc.robot.commands.RobotStartCommand;
+import frc.robot.commands.ShooterAutoCommand;
+import frc.robot.commands.TurretAutoCommand;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.HoodSubsystem;
@@ -22,6 +30,9 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 public class RobotContainer {
@@ -34,9 +45,11 @@ public class RobotContainer {
     return (value < (center + deadband) && value > (center - deadband)) ? center : value;
   }
 
-  private final Pose2d[] startingPositions = {new Pose2d(5.0, 13.5, new Rotation2d()), new Pose2d(5.0, 13.5, new Rotation2d())};
+  private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem();
+  private final Pose2d startingPositions[] = {new Pose2d(6.15, 2.35, Rotation2d.fromDegrees(25)) };
+
+  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(startingPositions[0]);
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
 
@@ -52,6 +65,70 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+    this.chooser.setDefaultOption("Wait Command", new WaitCommand(15));
+    this.chooser.addOption("Drive/Intake Inside",  new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
+        new IntakeAutoCommand(m_intakesubsystem),
+        new IndexerAutoCommand(m_indexersubsystem, () -> false)
+      )
+    ));
+    this.chooser.addOption("2 Ball Inside",  new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
+        new IntakeAutoCommand(m_intakesubsystem),
+        new IndexerAutoCommand(m_indexersubsystem, () -> false)
+      ).withTimeout(5),
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(205))),
+        new TurretAutoCommand(m_turretSubsystem),
+        new HoodAutoCommand(m_hoodSubsystem),
+        new ShooterAutoCommand(m_shooterSubsystem),
+        new IndexerAutoCommand(m_indexersubsystem, () -> true)
+      )
+    ));
+
+
+    this.chooser.addOption("4 Ball Inside",  new SequentialCommandGroup(
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
+        new IntakeAutoCommand(m_intakesubsystem),
+        new IndexerAutoCommand(m_indexersubsystem, () -> false)
+      ).withTimeout(2),
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(140))),
+        new TurretAutoCommand(m_turretSubsystem),
+        new HoodAutoCommand(m_hoodSubsystem),
+        new ShooterAutoCommand(m_shooterSubsystem),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new IndexerAutoCommand(m_indexersubsystem, () -> true)
+        )
+      ).withTimeout(4),
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(45))),
+        new IntakeAutoCommand(m_intakesubsystem),
+        new IndexerAutoCommand(m_indexersubsystem, () -> false)
+      ).withTimeout(4),
+      new ParallelCommandGroup(
+        new IntakeAutoCommand(m_intakesubsystem), 
+        new IndexerAutoCommand(m_indexersubsystem, () -> false)
+      ).withTimeout(2),
+      new ParallelCommandGroup(
+        new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(120))),
+        new TurretAutoCommand(m_turretSubsystem),
+        new HoodAutoCommand(m_hoodSubsystem),
+        new ShooterAutoCommand(m_shooterSubsystem),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new IndexerAutoCommand(m_indexersubsystem, () -> true)
+        )
+      ).withTimeout(3))
+    );
+
+    SmartDashboard.putData("Auto Chooser", this.chooser);
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -170,6 +247,6 @@ int currentState = 0;
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return null;
+    return this.chooser.getSelected();  
   }
 }

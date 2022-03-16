@@ -55,7 +55,6 @@ public class ShooterSubsystem extends SubsystemBase{
   }
 
   public void shootMaxRPM() {
-
     shooterMotor1.set(ControlMode.PercentOutput, 1);
   }
 
