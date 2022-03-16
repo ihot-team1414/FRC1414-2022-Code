@@ -1,9 +1,8 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
+import frc.util.Realsense;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -50,6 +49,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
 
     public DrivetrainSubsystem(Pose2d startingPosition) {
+        Realsense.getInstance().setInitial(startingPosition.getX(), startingPosition.getY(), startingPosition.getRotation().getDegrees());
+        this.startingPosition = startingPosition;
         ShuffleboardTab shuffleboardTab = Shuffleboard.getTab("Drivetrain");
         frontLeftModule = Mk3SwerveModuleHelper.createNeo(
                 shuffleboardTab.getLayout("Front Left Module", BuiltInLayouts.kList)
@@ -95,7 +96,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
                 Constants.BACK_RIGHT_MODULE_STEER_OFFSET
         );
 
-        this.startingPosition = startingPosition;
         odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromDegrees(-gyroscope.getFusedHeading()), startingPosition);
 
         shuffleboardTab.addNumber("Gyroscope Angle", () -> getRotation().getDegrees());
@@ -193,5 +193,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
         frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
         backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
         backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+
+        SmartDashboard.putNumber("Realsense Pose X", Realsense.getInstance().getX());
+        SmartDashboard.putNumber("Realsense Pose Y", Realsense.getInstance().getY());
+        SmartDashboard.putNumber("Realsense Pose Yaw", Realsense.getInstance().getYaw());
     }
 }
