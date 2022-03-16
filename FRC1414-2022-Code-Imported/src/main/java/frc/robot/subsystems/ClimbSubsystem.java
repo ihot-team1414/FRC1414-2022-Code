@@ -65,7 +65,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum ElevatorPosition {
-      Starting(3000), Intermediate(-97081), Extended(-197081);
+      Starting(3000), Neutral(0), Intermediate(-97081), Extended(-197081);
       
       private int position;
 

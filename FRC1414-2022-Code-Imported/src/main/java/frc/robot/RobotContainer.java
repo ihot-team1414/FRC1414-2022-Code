@@ -134,7 +134,7 @@ int currentState = 0;
 
 
     ElevatorPosition elevatorStates[] = { 
-      ElevatorPosition.Starting,
+      ElevatorPosition.Neutral,
       ElevatorPosition.Extended,
       ElevatorPosition.Starting,
       ElevatorPosition.Starting,
@@ -153,6 +153,7 @@ int currentState = 0;
       ElevatorPosition.Starting,
       ElevatorPosition.Starting,
       ElevatorPosition.Intermediate,
+      ElevatorPosition.Neutral,
     };
     ArmPosition armStates[] = {
       ArmPosition.Vertical,
@@ -174,6 +175,7 @@ int currentState = 0;
       ArmPosition.Starting,
       ArmPosition.Grabbing,
       ArmPosition.Grabbing,
+      ArmPosition.Tilting,
     };
  
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.startArmMotionMagic(armStates[currentState]));
@@ -194,7 +196,7 @@ int currentState = 0;
     new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_intakesubsystem.outtake()).whenReleased(() -> this.m_intakesubsystem.stop());
     new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.intake()).whenReleased(() -> this.m_intakesubsystem.stop());
 
-    new JoystickButton(operator, Button.kBack.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
+    new JoystickButton(operator, Button.kBack.value).whenPressed(() -> this.m_intakesubsystem.toggleIntake());
     new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
     new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
 

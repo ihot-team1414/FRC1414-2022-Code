@@ -18,20 +18,54 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase{
+
+  private final DoubleSolenoid intakePiston = new DoubleSolenoid(24, Constants.PCM_TYPE,
+  Constants.INTAKE_PISTON_FORWARD, Constants.INTAKE_PISTON_REVERSE);
+  private Value pistonState = Constants.INTAKE_PISTON_CLOSED;
+  private final Compressor compressor = new Compressor(24, Constants.PCM_TYPE);
+
+
   public final TalonSRX frontIntakeMotor = new TalonSRX(Constants.INTAKE_ID);
 
-  private final DoubleSolenoid frontIntakePiston = new DoubleSolenoid(PneumaticsModuleType.REVPH,
-  Constants.FRONT_INTAKE_FORWARD_ID, Constants.FRONT_INTAKE_RETRACTED_ID);
-
-  private Value frontPistonState = Constants.INTAKE_PISTON_CLOSED;
-  private Value backPistonState = Constants.INTAKE_PISTON_CLOSED;
 
 
-  // private final Compressor compressor = new Compressor(Constants.PCM_ID);
 
+
+  
   public IntakeSubsystem(){
     this.frontIntakeMotor.setNeutralMode(NeutralMode.Brake);
     this.frontIntakeMotor.setInverted(true);
+    this.compressor.disable();
+
+  }
+
+  
+
+
+  public Value getPistonState() {
+    return this.pistonState;
+  }
+
+  public void toggleIntake() {
+    if (getPistonState() == Constants.INTAKE_PISTON_OPEN) {
+      this.intakePiston.set(Constants.INTAKE_PISTON_CLOSED);
+      this.pistonState = Constants.INTAKE_PISTON_CLOSED;
+    } else if (getPistonState() == Constants.INTAKE_PISTON_CLOSED) {
+      this.intakePiston.set(Constants.INTAKE_PISTON_OPEN);
+      this.pistonState = Constants.INTAKE_PISTON_OPEN;
+    }
+  }
+
+  public void setForward() {
+    this.intakePiston.set(Constants.INTAKE_PISTON_OPEN);
+    this.pistonState = Constants.INTAKE_PISTON_OPEN;
+    // this.compressor.disable();
+  }
+
+  public void setReverse() {
+    this.intakePiston.set(Constants.INTAKE_PISTON_CLOSED);
+    this.pistonState = Constants.INTAKE_PISTON_CLOSED;
+    // this.compressor.enableDigital();
   }
 
   public void intake() {
@@ -48,32 +82,18 @@ public class IntakeSubsystem extends SubsystemBase{
 
   public void setFrontIntakeSpeed(double speed) {
     this.frontIntakeMotor.set(ControlMode.PercentOutput, speed);
-  }
+  }  
 
-  public Value getFrontPistonState() {
-    return this.frontPistonState;
-  }
+  @Override
+  public void periodic() {
+      // TODO Auto-generated method stub
+      super.periodic();
 
-  public void toggleFrontIntake() {
-    if (getFrontPistonState() == Constants.INTAKE_PISTON_OPEN) {
-      this.frontIntakePiston.set(Constants.INTAKE_PISTON_CLOSED);
-      this.frontPistonState = Constants.INTAKE_PISTON_CLOSED;
-    } else if (getFrontPistonState() == Constants.INTAKE_PISTON_CLOSED) {
-      this.frontIntakePiston.set(Constants.INTAKE_PISTON_OPEN);
-      this.frontPistonState = Constants.INTAKE_PISTON_OPEN;
-    }
+      if (getPistonState() == Constants.INTAKE_PISTON_OPEN) {
+        SmartDashboard.putBoolean("pistons", true);
+      } else if (getPistonState() == Constants.INTAKE_PISTON_CLOSED) {
+        SmartDashboard.putBoolean("pistons", false);
+      }
   }
-
-  public void setFrontPistonForward() {
-    this.frontIntakePiston.set(Constants.INTAKE_PISTON_OPEN);
-    this.frontPistonState = Constants.INTAKE_PISTON_OPEN;
-  }
-
-  public void setFrontPistonReverse() {
-    this.frontIntakePiston.set(Constants.INTAKE_PISTON_CLOSED);
-    this.frontPistonState = Constants.INTAKE_PISTON_CLOSED;
-  }
-
-  
 
 }// END OF CLASS
