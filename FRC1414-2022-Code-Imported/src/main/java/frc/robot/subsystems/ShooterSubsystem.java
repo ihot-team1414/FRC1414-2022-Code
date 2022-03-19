@@ -54,11 +54,15 @@ public class ShooterSubsystem extends SubsystemBase{
       SmartDashboard.putNumber("Target Shooter Velocity", 330000 + 29000 * calculateDistance());
   }
 
+  public void eject() {
+    shooterMotor1.set(ControlMode.Velocity, 50000);
+  }
+
   public void shootMaxRPM() {
     shooterMotor1.set(ControlMode.PercentOutput, 1);
   }
 
-  public void stopShooting() {
+  public void stop() {
     shooterMotor1.set(ControlMode.PercentOutput, 0.0);
   }
 

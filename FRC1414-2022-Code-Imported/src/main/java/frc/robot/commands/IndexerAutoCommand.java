@@ -17,11 +17,11 @@ public class IndexerAutoCommand extends CommandBase {
 
     @Override
     public void execute() {
-        indexerSubsystem.shoot();
+        indexerSubsystem.load();
     }
 
     @Override
     public void end(boolean interrupted) {
-        indexerSubsystem.stopLoader();
+        indexerSubsystem.stop();
     }
 }

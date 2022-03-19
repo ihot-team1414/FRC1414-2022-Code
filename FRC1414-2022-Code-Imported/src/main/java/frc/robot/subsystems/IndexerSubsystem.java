@@ -30,7 +30,7 @@ public class IndexerSubsystem extends SubsystemBase {
     loaderFrontMotor.set(ControlMode.PercentOutput, Constants.HOLDING_SPEED);  
   }
 
-  public void stopLoader() {
+  public void stop() {
     loaderBackMotor.set(ControlMode.PercentOutput, 0.0);
     loaderFrontMotor.set(ControlMode.PercentOutput, 0.0);
     funnelMotor.set(ControlMode.PercentOutput, 0.0);
@@ -40,7 +40,7 @@ public class IndexerSubsystem extends SubsystemBase {
     funnelMotor.set(ControlMode.PercentOutput, Constants.FUNNEL_SPEED);
   }
 
-  public void eject() {
+  public void reverse() {
     funnelMotor.set(ControlMode.PercentOutput, -Constants.FUNNEL_SPEED);
     loaderBackMotor.set(ControlMode.PercentOutput, -Constants.LOADING_SPEED);
     loaderFrontMotor.set(ControlMode.PercentOutput, -Constants.LOADING_SPEED);  
@@ -51,7 +51,7 @@ public class IndexerSubsystem extends SubsystemBase {
     holdBall();
   }
 
-  public void shoot() {
+  public void load() {
     funnel();
     loadShooter();
   }

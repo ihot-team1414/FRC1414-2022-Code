@@ -4,10 +4,10 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ShooterAutoCommand extends CommandBase {
+public class ShooterEjectCommand extends CommandBase {
     private final ShooterSubsystem shooterSubsystem;
 
-    public ShooterAutoCommand(ShooterSubsystem shooterSubsystem) {
+    public ShooterEjectCommand(ShooterSubsystem shooterSubsystem) {
         this.shooterSubsystem = shooterSubsystem;
 
         addRequirements(shooterSubsystem);
@@ -15,7 +15,7 @@ public class ShooterAutoCommand extends CommandBase {
 
     @Override
     public void execute() {
-        shooterSubsystem.shoot();
+        shooterSubsystem.eject();
     }
 
     @Override

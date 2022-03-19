@@ -63,6 +63,10 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.set(ControlMode.Position, 0);
   }
 
+  public void ejectPosition() {
+    turretMotor.set(ControlMode.Position, 4000);
+  }
+
   public void visionTargeting() {
     NetworkTableInstance.getDefault().startClientTeam(1414);
     NetworkTableInstance.getDefault().startDSClient();
