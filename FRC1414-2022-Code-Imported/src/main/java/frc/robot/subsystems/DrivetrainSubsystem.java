@@ -4,7 +4,7 @@ import com.kauailabs.navx.frc.AHRS;
 import frc.util.Realsense;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -20,9 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj.I2C;
 
 public class DrivetrainSubsystem extends SubsystemBase {
-    private static final double MAX_VOLTAGE = 8.0;
-    public static final double MAX_VELOCITY_METERS_PER_SECOND = 2;
-    public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
+    public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = Constants.DRIVETRAIN_MAX_VEL /
             Math.hypot(Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0);
 
 
@@ -52,44 +50,44 @@ public class DrivetrainSubsystem extends SubsystemBase {
         Realsense.getInstance().setInitial(startingPosition.getX(), startingPosition.getY(), startingPosition.getRotation().getDegrees());
         this.startingPosition = startingPosition;
         ShuffleboardTab shuffleboardTab = Shuffleboard.getTab("Drivetrain");
-        frontLeftModule = Mk3SwerveModuleHelper.createNeo(
+        frontLeftModule = Mk4SwerveModuleHelper.createNeo(
                 shuffleboardTab.getLayout("Front Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(0, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk4SwerveModuleHelper.GearRatio.L2,
                 Constants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
                 Constants.FRONT_LEFT_MODULE_STEER_MOTOR,
-                Constants.FRONT_LEFT_MODULE_STEER_ENCODER,
+        Constants.FRONT_LEFT_MODULE_STEER_ENCODER,
                 Constants.FRONT_LEFT_MODULE_STEER_OFFSET
         );
 
-        frontRightModule = Mk3SwerveModuleHelper.createNeo(
+        frontRightModule = Mk4SwerveModuleHelper.createNeo(
                 shuffleboardTab.getLayout("Front Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(2, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk4SwerveModuleHelper.GearRatio.L2,
                 Constants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
                 Constants.FRONT_RIGHT_MODULE_STEER_MOTOR,
                 Constants.FRONT_RIGHT_MODULE_STEER_ENCODER,
                 Constants.FRONT_RIGHT_MODULE_STEER_OFFSET
         );
 
-        backLeftModule = Mk3SwerveModuleHelper.createNeo(
+        backLeftModule = Mk4SwerveModuleHelper.createNeo(
                 shuffleboardTab.getLayout("Back Left Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(4, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk4SwerveModuleHelper.GearRatio.L2,
                 Constants.BACK_LEFT_MODULE_DRIVE_MOTOR,
                 Constants.BACK_LEFT_MODULE_STEER_MOTOR,
                 Constants.BACK_LEFT_MODULE_STEER_ENCODER,
                 Constants.BACK_LEFT_MODULE_STEER_OFFSET
         );
 
-        backRightModule = Mk3SwerveModuleHelper.createNeo(
+        backRightModule = Mk4SwerveModuleHelper.createNeo(
                 shuffleboardTab.getLayout("Back Right Module", BuiltInLayouts.kList)
                         .withSize(2, 4)
                         .withPosition(6, 0),
-                Mk3SwerveModuleHelper.GearRatio.STANDARD,
+                Mk4SwerveModuleHelper.GearRatio.L2,
                 Constants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
                 Constants.BACK_RIGHT_MODULE_STEER_MOTOR,
                 Constants.BACK_RIGHT_MODULE_STEER_ENCODER,
@@ -122,19 +120,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
       return Rotation2d.fromDegrees(-gyroscope.getFusedHeading()).getRadians();
     }
     
-    double kp = 0.0375;//0.03
+    double kp = 0.375;//0.03
     double ki = 0.0; //0.01
     double kd = 0.0;
     double lastHeadingError = 0.0;
     double errorAccumulated = 0.0;
   
-    double ykp = 0.0375;//0.03
+    double ykp = 0.375;//0.03
     double yki = 0.0; //0.01
     double ykd = 0.0;
     double lastYError = 0.0;
     double yErrorAccumulated = 0.0;
   
-    double xkp = 0.0375;//0.03
+    double xkp = 0.375;//0.03
     double xki = 0.0; //0.01
     double xkd = 0.0;
     double lastXError = 0.0;
@@ -189,10 +187,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
 
-        frontLeftModule.set(states[0].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * (MAX_VOLTAGE), states[0].angle.getRadians());
-        frontRightModule.set(states[1].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[1].angle.getRadians());
-        backLeftModule.set(states[2].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[2].angle.getRadians());
-        backRightModule.set(states[3].speedMetersPerSecond / MAX_VELOCITY_METERS_PER_SECOND * MAX_VOLTAGE, states[3].angle.getRadians());
+        frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
+        frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
+        backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
+        backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
 
         SmartDashboard.putNumber("Realsense Pose X", Realsense.getInstance().getX());
         SmartDashboard.putNumber("Realsense Pose Y", Realsense.getInstance().getY());

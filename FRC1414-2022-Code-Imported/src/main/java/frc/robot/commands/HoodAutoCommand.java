@@ -17,4 +17,10 @@ public class HoodAutoCommand extends CommandBase {
     public void execute() {
         hoodSubsystem.visionTargeting();
     }
+
+
+    @Override
+    public void end(boolean interrupted) {
+        hoodSubsystem.setValue(0.3);
+    }
 }

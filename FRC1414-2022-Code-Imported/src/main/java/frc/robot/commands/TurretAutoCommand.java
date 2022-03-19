@@ -17,4 +17,9 @@ public class TurretAutoCommand extends CommandBase {
     public void execute() {
         turretSubsystem.visionTargeting();
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        turretSubsystem.resetPosition();
+    }
 }

@@ -17,4 +17,9 @@ public class ShooterAutoCommand extends CommandBase {
     public void execute() {
         shooterSubsystem.shoot();
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        shooterSubsystem.stopShooting();
+    }
 }

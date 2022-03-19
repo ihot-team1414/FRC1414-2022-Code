@@ -22,7 +22,14 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.configNominalOutputReverse(0, 0);
     turretMotor.configPeakOutputForward(Constants.TURRET_MOTOR_MAX_OUTPUT, 0);
     turretMotor.configPeakOutputReverse(-Constants.TURRET_MOTOR_MAX_OUTPUT, 0);
+    turretMotor.selectProfileSlot(0, 0);
+    turretMotor.config_kF(0, Constants.TURRET_ARM_MOTOR_kF, 0);
+    turretMotor.config_kP(0, Constants.TURRET_ARM_MOTOR_kP, 0);
+    turretMotor.config_kI(0, Constants.TURRET_ARM_MOTOR_kI, 0);
+    turretMotor.config_kD(0, Constants.TURRET_ARM_MOTOR_kD, 0);
 
+    turretMotor.configMotionCruiseVelocity(Constants.TURRET_ARM_MAX_VEL, 30);
+    turretMotor.configMotionAcceleration(Constants.TURRET_ARM_ACCEL, 30);
     setVisionMode(true);
   }
 
@@ -50,6 +57,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void resetEncoder() {
     turretMotor.setSelectedSensorPosition(0, 0, 0);
+  }
+
+  public void resetPosition() {
+    turretMotor.set(ControlMode.Position, 0);
   }
 
   public void visionTargeting() {

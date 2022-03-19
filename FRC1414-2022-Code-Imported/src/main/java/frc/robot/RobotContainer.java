@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -13,10 +14,12 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.DriveAutoCommand;
+import frc.robot.commands.DriveAutoCommand2;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.HoodAutoCommand;
 import frc.robot.commands.IndexerAutoCommand;
 import frc.robot.commands.IntakeAutoCommand;
+import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.RobotStartCommand;
 import frc.robot.commands.ShooterAutoCommand;
 import frc.robot.commands.TurretAutoCommand;
@@ -30,6 +33,7 @@ import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -45,11 +49,16 @@ public class RobotContainer {
     return (value < (center + deadband) && value > (center - deadband)) ? center : value;
   }
 
+
+  private SlewRateLimiter xFilter = new SlewRateLimiter(1.2);
+  private SlewRateLimiter yFilter = new SlewRateLimiter(1.2);
+  private SlewRateLimiter yawFilter = new SlewRateLimiter(1.2);
+
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  private final Pose2d startingPositions[] = {new Pose2d(6.15, 2.35, Rotation2d.fromDegrees(25)) };
+  private final Pose2d startingPositions[] = {new Pose2d(6.15, 2.35, Rotation2d.fromDegrees(25)), new Pose2d(0, 0, Rotation2d.fromDegrees(0))};
 
-  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(startingPositions[0]);
+  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(startingPositions[1]);
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
 
@@ -66,68 +75,85 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    this.chooser.setDefaultOption("Wait Command", new WaitCommand(15));
-    this.chooser.addOption("Drive/Intake Inside",  new SequentialCommandGroup(
-      new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
-        new IntakeAutoCommand(m_intakesubsystem),
-        new IndexerAutoCommand(m_indexersubsystem, () -> false)
-      )
-    ));
-    this.chooser.addOption("2 Ball Inside",  new SequentialCommandGroup(
-      new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
-        new IntakeAutoCommand(m_intakesubsystem),
-        new IndexerAutoCommand(m_indexersubsystem, () -> false)
-      ).withTimeout(5),
-      new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(205))),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new IndexerAutoCommand(m_indexersubsystem, () -> true)
-      )
-    ));
+    // this.chooser.setDefaultOption("Wait Command", new WaitCommand(15));
+    // this.chooser.addOption("Drive/Intake Inside",  new SequentialCommandGroup(
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
+    //     new IntakeAutoCommand(m_intakesubsystem),
+    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
+    //   )
+    // ));
+    // this.chooser.addOption("2 Ball Inside",  new SequentialCommandGroup(
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
+    //     new IntakeAutoCommand(m_intakesubsystem),
+    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
+    //   ).withTimeout(5),
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(205))),
+    //     new TurretAutoCommand(m_turretSubsystem),
+    //     new HoodAutoCommand(m_hoodSubsystem),
+    //     new ShooterAutoCommand(m_shooterSubsystem),
+    //     new IndexerAutoCommand(m_indexersubsystem, () -> true)
+    //   )
+    // ));
 
 
-    this.chooser.addOption("4 Ball Inside",  new SequentialCommandGroup(
+    // this.chooser.addOption("4 Ball Inside",  new SequentialCommandGroup(
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
+    //     new IntakeAutoCommand(m_intakesubsystem),
+    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
+    //   ).withTimeout(2),
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(140))),
+    //     new TurretAutoCommand(m_turretSubsystem),
+    //     new HoodAutoCommand(m_hoodSubsystem),
+    //     new ShooterAutoCommand(m_shooterSubsystem),
+    //     new SequentialCommandGroup(
+    //       new WaitCommand(1),
+    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
+    //     )
+    //   ).withTimeout(4),
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(45))),
+    //     new IntakeAutoCommand(m_intakesubsystem),
+    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
+    //   ).withTimeout(4),
+    //   new ParallelCommandGroup(
+    //     new IntakeAutoCommand(m_intakesubsystem), 
+    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
+    //   ).withTimeout(2),
+    //   new ParallelCommandGroup(
+    //     new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(120))),
+    //     new TurretAutoCommand(m_turretSubsystem),
+    //     new HoodAutoCommand(m_hoodSubsystem),
+    //     new ShooterAutoCommand(m_shooterSubsystem),
+    //     new SequentialCommandGroup(
+    //       new WaitCommand(1),
+    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
+    //     )
+    //   ).withTimeout(3))
+    // );
+
+    this.chooser.setDefaultOption("Drive/Intake Inside",  new SequentialCommandGroup(
+      
+      new DriveAutoCommand(m_drivetrain, new Pose2d(1, 0, Rotation2d.fromDegrees(45))).withTimeout(2),
       new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
-        new IntakeAutoCommand(m_intakesubsystem),
-        new IndexerAutoCommand(m_indexersubsystem, () -> false)
-      ).withTimeout(2),
-      new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(140))),
         new TurretAutoCommand(m_turretSubsystem),
         new HoodAutoCommand(m_hoodSubsystem),
         new ShooterAutoCommand(m_shooterSubsystem),
         new SequentialCommandGroup(
-          new WaitCommand(1),
+          new WaitCommand(2),
           new IndexerAutoCommand(m_indexersubsystem, () -> true)
         )
-      ).withTimeout(4),
-      new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(45))),
-        new IntakeAutoCommand(m_intakesubsystem),
-        new IndexerAutoCommand(m_indexersubsystem, () -> false)
-      ).withTimeout(4),
-      new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem), 
-        new IndexerAutoCommand(m_indexersubsystem, () -> false)
-      ).withTimeout(2),
-      new ParallelCommandGroup(
-        new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(120))),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new IndexerAutoCommand(m_indexersubsystem, () -> true)
-        )
-      ).withTimeout(3))
+      ).withTimeout(6))
     );
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
+
+
+    m_hoodSubsystem.setDefaultCommand(new HoodAutoCommand(m_hoodSubsystem));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -136,10 +162,12 @@ public class RobotContainer {
 
     m_drivetrain.setDefaultCommand(new DriveCommand(
             m_drivetrain,
-            () -> -modifyAxis(-driver.getRightY()), // Axes are flipped here on purpose
-            () -> modifyAxis(driver.getRightX()),
-            () -> -modifyAxis(-driver.getLeftX())
+            () -> modifyAxis(0.75*driver.getRightY()), // Axes are flipped here on purpose
+            () ->modifyAxis(0.75*driver.getRightX()),
+            () -> modifyAxis(0.75*driver.getLeftX())
     ));
+
+    // m_intakesubsystem.setDefaultCommand(new IntakeCommand(m_intakesubsystem, () -> operator.getRightTriggerAxis(), () -> false));
   }
 
   /**
@@ -165,11 +193,14 @@ private static double modifyAxis(double value) {
   // Deadband
   value = deadband(value, 0.1);
 
-  // Square the axis
-  value = Math.copySign(value * value, value) * 0.5;
+  // // Square the axis
+  // value = Math.copySign(value * value, value) * 0.5;
+
+  
 
   return value;
 }
+
 double setPoint = 0.25;
 int currentState = 0;
   private void configureButtonBindings() {
@@ -178,7 +209,7 @@ int currentState = 0;
 
     ElevatorPosition elevatorStates[] = { 
       ElevatorPosition.Neutral,
-      ElevatorPosition.Extended,
+      ElevatorPosition.FirstRung,
       ElevatorPosition.Starting,
       ElevatorPosition.Starting,
       ElevatorPosition.Intermediate,
@@ -198,6 +229,7 @@ int currentState = 0;
       ElevatorPosition.Intermediate,
       ElevatorPosition.Neutral,
     };
+
     ArmPosition armStates[] = {
       ArmPosition.Vertical,
       ArmPosition.Starting,
@@ -220,16 +252,29 @@ int currentState = 0;
       ArmPosition.Grabbing,
       ArmPosition.Tilting,
     };
+
+    
  
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setArmPosition(armStates[currentState]));
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
     new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> currentState--);
     new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> currentState++);
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_turretSubsystem.resetPosition());
+    // new JoystickButton(operator, Button.kY.value).whenPressed(new SequentialCommandGroup(new IntakeAutoCommand(m_intakesubsystem, () -> true), new WaitCommand(1), new InstantCommand(() -> m_intakesubsystem.stop(), m_intakesubsystem))).whenReleased(() -> {
+    //   this.m_intakesubsystem.setReverse();
+    // });
+
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.setIntakeSpeed(Constants.INTAKE_SPEED)).whenReleased(() -> this.m_intakesubsystem.stop());
+    // new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.setForward()).whenReleased(() -> this.m_intakesubsystem.stop());
+
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.setForward()).whenReleased(() -> this.m_intakesubsystem.setReverse());
 
     new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_intakesubsystem.setIntakeSpeed(-Constants.INTAKE_SPEED)).whenReleased(() -> this.m_intakesubsystem.stop());
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_intakesubsystem.setIntakeSpeed(Constants.INTAKE_SPEED)).whenReleased(() -> this.m_intakesubsystem.stop());
 
-    new JoystickButton(operator, Button.kBack.value).whenPressed(() -> this.m_intakesubsystem.toggleIntake());
+
+
+
+    new JoystickButton(operator, Button.kBack.value).whenPressed(() -> this.m_intakesubsystem.toggleIntake()).whenReleased(() -> this.m_intakesubsystem.stop());
     new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexersubsystem.shoot()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
     new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexersubsystem.eject()).whenReleased(() -> this.m_indexersubsystem.stopLoader());
  

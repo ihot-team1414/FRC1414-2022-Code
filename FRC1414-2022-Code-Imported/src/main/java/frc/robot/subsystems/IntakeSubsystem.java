@@ -5,6 +5,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -17,11 +18,13 @@ public class IntakeSubsystem extends SubsystemBase{
   private final Compressor compressor = new Compressor(24, Constants.PCM_TYPE);
 
   public final TalonSRX frontIntakeMotor = new TalonSRX(Constants.INTAKE_ID);
-  
+  private double startTime;
+
   public IntakeSubsystem(){
     frontIntakeMotor.setNeutralMode(NeutralMode.Brake);
     frontIntakeMotor.setInverted(true);
-    compressor.disable();
+
+    setReverse();
   }
 
   public Value getPistonState() {
@@ -35,17 +38,27 @@ public class IntakeSubsystem extends SubsystemBase{
     } else if (getPistonState() == Constants.INTAKE_PISTON_CLOSED) {
       intakePiston.set(Constants.INTAKE_PISTON_OPEN);
       pistonState = Constants.INTAKE_PISTON_OPEN;
+      setIntakeSpeed(-Constants.INTAKE_SPEED);
     }
   }
 
   public void setForward() {
-    intakePiston.set(Constants.INTAKE_PISTON_OPEN);
-    pistonState = Constants.INTAKE_PISTON_OPEN;
+    if (getPistonState() == Constants.INTAKE_PISTON_OPEN) {
+
+    } else if (getPistonState() == Constants.INTAKE_PISTON_CLOSED) {
+      intakePiston.set(Constants.INTAKE_PISTON_OPEN);
+      pistonState = Constants.INTAKE_PISTON_OPEN;
+    }
   }
 
   public void setReverse() {
-    intakePiston.set(Constants.INTAKE_PISTON_CLOSED);
-    pistonState = Constants.INTAKE_PISTON_CLOSED;
+    this.stop();
+    if (getPistonState() == Constants.INTAKE_PISTON_OPEN) {
+      intakePiston.set(Constants.INTAKE_PISTON_CLOSED);
+      pistonState = Constants.INTAKE_PISTON_CLOSED;
+    } else if (getPistonState() == Constants.INTAKE_PISTON_CLOSED) {
+      
+    }
   }
 
   public void stop() {
@@ -53,7 +66,10 @@ public class IntakeSubsystem extends SubsystemBase{
   }
 
   public void setIntakeSpeed(double speed) {
-    this.frontIntakeMotor.set(ControlMode.PercentOutput, speed);
+    if (getPistonState() == Constants.INTAKE_PISTON_OPEN) {
+      this.frontIntakeMotor.set(ControlMode.PercentOutput, speed);
+    } else if (getPistonState() == Constants.INTAKE_PISTON_CLOSED) {
+    }
   }  
 
   @Override

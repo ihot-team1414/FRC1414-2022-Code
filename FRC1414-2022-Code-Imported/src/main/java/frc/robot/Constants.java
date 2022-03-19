@@ -13,7 +13,7 @@ public final class Constants {
     public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5969;
     public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
     public static final double DRIVETRAIN_MAX_VOLTAGE = 8;
-    public static final double DRIVETRAIN_MAX_VEL = 2; // m/s
+    public static final double DRIVETRAIN_MAX_VEL = 4.4196; // m/s
 
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
@@ -49,7 +49,7 @@ public final class Constants {
     public static final int HOOD_SERVO_ID_1 = 9;
     public static final int HOOD_SERVO_ID_2 = 8;
 
-    public static final double SHOOTER_kF = 0.000156;
+    public static final double SHOOTER_kF = 0.0002;
     public static final double SHOOTER_kP =  0.001; 
     public static final double SHOOTER_kI = 0;
     public static final double SHOOTER_kD = 0;
@@ -60,7 +60,13 @@ public final class Constants {
     public static final double TURRET_MAX_POS = 5500;
     public static final double TURRET_MIN_POS = -5500;
 
-    public static final double TURRET_MOTOR_kP = 0.05;
+    public static final double TURRET_MOTOR_kP = 0.025;
+    public static final double TURRET_ARM_MOTOR_kF = 0;
+    public static final double TURRET_ARM_MOTOR_kP = 0.5;
+    public static final double TURRET_ARM_MOTOR_kI = 0;
+    public static final double TURRET_ARM_MOTOR_kD = 0;
+    public static final double TURRET_ARM_MAX_VEL = 3000;
+    public static final double TURRET_ARM_ACCEL = 3000;
 
     public static final int LOADER_FRONT_MOTOR_ID = 9;
     public static final int LOADER_BACK_MOTOR_ID = 23;
@@ -70,7 +76,7 @@ public final class Constants {
     public static final double LOADING_SPEED = 0.85;
     public static final double HOLDING_SPEED = 0.75;
     public static final double FUNNEL_SPEED = 0.25;
-    public static final double INTAKE_SPEED = 0.5;
+    public static final double INTAKE_SPEED = 0.75;
 
     public static final int TELESCOPING_ARM_1_MOTOR_ID = 14;
     public static final int TELESCOPING_ARM_2_MOTOR_ID = 18;
@@ -96,8 +102,9 @@ public final class Constants {
 
     public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.REVPH;
 
-    public static final Value INTAKE_PISTON_OPEN = Value.kReverse;
-    public static final Value INTAKE_PISTON_CLOSED = Value.kForward;
+    public static final Value INTAKE_PISTON_OPEN = Value.kForward;
+    public static final Value INTAKE_PISTON_CLOSED = Value.kReverse;
     public static final int INTAKE_PISTON_FORWARD = 8;
     public static final int INTAKE_PISTON_REVERSE = 13;
+    
 }

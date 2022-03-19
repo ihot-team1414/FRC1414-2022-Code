@@ -17,10 +17,11 @@ public class IndexerAutoCommand extends CommandBase {
 
     @Override
     public void execute() {
-        if (shooting.getAsBoolean()) {
-            indexerSubsystem.shoot();
-        } else {
-            indexerSubsystem.holdBalls();
-        }
+        indexerSubsystem.shoot();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        indexerSubsystem.stopLoader();
     }
 }
