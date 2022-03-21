@@ -16,7 +16,7 @@ public class ClimbSubsystem extends SubsystemBase {
   private final TalonFX pivotMotor2 = new TalonFX(Constants.PIVOT_ARM_2_MOTOR_ID);
 
   public enum ArmPosition {
-      Starting(-2000), Vertical(-70000), Grabbing(-60000), Tilting(-100000);
+      Starting(-2000), Vertical(-70000), Grabbing(-60000), Tilting(-100000), Lifting(-40000);
       
       private int position;
 
@@ -127,6 +127,20 @@ public class ClimbSubsystem extends SubsystemBase {
 
     pivotMotor2.configMotionCruiseVelocity(Constants.PIVOT_ARM_MAX_VEL, 30);
     pivotMotor2.configMotionAcceleration(Constants.PIVOT_ARM_ACCEL, 30);
+  }
+
+  public boolean isElevatorAtTarget(ElevatorPosition position) {
+    boolean arm1Aligned = Math.abs(position.getPosition() - telescopingMotor.getSelectedSensorPosition()) <= Constants.TELESCOPING_ARM_ALLOWED_ERROR;
+    boolean arm2Aligned = Math.abs(position.getPosition() - telescopingMotor2.getSelectedSensorPosition()) <= Constants.TELESCOPING_ARM_ALLOWED_ERROR;
+
+    return arm1Aligned && arm2Aligned;
+}
+
+  public boolean isArmAtTarget(ArmPosition position) {
+      boolean arm1Aligned = Math.abs(position.getPosition() - pivotMotor.getSelectedSensorPosition()) <= Constants.PIVOT_ARM_ALLOWED_ERROR;
+      boolean arm2Aligned = Math.abs(position.getPosition() - pivotMotor2.getSelectedSensorPosition()) <= Constants.PIVOT_ARM_ALLOWED_ERROR;
+
+      return arm1Aligned && arm2Aligned;
   }
 
   public void setArmPosition(ArmPosition pos) {

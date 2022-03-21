@@ -22,6 +22,7 @@ import frc.robot.commands.IndexerAutoCommand;
 import frc.robot.commands.IntakeAutoCommand;
 import frc.robot.commands.IntakeAutoDeployCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.MoveClimbCommand;
 import frc.robot.commands.RobotStartCommand;
 import frc.robot.commands.ShooterAutoCommand;
 import frc.robot.commands.ShooterEjectCommand;
@@ -204,11 +205,40 @@ int currentState = 0;
 
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrain.zeroGyroscope());
 
+    Command climbStates[] = {
+      new MoveClimbCommand(m_climbSubsystem, ArmPosition.Vertical, ElevatorPosition.Neutral),
+      new MoveClimbCommand(m_climbSubsystem, ArmPosition.Lifting, ElevatorPosition.FirstRung),
+      new SequentialCommandGroup(
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Lifting, ElevatorPosition.Starting),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Grabbing, ElevatorPosition.Starting)
+      ),
+      new SequentialCommandGroup(
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Grabbing, ElevatorPosition.Intermediate),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Tilting, ElevatorPosition.Intermediate),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Tilting, ElevatorPosition.Extended),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Vertical, ElevatorPosition.Extended)
+      ),
+      new SequentialCommandGroup(
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Lifting, ElevatorPosition.Starting),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Grabbing, ElevatorPosition.Starting)
+      ),
+      new SequentialCommandGroup(
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Grabbing, ElevatorPosition.Intermediate),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Tilting, ElevatorPosition.Intermediate),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Tilting, ElevatorPosition.Extended),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Vertical, ElevatorPosition.Extended)
+      ),
+      new SequentialCommandGroup(
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Lifting, ElevatorPosition.Starting),
+        new MoveClimbCommand(m_climbSubsystem, ArmPosition.Grabbing, ElevatorPosition.Starting)
+      ),
+    };
+
     ElevatorPosition elevatorStates[] = { 
-      ElevatorPosition.Neutral,
-      ElevatorPosition.FirstRung,
-      ElevatorPosition.Starting,
-      ElevatorPosition.Starting,
+      ElevatorPosition.Neutral, //
+      ElevatorPosition.FirstRung, //
+      ElevatorPosition.Starting, //
+      ElevatorPosition.Starting, //
       ElevatorPosition.Intermediate,
       ElevatorPosition.Intermediate,
       ElevatorPosition.Extended,
@@ -252,8 +282,14 @@ int currentState = 0;
 
 
     // A Button activates current climb state
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setArmPosition(armStates[currentState]));
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
+
+
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setArmPosition(armStates[currentState]));
+    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
+
+    new JoystickButton(operator, Button.kA.value).whenPressed(new MoveClimbCommand(m_climbSubsystem, armStates[currentState], elevatorStates[currentState]));
+
+
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_turretSubsystem.resetPosition());
 
     // Left Bumper decreases climb state
