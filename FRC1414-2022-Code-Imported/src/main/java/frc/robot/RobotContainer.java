@@ -167,9 +167,11 @@ public class RobotContainer {
 
     m_drivetrain.setDefaultCommand(new DriveCommand(
             m_drivetrain,
-            () -> modifyAxis(0.75*driver.getRightY()), // Axes are flipped here on purpose
-            () ->modifyAxis(0.75*driver.getRightX()),
-            () -> modifyAxis(0.75*driver.getLeftX())
+            () -> modifyAxis(driver.getRightY()), // Axes are flipped here on purpose
+            () -> modifyAxis(driver.getRightX()),
+            () -> modifyAxis(driver.getLeftX()),
+            () -> driver.getAButton(),
+            () -> driver.getBButton()
     ));
   }
 
