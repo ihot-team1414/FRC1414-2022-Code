@@ -21,7 +21,7 @@ public class DriveAutoCommand extends CommandBase {
     public void execute() {
         Pose2d targetPos = m_targetPos;
 
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(1, 0, 0));
+        m_drivetrainSubsystem.drive(new ChassisSpeeds(-1.25, 0, 0));
         
     }
 

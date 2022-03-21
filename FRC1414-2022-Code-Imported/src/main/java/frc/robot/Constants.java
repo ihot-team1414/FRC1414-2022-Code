@@ -60,7 +60,7 @@ public final class Constants {
     public static final double TURRET_MAX_POS = 5500;
     public static final double TURRET_MIN_POS = -5500;
 
-    public static final double TURRET_MOTOR_kP = 0.025;
+    public static final double TURRET_MOTOR_kP = 50;
     public static final double TURRET_ARM_MOTOR_kF = 0;
     public static final double TURRET_ARM_MOTOR_kP = 0.5;
     public static final double TURRET_ARM_MOTOR_kI = 0;

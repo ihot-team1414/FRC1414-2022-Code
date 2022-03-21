@@ -33,21 +33,27 @@ public class TurretSubsystem extends SubsystemBase {
     setVisionMode(true);
   }
 
-  public void moveTurret(double throttle) {
-    if (Constants.TURRET_MAX_POS > getEncoder() && getEncoder() > Constants.TURRET_MIN_POS) {
-      turretMotor.set(ControlMode.PercentOutput, throttle);
-    } else if (Constants.TURRET_MAX_POS <= getEncoder()) {
-      if (throttle > 0) {
-        turretMotor.set(ControlMode.PercentOutput, 0);
-      } else {
-        turretMotor.set(ControlMode.PercentOutput, throttle);
-      }
-    } else if (Constants.TURRET_MIN_POS >= getEncoder()) {
-      if (throttle > 0) {
-        turretMotor.set(ControlMode.PercentOutput, throttle);
-      } else {
-        turretMotor.set(ControlMode.PercentOutput, 0);
-      }
+  // public void moveTurret(double throttle) {
+  //   if (Constants.TURRET_MAX_POS > getEncoder() && getEncoder() > Constants.TURRET_MIN_POS) {
+  //     turretMotor.set(ControlMode.PercentOutput, throttle);
+  //   } else if (Constants.TURRET_MAX_POS <= getEncoder()) {
+  //     if (throttle > 0) {
+  //       turretMotor.set(ControlMode.PercentOutput, 0);
+  //     } else {
+  //       turretMotor.set(ControlMode.PercentOutput, throttle);
+  //     }
+  //   } else if (Constants.TURRET_MIN_POS >= getEncoder()) {
+  //     if (throttle > 0) {
+  //       turretMotor.set(ControlMode.PercentOutput, throttle);
+  //     } else {
+  //       turretMotor.set(ControlMode.PercentOutput, 0);
+  //     }
+  //   }
+  // }
+
+  public void moveTurret(double deltaPos) {
+    if (Constants.TURRET_MAX_POS > getEncoder() + deltaPos && getEncoder() + deltaPos > Constants.TURRET_MIN_POS) {
+      turretMotor.set(ControlMode.Position, getEncoder() + deltaPos);
     }
   }
   
@@ -74,10 +80,10 @@ public class TurretSubsystem extends SubsystemBase {
     NetworkTableEntry tx = table.getEntry("tx");
 
     double error = tx.getDouble(0.0);
-    double speed = Constants.TURRET_MOTOR_kP * -error;
+    double deltaPos = Constants.TURRET_MOTOR_kP * -error;
 
-    this.moveTurret(speed);
-    SmartDashboard.putNumber("Turret Percent Output", speed);
+    this.moveTurret(deltaPos);
+    SmartDashboard.putNumber("Turret Delta Pos", deltaPos);
   }
 
   public void setVisionMode(boolean on) {

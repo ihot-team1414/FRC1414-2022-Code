@@ -8,24 +8,24 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class DriveAutoCommand2 extends CommandBase {
     private final DrivetrainSubsystem m_drivetrainSubsystem;
 
-    private final Pose2d m_targetPos;
 
-    public DriveAutoCommand2(DrivetrainSubsystem drivetrainSubsystem, Pose2d targetPos) {
+    public DriveAutoCommand2(DrivetrainSubsystem drivetrainSubsystem) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
-        this.m_targetPos = targetPos;
 
         addRequirements(drivetrainSubsystem);
     }
 
     @Override
     public void execute() {
-        Pose2d targetPos = m_targetPos;
 
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 1));
+        m_drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 2));
         
     }
 
     @Override
     public void end(boolean interrupted) {
+
+        m_drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 0));
+
     }
 }
