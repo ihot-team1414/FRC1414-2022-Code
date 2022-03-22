@@ -34,7 +34,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     private final AHRS gyroscope = new AHRS(I2C.Port.kMXP);
 
-    private final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+    public final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
         new Translation2d(Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
         new Translation2d(Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
         new Translation2d(-Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0),
@@ -139,7 +139,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     double xErrorAccumulated = 0.0;
   
     public double getRequiredTurningSpeedForAngle(double angle) {
-      double error = angle - this.getGyroAngle();
+      double currentAngle = this.getGyroAngle() % 360;
+      double error = angle - currentAngle;
       this.errorAccumulated += error * Constants.TIME_STEP;
       double speed = (kp * error) + (ki * this.errorAccumulated) + (kd * (error - this.lastHeadingError));
       this.lastHeadingError = error;
@@ -147,33 +148,20 @@ public class DrivetrainSubsystem extends SubsystemBase {
       return speed;
     }
   
-    public ChassisSpeeds getRequiredDrivingSpeeds(Pose2d targetPosition) {
-      double yError = targetPosition.getY() - odometry.getPoseMeters().getY();
-      this.yErrorAccumulated += yError * Constants.TIME_STEP;
-      double ySpeed = (ykp * yError) + (yki * this.yErrorAccumulated) + (ykd * (yError - this.lastYError));
-      this.lastYError = yError;
-  
-      double xError = targetPosition.getX() - odometry.getPoseMeters().getX();
-      this.xErrorAccumulated += xError * Constants.TIME_STEP;
-      double xSpeed = (xkp * xError) + (xki * this.xErrorAccumulated) + (xkd * (xError - this.lastXError));
-      this.lastXError = xError;
-  
-      double error = targetPosition.getRotation().getRadians() - this.getGyroAngle();
-      this.errorAccumulated += error * Constants.TIME_STEP;
-      double speed = (kp * error) + (ki * this.errorAccumulated) + (kd * (error - this.lastHeadingError));
-      this.lastHeadingError = error;
+    public Pose2d getPose() {
+      return odometry.getPoseMeters();
+    }
 
-  
-      return ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, speed, Rotation2d.fromDegrees(-gyroscope.getFusedHeading()));
-    }
-  
-    public void driveToPosition(Pose2d targetPos) {
-      drive(getRequiredDrivingSpeeds(targetPos));
-    }
-  
     public void resetErrors() {
       this.lastHeadingError = 0.0;
       this.errorAccumulated = 0.0;
+    }
+
+    public void setModuleStates(SwerveModuleState[] states) {
+      frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
+      frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
+      backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
+      backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
     }
 
     @Override
@@ -186,11 +174,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
         );
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
-
-        frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
-        frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
-        backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
-        backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
+        setModuleStates(states);
+        
 
         SmartDashboard.putNumber("Realsense Pose X", Realsense.getInstance().getX());
         SmartDashboard.putNumber("Realsense Pose Y", Realsense.getInstance().getY());

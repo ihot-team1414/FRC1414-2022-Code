@@ -5,12 +5,12 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
-public class DriveAutoCommand extends CommandBase {
+public class DriveStraightCommand extends CommandBase {
     private final DrivetrainSubsystem m_drivetrainSubsystem;
 
     private final Pose2d m_targetPos;
 
-    public DriveAutoCommand(DrivetrainSubsystem drivetrainSubsystem, Pose2d targetPos) {
+    public DriveStraightCommand(DrivetrainSubsystem drivetrainSubsystem, Pose2d targetPos) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
         this.m_targetPos = targetPos;
 

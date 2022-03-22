@@ -5,17 +5,25 @@
 package frc.robot;
 
 import java.time.Instant;
+import java.util.List;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.DriveAutoCommand;
-import frc.robot.commands.DriveAutoCommand2;
+import frc.robot.commands.DriveStraightCommand;
+import frc.robot.commands.TurnToAngleCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.HoodAutoCommand;
 import frc.robot.commands.IndexerAutoCommand;
@@ -41,6 +49,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -56,7 +65,7 @@ public class RobotContainer {
 
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  private final Pose2d startingPositions[] = {new Pose2d(6.15, 2.35, Rotation2d.fromDegrees(25)), new Pose2d(0, 0, Rotation2d.fromDegrees(0))};
+  private final Pose2d startingPositions[] = {new Pose2d(8, 2.84, Rotation2d.fromDegrees(68)), new Pose2d(0, 0, Rotation2d.fromDegrees(0))};
 
   private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(startingPositions[1]);
 
@@ -72,77 +81,82 @@ public class RobotContainer {
 
   private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
 
+  
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    // this.chooser.setDefaultOption("Wait Command", new WaitCommand(15));
-    // this.chooser.addOption("Drive/Intake Inside",  new SequentialCommandGroup(
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
-    //     new IntakeAutoCommand(m_intakesubsystem),
-    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
-    //   )
-    // ));
-    // this.chooser.addOption("2 Ball Inside",  new SequentialCommandGroup(
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
-    //     new IntakeAutoCommand(m_intakesubsystem),
-    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
-    //   ).withTimeout(5),
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(205))),
-    //     new TurretAutoCommand(m_turretSubsystem),
-    //     new HoodAutoCommand(m_hoodSubsystem),
-    //     new ShooterAutoCommand(m_shooterSubsystem),
-    //     new IndexerAutoCommand(m_indexersubsystem, () -> true)
-    //   )
-    // ));
+    this.chooser.addOption("Wait Command", new WaitCommand(15));
+    
+    
+    final TrapezoidProfile.Constraints kThetaControllerConstraints = //
+    new TrapezoidProfile.Constraints(
+            m_drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+            m_drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND);
+
+    TrajectoryConfig trajectoryConfig = new TrajectoryConfig(
+      Constants.DRIVETRAIN_MAX_VEL,
+      Constants.DRIVETRAIN_MAX_ACCELERATION)
+              .setKinematics(m_drivetrain.kinematics);
 
 
-    // this.chooser.addOption("4 Ball Inside",  new SequentialCommandGroup(
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(25))),
-    //     new IntakeAutoCommand(m_intakesubsystem),
-    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
-    //   ).withTimeout(2),
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(5.31, 1.99, Rotation2d.fromDegrees(140))),
-    //     new TurretAutoCommand(m_turretSubsystem),
-    //     new HoodAutoCommand(m_hoodSubsystem),
-    //     new ShooterAutoCommand(m_shooterSubsystem),
-    //     new SequentialCommandGroup(
-    //       new WaitCommand(1),
-    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
-    //     )
-    //   ).withTimeout(4),
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(45))),
-    //     new IntakeAutoCommand(m_intakesubsystem),
-    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
-    //   ).withTimeout(4),
-    //   new ParallelCommandGroup(
-    //     new IntakeAutoCommand(m_intakesubsystem), 
-    //     new IndexerAutoCommand(m_indexersubsystem, () -> false)
-    //   ).withTimeout(2),
-    //   new ParallelCommandGroup(
-    //     new DriveAutoCommand(m_drivetrain, new Pose2d(1.44, 1.44, Rotation2d.fromDegrees(120))),
-    //     new TurretAutoCommand(m_turretSubsystem),
-    //     new HoodAutoCommand(m_hoodSubsystem),
-    //     new ShooterAutoCommand(m_shooterSubsystem),
-    //     new SequentialCommandGroup(
-    //       new WaitCommand(1),
-    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
-    //     )
-    //   ).withTimeout(3))
-    // );
+    PIDController xController = new PIDController(Constants.DRIVETRAIN_PATH_X_KP, 0, 0);
+    PIDController yController = new PIDController(Constants.DRIVETRAIN_PATH_Y_KP, 0, 0);
+    ProfiledPIDController thetaController = new ProfiledPIDController(
+      Constants.DRIVETRAIN_PATH_THETA_KP, 0, 0, kThetaControllerConstraints);
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    
+    // 2. Generate trajectory
+    Trajectory outside4BallAutoTrajectories[] = {
+      TrajectoryGenerator.generateTrajectory(
+        startingPositions[0],
+        List.of(
+        ),
+        new Pose2d(7.64, 0.72, Rotation2d.fromDegrees(90)),
+        trajectoryConfig
+      ),
+      TrajectoryGenerator.generateTrajectory(
+        new Pose2d(7.64, 0.72, Rotation2d.fromDegrees(270)),
+        List.of(
+        ),
+        new Pose2d(1.43, 1.40, Rotation2d.fromDegrees(45)),
+        trajectoryConfig
+      ),
+    };
 
-    this.chooser.setDefaultOption("Drive/Intake Inside",  new SequentialCommandGroup(
+    
+
+    // 4. Construct command to follow trajectory
+    SwerveControllerCommand outside4BallAutoCommands[] = {
+      new SwerveControllerCommand(
+        outside4BallAutoTrajectories[0],
+          () -> m_drivetrain.getPose(),
+          m_drivetrain.kinematics,
+          xController,
+          yController,
+          thetaController,
+          m_drivetrain::setModuleStates,
+          m_drivetrain
+      ),
+      new SwerveControllerCommand(
+        outside4BallAutoTrajectories[1],
+          () -> m_drivetrain.getPose(),
+          m_drivetrain.kinematics,
+          xController,
+          yController,
+          thetaController,
+          m_drivetrain::setModuleStates,
+          m_drivetrain
+      ),
+    };
+
+    this.chooser.setDefaultOption("2 Ball",  new SequentialCommandGroup(
       new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
       new ParallelCommandGroup(
         new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
-        new DriveAutoCommand(m_drivetrain, new Pose2d(1, 0, Rotation2d.fromDegrees(45))).withTimeout(3.5)
+        new DriveStraightCommand(m_drivetrain, new Pose2d(1, 0, Rotation2d.fromDegrees(45))).withTimeout(3.5)
       ),
-      new DriveAutoCommand2(m_drivetrain).withTimeout(3),
+      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(3),
       new ParallelCommandGroup(
         new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
         new TurretAutoCommand(m_turretSubsystem),
@@ -154,6 +168,43 @@ public class RobotContainer {
         )
       ).withTimeout(6))
     );
+
+    this.chooser.addOption("4 Ball Outside",  new SequentialCommandGroup(
+      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+      new ParallelCommandGroup(
+        new IntakeAutoCommand(m_intakesubsystem).withTimeout(2.5),
+        outside4BallAutoCommands[0].withTimeout(2.5)
+      ),
+      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
+      new ParallelCommandGroup(
+        new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
+        new TurretAutoCommand(m_turretSubsystem),
+        new HoodAutoCommand(m_hoodSubsystem),
+        new ShooterAutoCommand(m_shooterSubsystem),
+        new SequentialCommandGroup(
+          new WaitCommand(2),
+          new IndexerAutoCommand(m_indexersubsystem, () -> true)
+        )
+      ).withTimeout(4),
+      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+      new ParallelCommandGroup(
+        new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
+        outside4BallAutoCommands[1].withTimeout(3.5)
+      ),
+      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
+      new ParallelCommandGroup(
+        new IntakeAutoCommand(m_intakesubsystem),
+        new TurretAutoCommand(m_turretSubsystem),
+        new HoodAutoCommand(m_hoodSubsystem),
+        new ShooterAutoCommand(m_shooterSubsystem),
+        new SequentialCommandGroup(
+          new WaitCommand(1),
+          new IndexerAutoCommand(m_indexersubsystem, () -> true)
+        )
+      ).withTimeout(3)
+    )
+    );
+
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
 

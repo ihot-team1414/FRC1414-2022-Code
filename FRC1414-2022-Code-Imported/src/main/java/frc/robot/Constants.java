@@ -14,6 +14,10 @@ public final class Constants {
     public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
     public static final double DRIVETRAIN_MAX_VOLTAGE = 8;
     public static final double DRIVETRAIN_MAX_VEL = 4.4196; // m/s
+    public static final double DRIVETRAIN_MAX_ACCELERATION = 4; // m/s^2
+
+
+    
 
     public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
     public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
@@ -106,5 +110,8 @@ public final class Constants {
     public static final Value INTAKE_PISTON_CLOSED = Value.kReverse;
     public static final int INTAKE_PISTON_FORWARD = 8;
     public static final int INTAKE_PISTON_REVERSE = 13;
+    public static final double DRIVETRAIN_PATH_X_KP = 1.5;
+    public static final double DRIVETRAIN_PATH_Y_KP = 1.5;
+    public static final double DRIVETRAIN_PATH_THETA_KP = 3;
     
 }

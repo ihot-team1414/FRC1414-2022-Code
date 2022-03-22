@@ -5,12 +5,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
-public class DriveAutoCommand2 extends CommandBase {
+public class TurnToAngleCommand extends CommandBase {
     private final DrivetrainSubsystem m_drivetrainSubsystem;
+    private final double angle;
 
-
-    public DriveAutoCommand2(DrivetrainSubsystem drivetrainSubsystem) {
+    public TurnToAngleCommand(DrivetrainSubsystem drivetrainSubsystem, double angle) {
         this.m_drivetrainSubsystem = drivetrainSubsystem;
+        this.angle = angle;
 
         addRequirements(drivetrainSubsystem);
     }
@@ -18,7 +19,7 @@ public class DriveAutoCommand2 extends CommandBase {
     @Override
     public void execute() {
 
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 2));
+        m_drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, m_drivetrainSubsystem.getRequiredTurningSpeedForAngle(angle)));
         
     }
 
