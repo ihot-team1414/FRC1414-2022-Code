@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
@@ -22,9 +21,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.DriveStraightCommand;
-import frc.robot.commands.TurnToAngleCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.DriveStraightCommand;
 import frc.robot.commands.HoodAutoCommand;
 import frc.robot.commands.IndexerAutoCommand;
 import frc.robot.commands.IntakeAutoCommand;
@@ -33,7 +31,9 @@ import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.MoveClimbCommand;
 import frc.robot.commands.RobotStartCommand;
 import frc.robot.commands.ShooterAutoCommand;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.commands.ShooterEjectCommand;
+import frc.robot.commands.TurnToAngleCommand;
 import frc.robot.commands.TurretAutoCommand;
 import frc.robot.commands.TurretEjectCommand;
 import frc.robot.subsystems.ClimbSubsystem;
@@ -71,7 +71,7 @@ public class RobotContainer {
 
   private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
 
-  private final IndexerSubsystem m_indexersubsystem = new IndexerSubsystem();
+  private final IndexerSubsystem m_indexerSubsystem = new IndexerSubsystem();
 
   private final IntakeSubsystem m_intakesubsystem = new IntakeSubsystem();
 
@@ -81,14 +81,10 @@ public class RobotContainer {
 
   private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
 
-  
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
-    this.chooser.addOption("Wait Command", new WaitCommand(15));
-    
-    
+    // this.chooser.setDefaultOption("Wait Command", new WaitCommand(15));
     final TrapezoidProfile.Constraints kThetaControllerConstraints = //
     new TrapezoidProfile.Constraints(
             m_drivetrain.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
@@ -150,61 +146,79 @@ public class RobotContainer {
       ),
     };
 
-    this.chooser.setDefaultOption("2 Ball",  new SequentialCommandGroup(
-      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
-      new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
-        new DriveStraightCommand(m_drivetrain, new Pose2d(1, 0, Rotation2d.fromDegrees(45))).withTimeout(3.5)
-      ),
-      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(3),
-      new ParallelCommandGroup(
-        new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new SequentialCommandGroup(
-          new WaitCommand(2),
-          new IndexerAutoCommand(m_indexersubsystem, () -> true)
-        )
-      ).withTimeout(6))
-    );
+    // this.chooser.addOption("2 Ball",  new SequentialCommandGroup(
+    //   new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+    //   new ParallelCommandGroup(
+    //     new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
+    //     new DriveStraightCommand(m_drivetrain, new Pose2d(1, 0, Rotation2d.fromDegrees(45))).withTimeout(3.5)
+    //   ),
+    //   new TurnToAngleCommand(m_drivetrain, 180).withTimeout(3),
+    //   new ParallelCommandGroup(
+    //     new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
+    //     new TurretAutoCommand(m_turretSubsystem),
+    //     new HoodAutoCommand(m_hoodSubsystem),
+    //     new ShooterAutoCommand(m_shooterSubsystem),
+    //     new SequentialCommandGroup(
+    //       new WaitCommand(2),
+    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
+    //     )
+    //   ).withTimeout(6))
+    // );
 
-    this.chooser.addOption("4 Ball Outside",  new SequentialCommandGroup(
-      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
-      new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem).withTimeout(2.5),
-        outside4BallAutoCommands[0].withTimeout(2.5)
-      ),
-      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
-      new ParallelCommandGroup(
-        new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new SequentialCommandGroup(
-          new WaitCommand(2),
-          new IndexerAutoCommand(m_indexersubsystem, () -> true)
-        )
-      ).withTimeout(4),
-      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
-      new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
-        outside4BallAutoCommands[1].withTimeout(3.5)
-      ),
-      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
-      new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new IndexerAutoCommand(m_indexersubsystem, () -> true)
-        )
-      ).withTimeout(3)
-    )
-    );
+    // this.chooser.addOption("4 Ball Outside",  new SequentialCommandGroup(
+    //   new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+    //   new ParallelCommandGroup(
+    //     new IntakeAutoCommand(m_intakesubsystem).withTimeout(2.5),
+    //     outside4BallAutoCommands[0].withTimeout(2.5)
+    //   ),
+    //   new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
+    //   new ParallelCommandGroup(
+    //     new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
+    //     new TurretAutoCommand(m_turretSubsystem),
+    //     new HoodAutoCommand(m_hoodSubsystem),
+    //     new ShooterAutoCommand(m_shooterSubsystem),
+    //     new SequentialCommandGroup(
+    //       new WaitCommand(2),
+    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
+    //     )
+    //   ).withTimeout(4),
+    //   new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+    //   new ParallelCommandGroup(
+    //     new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
+    //     outside4BallAutoCommands[1].withTimeout(3.5)
+    //   ),
+    //   new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
+    //   new ParallelCommandGroup(
+    //     new IntakeAutoCommand(m_intakesubsystem),
+    //     new TurretAutoCommand(m_turretSubsystem),
+    //     new HoodAutoCommand(m_hoodSubsystem),
+    //     new ShooterAutoCommand(m_shooterSubsystem),
+    //     new SequentialCommandGroup(
+    //       new WaitCommand(1),
+    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
+    //     )
+    //   ).withTimeout(3)
+    // )
+    // );
 
+    this.chooser.setDefaultOption("Drive spin", 
+      new SwerveControllerCommand(
+        TrajectoryGenerator.generateTrajectory(
+          new Pose2d(0, 0, Rotation2d.fromDegrees(0)),
+          List.of(
+          ),
+          new Pose2d(-1, 0, Rotation2d.fromDegrees(0)),
+          trajectoryConfig
+        ),
+        () -> m_drivetrain.getPose(),
+        m_drivetrain.kinematics,
+        xController,
+        yController,
+        thetaController,
+        m_drivetrain::setModuleStates,
+        m_drivetrain
+      )
+    );
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
 
@@ -221,8 +235,8 @@ public class RobotContainer {
             () -> modifyAxis(driver.getRightY()), // Axes are flipped here on purpose
             () -> modifyAxis(driver.getRightX()),
             () -> modifyAxis(driver.getLeftX()),
-            () -> driver.getAButton(),
-            () -> driver.getBButton()
+            () -> driver.getRightBumper(),
+            () -> driver.getLeftBumper()
     ));
   }
 
@@ -312,35 +326,40 @@ int currentState = 0;
 
     ArmPosition armStates[] = {
       ArmPosition.Vertical,
-      ArmPosition.Starting,
-      ArmPosition.Starting,
+      ArmPosition.Lifting,
+      ArmPosition.Lifting,
       ArmPosition.Grabbing,
       ArmPosition.Grabbing,
       ArmPosition.Tilting,
       ArmPosition.Tilting,
       ArmPosition.Vertical,
-      ArmPosition.Starting,
-      ArmPosition.Starting,
+      ArmPosition.Lifting,
+      ArmPosition.Lifting,
       ArmPosition.Grabbing,
       ArmPosition.Grabbing,
       ArmPosition.Tilting,
       ArmPosition.Tilting,
       ArmPosition.Vertical,
-      ArmPosition.Starting,
-      ArmPosition.Starting,
+      ArmPosition.Lifting,
+      ArmPosition.Lifting,
       ArmPosition.Grabbing,
       ArmPosition.Grabbing,
       ArmPosition.Tilting,
     };
 
 
+    // Driver buttons for turn to angle
+    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(180), m_drivetrain);
+    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(90), m_drivetrain);
+    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(-90), m_drivetrain);
+    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(0), m_drivetrain);
+
+
     // A Button activates current climb state
-
-
     // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setArmPosition(armStates[currentState]));
     // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
 
-    new JoystickButton(operator, Button.kA.value).whenPressed(new MoveClimbCommand(m_climbSubsystem, armStates[currentState], elevatorStates[currentState]));
+    // new JoystickButton(operator, Button.kA.value).whenPressed(new MoveClimbCommand(m_climbSubsystem, armStates[currentState], elevatorStates[currentState]).withTimeout(3));
 
 
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_turretSubsystem.resetPosition());
@@ -356,6 +375,10 @@ int currentState = 0;
     });
 
 
+      // X Button holds balls
+      new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexerSubsystem.holdBalls()).whenReleased(() -> this.m_indexerSubsystem.stop());
+
+
     // B Button deploys intake and runs intake and indexer to the hold ball position
     new JoystickButton(operator, Button.kB.value).whenPressed(new SequentialCommandGroup(
       new InstantCommand(() -> m_intakesubsystem.setForward()),
@@ -366,19 +389,14 @@ int currentState = 0;
       this.m_intakesubsystem.stop();
     });
 
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexersubsystem.holdBalls()).whenReleased(() -> this.m_indexersubsystem.stop());
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexerSubsystem.holdBalls()).whenReleased(() -> this.m_indexerSubsystem.stop());
 
     // Y Button starts shooter
-    new JoystickButton(operator, Button.kY.value).whenPressed(() -> this.m_shooterSubsystem.shoot()).whenReleased(()->this.m_shooterSubsystem.stop());   
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new ShooterCommand(m_shooterSubsystem, m_indexerSubsystem));
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> this.m_turretSubsystem.visionTargeting());
 
-    // X Button loads ball into shooter
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexersubsystem.load()).whenReleased(() -> { 
-      this.m_indexersubsystem.stop();
-    });
-
     // Start runs indexer backwards to clear shooter
-    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexersubsystem.reverse()).whenReleased(() -> this.m_indexersubsystem.stop());
+    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexerSubsystem.reverse()).whenReleased(() -> this.m_indexerSubsystem.stop());
 
     // Back ejects wrong color ball through shooter
     // new JoystickButton(operator, Button.kBack.value).whenPressed(

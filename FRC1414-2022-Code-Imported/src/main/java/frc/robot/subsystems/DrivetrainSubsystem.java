@@ -120,7 +120,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
       return Rotation2d.fromDegrees(-gyroscope.getFusedHeading()).getRadians();
     }
     
-    double kp = 0.375;//0.03
+    double kp = 0.0875;//0.03
     double ki = 0.0; //0.01
     double kd = 0.0;
     double lastHeadingError = 0.0;
@@ -139,13 +139,17 @@ public class DrivetrainSubsystem extends SubsystemBase {
     double xErrorAccumulated = 0.0;
   
     public double getRequiredTurningSpeedForAngle(double angle) {
-      double currentAngle = this.getGyroAngle() % 360;
+      double currentAngle = this.getRotation().getDegrees() % 360;
       double error = angle - currentAngle;
       this.errorAccumulated += error * Constants.TIME_STEP;
-      double speed = (kp * error) + (ki * this.errorAccumulated) + (kd * (error - this.lastHeadingError));
+      double speed = (kp * error);
       this.lastHeadingError = error;
-  
-      return speed;
+      return -speed;
+    }
+
+    public void turnToAngle(double angle) {
+        var chassis = new ChassisSpeeds(0, 0, getRequiredTurningSpeedForAngle(angle));
+        this.chassisSpeeds = chassis;
     }
   
     public Pose2d getPose() {
@@ -174,11 +178,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
         );
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
-        setModuleStates(states);
-        
 
-        SmartDashboard.putNumber("Realsense Pose X", Realsense.getInstance().getX());
-        SmartDashboard.putNumber("Realsense Pose Y", Realsense.getInstance().getY());
-        SmartDashboard.putNumber("Realsense Pose Yaw", Realsense.getInstance().getYaw());
+        frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
+        frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
+        backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
+        backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
     }
 }

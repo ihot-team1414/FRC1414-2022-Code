@@ -4,14 +4,13 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class IndexerAutoCommand extends CommandBase {
     private final IndexerSubsystem indexerSubsystem;
-    private final BooleanSupplier shooting;
 
-    public IndexerAutoCommand(IndexerSubsystem indexerSubsystem, BooleanSupplier shooting) {
+    public IndexerAutoCommand(IndexerSubsystem indexerSubsystem, ShooterSubsystem shooter) {
         this.indexerSubsystem = indexerSubsystem;
-        this.shooting = shooting;
         addRequirements(indexerSubsystem);
     }
 

@@ -29,6 +29,7 @@ public class ShooterSubsystem extends SubsystemBase{
     shooterMotor1.setInverted(true);
     shooterMotor1.setNeutralMode(NeutralMode.Coast);
     shooterMotor2.setNeutralMode(NeutralMode.Coast);
+    SmartDashboard.putNumber("Target Shooter Velocity", 9000);
   }
 
   private RollingAverage avg = new RollingAverage();
@@ -49,13 +50,15 @@ public class ShooterSubsystem extends SubsystemBase{
     return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
   }
 
+  public double targetSpeed = 0;
+
   public void shoot() {
-      shooterMotor1.set(ControlMode.Velocity, 330000 + 29000 * calculateDistance());
-      SmartDashboard.putNumber("Target Shooter Velocity", 330000 + 29000 * calculateDistance());
+      // 21700
+      shooterMotor1.set(ControlMode.Velocity, targetSpeed);
   }
 
   public void eject() {
-    shooterMotor1.set(ControlMode.Velocity, 50000);
+    shooterMotor1.set(ControlMode.Velocity, 3000);
   }
 
   public void shootMaxRPM() {
@@ -68,6 +71,7 @@ public class ShooterSubsystem extends SubsystemBase{
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Shooter Velocity", this.shooterMotor1.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Current Shooter Velocity", this.shooterMotor1.getSelectedSensorVelocity());
+    targetSpeed = SmartDashboard.getNumber("Target Shooter Velocity", 0.0);
   }
 }

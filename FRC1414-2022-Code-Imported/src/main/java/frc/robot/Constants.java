@@ -13,9 +13,12 @@ public final class Constants {
     public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5969;
     public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
     public static final double DRIVETRAIN_MAX_VOLTAGE = 8;
-    public static final double DRIVETRAIN_MAX_VEL = 4.4196; // m/s
-    public static final double DRIVETRAIN_MAX_ACCELERATION = 4; // m/s^2
+    public static final double DRIVETRAIN_MAX_VEL = 5; // m/s
+    public static final double DRIVETRAIN_MAX_ACCELERATION = 3; // m/s^2
 
+    public static final double DRIVETRAIN_PATH_X_KP = 1.5;
+    public static final double DRIVETRAIN_PATH_Y_KP = 1.5;
+    public static final double DRIVETRAIN_PATH_THETA_KP = 3;
 
     
 
@@ -42,7 +45,7 @@ public final class Constants {
     public static final int ROLLING_AVERAGE_SIZE = 5;
     public static final double TIME_STEP = 0.1;
 
-    public static final double LIMELIGHT_HEIGHT = 0.5;
+    public static final double LIMELIGHT_HEIGHT = 0.66;
     public static final double LIMELIGHT_Y_ANGLE = 35;
 
     public static final double TARGET_HEIGHT = 2.64;
@@ -53,10 +56,13 @@ public final class Constants {
     public static final int HOOD_SERVO_ID_1 = 9;
     public static final int HOOD_SERVO_ID_2 = 8;
 
-    public static final double SHOOTER_kF = 0.0002;
-    public static final double SHOOTER_kP =  0.001; 
-    public static final double SHOOTER_kI = 0;
-    public static final double SHOOTER_kD = 0;
+    public static final double SHOOTER_kF = 0.0544833;
+    // 
+    public static final double SHOOTER_kP =  0.01051414;
+    public static final double SHOOTER_kI = 0.0;
+    public static final double SHOOTER_kD = 0.0;
+    // public static final double SHOOTER_kI = 0.00021414;
+    // public static final double SHOOTER_kD = 0.041414;
     public static final double SHOOTER_MAX_OUTPUT = 0.75;
 
     public static final int TURRET_MOTOR_ID = 15;
@@ -110,8 +116,5 @@ public final class Constants {
     public static final Value INTAKE_PISTON_CLOSED = Value.kReverse;
     public static final int INTAKE_PISTON_FORWARD = 8;
     public static final int INTAKE_PISTON_REVERSE = 13;
-    public static final double DRIVETRAIN_PATH_X_KP = 1.5;
-    public static final double DRIVETRAIN_PATH_Y_KP = 1.5;
-    public static final double DRIVETRAIN_PATH_THETA_KP = 3;
     
 }

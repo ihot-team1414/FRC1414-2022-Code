@@ -18,9 +18,15 @@ public class HoodSubsystem extends SubsystemBase {
   private final double height = Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT;
   private RollingAverage avg = new RollingAverage();
 
+  public HoodSubsystem() {
+    SmartDashboard.putNumber("Set Hood", 0.35);
+  }
+
   public double calculateDistance() {
      return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
   }
+
+  double targetValue = 0.35;
 
   public double calculateVisionAngle() {
     NetworkTableInstance.getDefault().startClientTeam(1414);
@@ -34,7 +40,9 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void visionTargeting() {
-    this.setValue(0.015 * calculateDistance() + 0.22);  
+    this.setValue(targetValue);  
+
+    // this.setValue(0.015 * calculateDistance() + 0.22);  
   }
 
   public void setValue(double value) {
@@ -50,7 +58,9 @@ public class HoodSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Hood Setpoint", target);
-    SmartDashboard.putNumber("Goal Distance (Limelight)", calculateDistance());
+    SmartDashboard.putNumber("Hood Target", target);
+    targetValue = SmartDashboard.getNumber("Set Hood", 0.35);
+
+    SmartDashboard.putNumber("Goal Distance", calculateDistance());
   }
 }

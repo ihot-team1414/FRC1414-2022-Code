@@ -53,7 +53,9 @@ public class TurretSubsystem extends SubsystemBase {
 
   public void moveTurret(double deltaPos) {
     if (Constants.TURRET_MAX_POS > getEncoder() + deltaPos && getEncoder() + deltaPos > Constants.TURRET_MIN_POS) {
+      
       turretMotor.set(ControlMode.Position, getEncoder() + deltaPos);
+      SmartDashboard.putNumber("Turret Target Position", getEncoder() + deltaPos);
     }
   }
   
@@ -83,7 +85,7 @@ public class TurretSubsystem extends SubsystemBase {
     double deltaPos = Constants.TURRET_MOTOR_kP * -error;
 
     this.moveTurret(deltaPos);
-    SmartDashboard.putNumber("Turret Delta Pos", deltaPos);
+    SmartDashboard.putNumber("Turret Delta Position", deltaPos);
   }
 
   public void setVisionMode(boolean on) {
@@ -104,6 +106,6 @@ public class TurretSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Turret Position", this.getEncoder());
+    SmartDashboard.putNumber("Current Turret Position", this.getEncoder());
   }
 }

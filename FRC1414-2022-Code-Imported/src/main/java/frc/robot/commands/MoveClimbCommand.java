@@ -21,11 +21,16 @@ public class MoveClimbCommand extends CommandBase {
     @Override
     public void initialize() {
         climbSubsystem.setArmPosition(armPosition);
-        climbSubsystem.setElevatorPosition(elevatorPosition);
+        // climbSubsystem.setElevatorPosition(elevatorPosition);
     }
 
     @Override
     public boolean isFinished() {
         return climbSubsystem.isArmAtTarget(armPosition) && climbSubsystem.isElevatorAtTarget(elevatorPosition);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        
     }
 }
