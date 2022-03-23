@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public final class Constants {
   public static final Pose2d[] STARTING_POSITIONS = {
-      new Pose2d(8, 2.84, Rotation2d.fromDegrees(68)),
-      new Pose2d(0, 0, Rotation2d.fromDegrees(0))
+    new Pose2d(8, 2.84, Rotation2d.fromDegrees(68)),
+    new Pose2d(0, 0, Rotation2d.fromDegrees(0))
   };
 
   // DRIVETRAIN
@@ -29,35 +29,35 @@ public final class Constants {
   public static final double DRIVETRAIN_ROTATION_kP = 0.0875;
 
   public static final TrapezoidProfile.Constraints THETA_CONTROLLER_CONSTRAINTS = 
-      new TrapezoidProfile.Constraints(
-        Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-        Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-      );
+    new TrapezoidProfile.Constraints(
+      Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+      Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+    );
 
   public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
-      Constants.DRIVETRAIN_MAX_VEL,
-      Constants.DRIVETRAIN_MAX_ACCELERATION
-    ).setKinematics(Constants.KINEMATICS);
+    Constants.DRIVETRAIN_MAX_VEL,
+    Constants.DRIVETRAIN_MAX_ACCELERATION
+  ).setKinematics(Constants.KINEMATICS);
 
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 
-      Constants.DRIVETRAIN_MAX_VEL / Math.hypot(
-        Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
-        );
+    Constants.DRIVETRAIN_MAX_VEL / Math.hypot(
+      Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
+    );
 
   public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
-      new Translation2d(
-        Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
-      ),
-      new Translation2d(
-        Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
-      ),
-      new Translation2d(
-        -Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
-      ),
-      new Translation2d(
-        -Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
-      )
-    );
+    new Translation2d(
+      Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
+    ),
+    new Translation2d(
+      Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
+    ),
+    new Translation2d(
+      -Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
+    ),
+    new Translation2d(
+      -Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
+    )
+  );
 
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;

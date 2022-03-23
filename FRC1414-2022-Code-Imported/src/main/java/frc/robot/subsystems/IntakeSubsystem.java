@@ -25,7 +25,7 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void close() {
-    this.stop();
+    stop();
     intakePiston.set(Constants.INTAKE_PISTON_CLOSED);
   }
 

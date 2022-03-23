@@ -19,19 +19,14 @@ public class HoodSubsystem extends SubsystemBase {
 
   public void visionTargeting() {
     // double distance = Limelight.getInstance().calculateDistance();
-    this.set(dashboardTarget);  
-    // this.setValue(0.015 * calculateDistance() + 0.22);  
+    set(dashboardTarget);  
+    // set(0.015 * calculateDistance() + 0.22);  
   }
 
   public void set(double value) {
     target = value;
     servo1.set(value);
     servo2.set(value);
-  }
-
-  public void resetAngle() {
-    servo1.set(0);
-    servo2.set(0);
   }
 
   @Override

@@ -15,6 +15,9 @@ public class ClimbSubsystem extends SubsystemBase {
   private final TalonFX pivotMotor = new TalonFX(Constants.PIVOT_ARM_1_MOTOR_ID);
   private final TalonFX pivotMotor2 = new TalonFX(Constants.PIVOT_ARM_2_MOTOR_ID);
 
+  private int currentState = 0;
+  private boolean stateTriggered = false;
+
   public enum PivotPosition {
     Starting(2000), Vertical(70000), Grabbing(60000), Tilting(100000), Lifting(40000);
 
@@ -30,7 +33,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
-    Starting(-3000), Neutral(100), Intermediate(97081), FirstRung(150000), Extended(190000);
+    Neutral(100), Intermediate(97081), FirstRung(150000), Extended(190000);
 
     private int position;
 
@@ -42,6 +45,52 @@ public class ClimbSubsystem extends SubsystemBase {
       return this.position;
     }
   }
+
+  TelescopePosition[] telescopeStates = {
+    TelescopePosition.Neutral,
+    TelescopePosition.FirstRung,
+    TelescopePosition.Neutral,
+    TelescopePosition.Neutral,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Extended,
+    TelescopePosition.Extended,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Neutral,
+    TelescopePosition.Neutral,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Extended,
+    TelescopePosition.Extended,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Neutral,
+    TelescopePosition.Neutral,
+    TelescopePosition.Intermediate,
+    TelescopePosition.Neutral,
+  };
+
+  PivotPosition[] pivotStates = {
+    PivotPosition.Vertical,
+    PivotPosition.Lifting,
+    PivotPosition.Lifting,
+    PivotPosition.Grabbing,
+    PivotPosition.Grabbing,
+    PivotPosition.Tilting,
+    PivotPosition.Tilting,
+    PivotPosition.Vertical,
+    PivotPosition.Lifting,
+    PivotPosition.Lifting,
+    PivotPosition.Grabbing,
+    PivotPosition.Grabbing,
+    PivotPosition.Tilting,
+    PivotPosition.Tilting,
+    PivotPosition.Vertical,
+    PivotPosition.Lifting,
+    PivotPosition.Lifting,
+    PivotPosition.Grabbing,
+    PivotPosition.Grabbing,
+    PivotPosition.Tilting,
+  };
 
   private void configureTelescopingMotor(TalonFX motor) {
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
@@ -92,24 +141,6 @@ public class ClimbSubsystem extends SubsystemBase {
     pivotMotor2.setInverted(true);
   }
 
-  public boolean isTelescopeAtTarget(TelescopePosition position) {
-    boolean telescope1Aligned = Math.abs(position.getPosition()
-        - telescopingMotor.getSelectedSensorPosition()) <= Constants.TELESCOPING_ARM_ALLOWED_ERROR;
-    boolean telescope2Aligned = Math.abs(position.getPosition()
-        - telescopingMotor2.getSelectedSensorPosition()) <= Constants.TELESCOPING_ARM_ALLOWED_ERROR;
-
-    return telescope1Aligned && telescope2Aligned;
-  }
-
-  public boolean isPivotAtTarget(PivotPosition position) {
-    boolean pivot1Aligned = Math.abs(position.getPosition()
-        - pivotMotor.getSelectedSensorPosition()) <= Constants.PIVOT_ARM_ALLOWED_ERROR;
-    boolean pivot2Aligned = Math.abs(position.getPosition()
-        - pivotMotor2.getSelectedSensorPosition()) <= Constants.PIVOT_ARM_ALLOWED_ERROR;
-
-    return pivot1Aligned && pivot2Aligned;
-  }
-
   public void setPivot(PivotPosition pos) {
     pivotMotor.set(ControlMode.MotionMagic, pos.getPosition());
     pivotMotor2.set(ControlMode.MotionMagic, pos.getPosition());
@@ -126,6 +157,27 @@ public class ClimbSubsystem extends SubsystemBase {
 
   public void stopTelescope() {
     telescopingMotor.set(ControlMode.PercentOutput, 0.0);
+  }
+
+  public void activateState() {
+    setTelescope(telescopeStates[currentState]);
+    setPivot(pivotStates[currentState]);
+
+    stateTriggered = true;
+  }
+
+  public void nextState() {
+    if (currentState + 1 < telescopeStates.length && stateTriggered) {
+      currentState++;
+      stateTriggered = false;
+    }
+  }
+
+  public void previousState() {
+    if (currentState - 1 > 0 && stateTriggered) {
+      currentState--;
+      stateTriggered = false;
+    }
   }
 
   @Override

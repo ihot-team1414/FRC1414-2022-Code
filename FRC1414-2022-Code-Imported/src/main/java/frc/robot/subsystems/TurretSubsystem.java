@@ -47,7 +47,7 @@ public class TurretSubsystem extends SubsystemBase {
     double deltaX = Limelight.getInstance().getDeltaX();
     double deltaPos = Constants.TURRET_VISION_kP * -deltaX;
 
-    this.moveTurret(turretMotor.getSelectedSensorPosition() + deltaPos);
+    moveTurret(turretMotor.getSelectedSensorPosition() + deltaPos);
   }
 
   @Override
