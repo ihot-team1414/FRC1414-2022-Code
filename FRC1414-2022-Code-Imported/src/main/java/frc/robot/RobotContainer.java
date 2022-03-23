@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
+import frc.robot.autos.*;
 import frc.robot.subsystems.ClimbSubsystem.ArmPosition;
 import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -31,51 +32,42 @@ public class RobotContainer {
 
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  private final DrivetrainSubsystem m_drivetrain = new DrivetrainSubsystem(Constants.STARTING_POSITIONS[1]);
+  private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(Constants.STARTING_POSITIONS[1]);
 
-  private final HoodSubsystem m_hoodSubsystem = new HoodSubsystem();
+  private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
 
-  private final IndexerSubsystem m_indexerSubsystem = new IndexerSubsystem();
+  private final IndexerSubsystem indexerSubsystem = new IndexerSubsystem();
 
-  private final IntakeSubsystem m_intakesubsystem = new IntakeSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
-  private final ShooterSubsystem m_shooterSubsystem = new ShooterSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
 
-  private final ClimbSubsystem m_climbSubsystem = new ClimbSubsystem();
+  private final ClimbSubsystem climbSubsystem = new ClimbSubsystem();
 
-  private final TurretSubsystem m_turretSubsystem = new TurretSubsystem();
+  private final TurretSubsystem turretSubsystem = new TurretSubsystem();
+
+  private final FourBallAuto fourBallAuto = new FourBallAuto(drivetrainSubsystem, intakeSubsystem, indexerSubsystem, shooterSubsystem, turretSubsystem, hoodSubsystem);
+  private final TwoBallAuto twoBallAuto = new TwoBallAuto(drivetrainSubsystem, intakeSubsystem, indexerSubsystem, shooterSubsystem, turretSubsystem, hoodSubsystem);
 
   public RobotContainer() {
-    // this.chooser.addOption("2 Ball",  new SequentialCommandGroup(
-    //   new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
-    //   new ParallelCommandGroup(
-    //     new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
-    //     new DriveStraightCommand(m_drivetrain, new Pose2d(1, 0, Rotation2d.fromDegrees(45))).withTimeout(3.5)
-    //   ),
-    //   new TurnToAngleCommand(m_drivetrain, 180).withTimeout(3),
-    //   new ParallelCommandGroup(
-    //     new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
-    //     new TurretAutoCommand(m_turretSubsystem),
-    //     new HoodAutoCommand(m_hoodSubsystem),
-    //     new ShooterAutoCommand(m_shooterSubsystem),
-    //     new SequentialCommandGroup(
-    //       new WaitCommand(2),
-    //       new IndexerAutoCommand(m_indexersubsystem, () -> true)
-    //     )
-    //   ).withTimeout(6))
-    // );
+
+
+
+    this.chooser.addOption("Wait Command", new WaitCommand(15));
+    this.chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
+    this.chooser.addOption("2 Ball High", twoBallAuto.getAuto());
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
 
-    m_hoodSubsystem.setDefaultCommand(new HoodAutoCommand(m_hoodSubsystem));
-    m_turretSubsystem.setDefaultCommand(new TurretAutoCommand(m_turretSubsystem));
+    hoodSubsystem.setDefaultCommand(new HoodAutoCommand(hoodSubsystem));
+    turretSubsystem.setDefaultCommand(new TurretAutoCommand(turretSubsystem));
 
     configureButtonBindings();
 
-    m_climbSubsystem.setDefaultCommand(new RobotStartCommand(m_climbSubsystem));
+    climbSubsystem.setDefaultCommand(new RobotStartCommand(climbSubsystem));
 
-    m_drivetrain.setDefaultCommand(new DriveCommand(
-      m_drivetrain,
+    drivetrainSubsystem.setDefaultCommand(new DriveCommand(
+      drivetrainSubsystem,
       () -> Utils.deadband(driver.getRightY(), 0.1),
       () -> Utils.deadband(driver.getRightX(), 0.1),
       () -> Utils.deadband(driver.getLeftX(), 0.1),
@@ -134,22 +126,20 @@ int currentState = 0;
     };
 
     // Drive button to zero gyroscope
-    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.m_drivetrain.zeroGyroscope());
+    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.drivetrainSubsystem.zeroGyroscope());
 
     // Driver buttons for turn to angle
-    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(180), m_drivetrain);
-    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(90), m_drivetrain);
-    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(-90), m_drivetrain);
-    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(()-> m_drivetrain.turnToAngle(0), m_drivetrain);
+    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(180), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(90), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(-90), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(0), drivetrainSubsystem);
 
 
     // A Button activates current climb state
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setArmPosition(armStates[currentState]));
-    // new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
-
-    // new JoystickButton(operator, Button.kA.value).whenPressed(new MoveClimbCommand(m_climbSubsystem, armStates[currentState], elevatorStates[currentState]).withTimeout(3));
-
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.m_turretSubsystem.resetPosition());
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setArmPosition(armStates[currentState]));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
+    
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.turretSubsystem.resetPosition());
 
     // Left Bumper decreases climb state
     new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> { 
@@ -162,26 +152,26 @@ int currentState = 0;
     });
 
     // X Button holds balls
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.m_indexerSubsystem.holdBalls()).whenReleased(() -> this.m_indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.indexerSubsystem.holdBalls()).whenReleased(() -> this.indexerSubsystem.stop());
 
     // B Button deploys intake and runs intake and indexer to the hold ball position
     new JoystickButton(operator, Button.kB.value).whenPressed(new SequentialCommandGroup(
-      new InstantCommand(() -> m_intakesubsystem.setForward()),
+      new InstantCommand(() -> intakeSubsystem.setForward()),
       new WaitCommand(0.5),
-      new InstantCommand(() -> m_intakesubsystem.setIntakeSpeed(Constants.INTAKE_SPEED)
+      new InstantCommand(() -> intakeSubsystem.setIntakeSpeed(Constants.INTAKE_SPEED)
     ))).whenReleased(() -> {
-      this.m_intakesubsystem.setReverse();
-      this.m_intakesubsystem.stop();
+      this.intakeSubsystem.setReverse();
+      this.intakeSubsystem.stop();
     });
 
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.m_indexerSubsystem.holdBalls()).whenReleased(() -> this.m_indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.indexerSubsystem.holdBalls()).whenReleased(() -> this.indexerSubsystem.stop());
 
     // Y Button starts shooter
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new ShooterCommand(m_shooterSubsystem, m_indexerSubsystem));
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> this.m_turretSubsystem.visionTargeting());
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new ShooterCommand(shooterSubsystem, indexerSubsystem));
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> this.turretSubsystem.visionTargeting());
 
     // Start Button runs indexer backwards to clear shooter
-    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.m_indexerSubsystem.reverse()).whenReleased(() -> this.m_indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.indexerSubsystem.reverse()).whenReleased(() -> this.indexerSubsystem.stop());
   }
 
   public Command getAutonomousCommand() {

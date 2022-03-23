@@ -10,10 +10,14 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants;
-import frc.robot.subsystems.DrivetrainSubsystem;
+import frc.robot.subsystems.*;
+import frc.robot.commands.*;
 
 public class FourBallAuto {
   private PIDController xController = new PIDController(Constants.DRIVETRAIN_PATH_X_kP, 0, 0);
@@ -37,64 +41,55 @@ public class FourBallAuto {
 
   private SequentialCommandGroup auto;
 
-  public FourBallAuto(DrivetrainSubsystem drivetrainSubsystem) {
+  public FourBallAuto(DrivetrainSubsystem drivetrainSubsystem, IntakeSubsystem intakeSubsystem, IndexerSubsystem indexerSubsystem, ShooterSubsystem shooterSubsystem, TurretSubsystem turretSubsystem, HoodSubsystem hoodSubsystem) {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     SwerveControllerCommand outside4BallAutoCommands[] = {
       new SwerveControllerCommand(
         outside4BallAutoTrajectories[0],
-        () -> m_drivetrain.getPose(),
+        () -> drivetrainSubsystem.getPose(),
         Constants.KINEMATICS,
         xController,
         yController,
         thetaController,
-        m_drivetrain::setModuleStates,
-        m_drivetrain),
+        drivetrainSubsystem::setModuleStates,
+        drivetrainSubsystem),
       new SwerveControllerCommand(
         outside4BallAutoTrajectories[1],
-        () -> m_drivetrain.getPose(),
+        () -> drivetrainSubsystem.getPose(),
         Constants.KINEMATICS,
         xController,
         yController,
         thetaController,
-        m_drivetrain::setModuleStates,
-        m_drivetrain),
+        drivetrainSubsystem::setModuleStates,
+        drivetrainSubsystem),
     };
 
     auto = new SequentialCommandGroup(
-      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+      new IntakeAutoDeployCommand(intakeSubsystem).withTimeout(0.5),
       new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem).withTimeout(2.5),
+        new IntakeAutoCommand(intakeSubsystem).withTimeout(2.5),
         outside4BallAutoCommands[0].withTimeout(2.5)
       ),
-      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
+      new TurnToAngleCommand(drivetrainSubsystem, 180).withTimeout(1),
       new ParallelCommandGroup(
-        new InstantCommand(() -> m_intakesubsystem.setReverse(), m_intakesubsystem),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new SequentialCommandGroup(
-          new WaitCommand(2),
-          new IndexerAutoCommand(m_indexersubsystem, () -> true)
-        )
-      ).withTimeout(4),
-      new IntakeAutoDeployCommand(m_intakesubsystem).withTimeout(0.5),
+        new InstantCommand(() -> intakeSubsystem.setReverse(), intakeSubsystem),
+        new TurretAutoCommand(turretSubsystem),
+        new HoodAutoCommand(hoodSubsystem),
+        new ShooterCommand(shooterSubsystem, indexerSubsystem)
+      ).withTimeout(3),
+      new IntakeAutoDeployCommand(intakeSubsystem).withTimeout(0.5),
       new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem).withTimeout(3.5),
+        new IntakeAutoCommand(intakeSubsystem).withTimeout(3.5),
         outside4BallAutoCommands[1].withTimeout(3.5)
       ),
-      new TurnToAngleCommand(m_drivetrain, 180).withTimeout(1),
+      new TurnToAngleCommand(drivetrainSubsystem, 25).withTimeout(1),
       new ParallelCommandGroup(
-        new IntakeAutoCommand(m_intakesubsystem),
-        new TurretAutoCommand(m_turretSubsystem),
-        new HoodAutoCommand(m_hoodSubsystem),
-        new ShooterAutoCommand(m_shooterSubsystem),
-        new SequentialCommandGroup(
-          new WaitCommand(1),
-          new IndexerAutoCommand(m_indexersubsystem, () -> true)
-        )
+        new IntakeAutoCommand(intakeSubsystem),
+        new TurretAutoCommand(turretSubsystem),
+        new HoodAutoCommand(hoodSubsystem),
+        new ShooterCommand(shooterSubsystem, indexerSubsystem)
       ).withTimeout(3)
-    )
     );
   }
 
