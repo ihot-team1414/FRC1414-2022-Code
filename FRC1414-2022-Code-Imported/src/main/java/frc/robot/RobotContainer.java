@@ -33,8 +33,6 @@ public class RobotContainer {
 
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
-  private int currentState = 0;
-
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
