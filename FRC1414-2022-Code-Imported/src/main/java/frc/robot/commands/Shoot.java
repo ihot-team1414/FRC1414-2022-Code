@@ -4,25 +4,23 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
-public class ShooterCommand extends CommandBase {
+public class Shoot extends CommandBase {
 
   private final ShooterSubsystem shooterSubsystem;
   private final IndexerSubsystem indexerSubsystem;
 
-  public ShooterCommand(ShooterSubsystem shooterSubsystem, IndexerSubsystem indexerSubsystem) {
+  public Shoot(ShooterSubsystem shooterSubsystem, IndexerSubsystem indexerSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
     this.indexerSubsystem = indexerSubsystem;
-    addRequirements(this.shooterSubsystem, this.indexerSubsystem);
+    addRequirements(shooterSubsystem, indexerSubsystem);
   }
 
-  public void initialize() {
-  }
-
+  @Override
   public void execute() {
-    this.shooterSubsystem.shoot();
+    shooterSubsystem.shoot();
     
-    if (this.shooterSubsystem.shooterMotor1.getSelectedSensorVelocity() > this.shooterSubsystem.targetSpeed) {
-      this.indexerSubsystem.load();
+    if (shooterSubsystem.isWithinAllowedError()) {
+      indexerSubsystem.load();
     }
   }
 
@@ -30,5 +28,5 @@ public class ShooterCommand extends CommandBase {
   public void end(boolean interrupted) {
     this.shooterSubsystem.stop();
     this.indexerSubsystem.stop();
-}
+  }
 }

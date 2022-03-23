@@ -24,11 +24,11 @@ public class ClimbSubsystem extends SubsystemBase {
     private int position;
 
     PivotPosition(int encPos) {
-      this.position = encPos;
+      position = encPos;
     }
 
     public int getPosition() {
-      return this.position;
+      return position;
     }
   }
 
@@ -38,11 +38,11 @@ public class ClimbSubsystem extends SubsystemBase {
     private int position;
 
     TelescopePosition(int encPos) {
-      this.position = encPos;
+      position = encPos;
     }
 
     public int getPosition() {
-      return this.position;
+      return position;
     }
   }
 

@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.*;
@@ -62,10 +60,10 @@ public class RobotContainer {
     chooser.addOption("2 Ball High", twoBallAuto.getAuto());
 
     // DEFAULT COMMANDS
-    hoodSubsystem.setDefaultCommand(new HoodAutoCommand(hoodSubsystem));
-    turretSubsystem.setDefaultCommand(new TurretAutoCommand(turretSubsystem));
-    climbSubsystem.setDefaultCommand(new RobotStartCommand(climbSubsystem));
-    drivetrainSubsystem.setDefaultCommand(new DriveCommand(
+    hoodSubsystem.setDefaultCommand(new AlignHood(hoodSubsystem));
+    turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem));
+    climbSubsystem.setDefaultCommand(new InitializeClimb(climbSubsystem));
+    drivetrainSubsystem.setDefaultCommand(new Drive(
         drivetrainSubsystem,
         () -> Utils.deadband(driver.getRightY(), 0.1),
         () -> Utils.deadband(driver.getRightX(), 0.1),
@@ -87,10 +85,8 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kB.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(-90), drivetrainSubsystem);
     new JoystickButton(driver, Button.kY.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(0), drivetrainSubsystem);
 
-
     // A Button activates current climb state
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> climbSubsystem.activateState());
-    
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> turretSubsystem.home());
 
     // Left Bumper decreases climb state
@@ -100,26 +96,19 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> climbSubsystem.nextState());
 
     // X Button holds balls
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> indexerSubsystem.holdBalls()).whenReleased(() -> indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kX.value).whileActiveContinuous(new HoldBalls(indexerSubsystem));
 
     // B Button deploys intake and runs intake and indexer to the hold ball position
-    new JoystickButton(operator, Button.kB.value).whenPressed(new SequentialCommandGroup(
-      new InstantCommand(() -> intakeSubsystem.open()),
-      new WaitCommand(0.5),
-      new InstantCommand(() -> intakeSubsystem.set(Constants.INTAKE_SPEED)
-    ))).whenReleased(() -> {
-      intakeSubsystem.close();
-      intakeSubsystem.stop();
-    });
-
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> indexerSubsystem.holdBalls()).whenReleased(() -> indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new Intake(indexerSubsystem, intakeSubsystem));
 
     // Y Button starts shooter
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new ShooterCommand(shooterSubsystem, indexerSubsystem));
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> turretSubsystem.visionTargeting());
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot(shooterSubsystem, indexerSubsystem));
 
     // Start Button runs indexer backwards to clear shooter
-    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> indexerSubsystem.reverse()).whenReleased(() -> indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kStart.value).whenPressed(new Deload(indexerSubsystem));
+
+    // Back Button moves turret to eject position and ejects balls through shooter
+    new JoystickButton(operator, Button.kBack.value).whileActiveContinuous(new EjectBall(turretSubsystem, shooterSubsystem, indexerSubsystem));
   }
 
   public Command getAutonomousCommand() {

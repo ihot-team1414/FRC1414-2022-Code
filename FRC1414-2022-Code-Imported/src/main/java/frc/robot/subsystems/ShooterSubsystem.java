@@ -35,6 +35,10 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.set(ControlMode.Velocity, dashboardTarget);
   }
 
+  public boolean isWithinAllowedError() {
+    return shooterMotor1.getClosedLoopError() < Constants.SHOOTER_ALLOWED_ERROR;
+  }
+
   public void eject() {
     shooterMotor1.set(ControlMode.Velocity, 5000);
   }

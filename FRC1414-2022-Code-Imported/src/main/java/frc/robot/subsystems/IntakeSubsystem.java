@@ -33,6 +33,14 @@ public class IntakeSubsystem extends SubsystemBase {
     set(0);
   }
 
+  public void intake() {
+    set(Constants.INTAKE_SPEED);
+  }
+
+  public void outtake() {
+    set(-Constants.INTAKE_SPEED);
+  }
+
   public void set(double speed) {
     this.frontIntakeMotor.set(ControlMode.PercentOutput, speed);
   }

@@ -29,6 +29,10 @@ public class HoodSubsystem extends SubsystemBase {
     servo2.set(value);
   }
 
+  public void home() {
+    set(0.35);
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Hood Target", target);
