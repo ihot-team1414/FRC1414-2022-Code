@@ -29,12 +29,12 @@ public class IntakeCommand extends CommandBase {
   public void execute() {
     if ((this.throttle.getAsDouble() > 0.75)) {
       if (this.reverse.getAsBoolean()) {
-        this.intake.setIntakeSpeed(-Constants.INTAKE_SPEED);
+        this.intake.set(-Constants.INTAKE_SPEED);
       } else {
-        this.intake.setIntakeSpeed(Constants.INTAKE_SPEED);
+        this.intake.set(Constants.INTAKE_SPEED);
       }
     } else {
-        this.intake.setIntakeSpeed(0);
+        this.intake.set(0);
     }
   }
 
@@ -45,6 +45,6 @@ public class IntakeCommand extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    this.intake.setIntakeSpeed(0);
+    this.intake.set(0);
 }
 }

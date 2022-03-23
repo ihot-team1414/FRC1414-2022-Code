@@ -1,38 +1,29 @@
 package frc.robot;
 
-import java.util.List;
-
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.GenericHID;
-
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.*;
-import frc.robot.commands.*;
-import frc.robot.autos.*;
-import frc.robot.subsystems.ClimbSubsystem.ArmPosition;
-import frc.robot.subsystems.ClimbSubsystem.ElevatorPosition;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.autos.*;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
+import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
+import frc.robot.subsystems.ClimbSubsystem.TelescopePosition;
 import frc.util.Utils;
 
 public class RobotContainer {
-  // Xbox Controllers
+  // CONTROLLERS
   private final XboxController driver = new XboxController(1);
   private final XboxController operator = new XboxController(0);
 
-  private SendableChooser<Command> chooser = new SendableChooser<>();
-
-  private final DrivetrainSubsystem drivetrainSubsystem = new DrivetrainSubsystem(Constants.STARTING_POSITIONS[1]);
+  // SUBSYSTEMS
+  private final DrivetrainSubsystem drivetrainSubsystem = 
+      new DrivetrainSubsystem(Constants.STARTING_POSITIONS[1]);
 
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
 
@@ -46,83 +37,93 @@ public class RobotContainer {
 
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
-  private final FourBallAuto fourBallAuto = new FourBallAuto(drivetrainSubsystem, intakeSubsystem, indexerSubsystem, shooterSubsystem, turretSubsystem, hoodSubsystem);
-  private final TwoBallAuto twoBallAuto = new TwoBallAuto(drivetrainSubsystem, intakeSubsystem, indexerSubsystem, shooterSubsystem, turretSubsystem, hoodSubsystem);
+  // AUTOS
+  private SendableChooser<Command> chooser = new SendableChooser<>();
+
+  private final FourBallAuto fourBallAuto = new FourBallAuto(
+      drivetrainSubsystem,
+      intakeSubsystem,
+      indexerSubsystem,
+      shooterSubsystem,
+      turretSubsystem,
+      hoodSubsystem);
+
+  private final TwoBallAuto twoBallAuto = new TwoBallAuto(
+      drivetrainSubsystem,
+      intakeSubsystem,
+      indexerSubsystem,
+      shooterSubsystem,
+      turretSubsystem,
+      hoodSubsystem);
 
   public RobotContainer() {
-
-
-
-    this.chooser.addOption("Wait Command", new WaitCommand(15));
+    // AUTO CHOOSER
+    SmartDashboard.putData("Auto Chooser", this.chooser);
+    this.chooser.addOption("Wait", new WaitCommand(15));
     this.chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
     this.chooser.addOption("2 Ball High", twoBallAuto.getAuto());
 
-    SmartDashboard.putData("Auto Chooser", this.chooser);
-
+    // DEFAULT COMMANDS
     hoodSubsystem.setDefaultCommand(new HoodAutoCommand(hoodSubsystem));
     turretSubsystem.setDefaultCommand(new TurretAutoCommand(turretSubsystem));
+    climbSubsystem.setDefaultCommand(new RobotStartCommand(climbSubsystem));
+    drivetrainSubsystem.setDefaultCommand(new DriveCommand(
+        drivetrainSubsystem,
+        () -> Utils.deadband(driver.getRightY(), 0.1),
+        () -> Utils.deadband(driver.getRightX(), 0.1),
+        () -> Utils.deadband(driver.getLeftX(), 0.1),
+        () -> driver.getRightBumper(),
+        () -> driver.getLeftBumper()
+    ));
 
     configureButtonBindings();
-
-    climbSubsystem.setDefaultCommand(new RobotStartCommand(climbSubsystem));
-
-    drivetrainSubsystem.setDefaultCommand(new DriveCommand(
-      drivetrainSubsystem,
-      () -> Utils.deadband(driver.getRightY(), 0.1),
-      () -> Utils.deadband(driver.getRightX(), 0.1),
-      () -> Utils.deadband(driver.getLeftX(), 0.1),
-      () -> driver.getRightBumper(),
-      () -> driver.getLeftBumper()
-    ));
   }
 
-double setPoint = 0.25;
-int currentState = 0;
   private void configureButtonBindings() {
-    ElevatorPosition elevatorStates[] = { 
-      ElevatorPosition.Neutral, //
-      ElevatorPosition.FirstRung, //
-      ElevatorPosition.Starting, //
-      ElevatorPosition.Starting, //
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Extended,
-      ElevatorPosition.Extended,
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Starting,
-      ElevatorPosition.Starting,
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Extended,
-      ElevatorPosition.Extended,
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Starting,
-      ElevatorPosition.Starting,
-      ElevatorPosition.Intermediate,
-      ElevatorPosition.Neutral,
+    TelescopePosition[] elevatorStates = {
+        TelescopePosition.Neutral, //
+        TelescopePosition.FirstRung, //
+        TelescopePosition.Starting, //
+        TelescopePosition.Starting, //
+        TelescopePosition.Intermediate,
+        TelescopePosition.Intermediate,
+        TelescopePosition.Extended,
+        TelescopePosition.Extended,
+        TelescopePosition.Intermediate,
+        TelescopePosition.Starting,
+        TelescopePosition.Starting,
+        TelescopePosition.Intermediate,
+        TelescopePosition.Intermediate,
+        TelescopePosition.Extended,
+        TelescopePosition.Extended,
+        TelescopePosition.Intermediate,
+        TelescopePosition.Starting,
+        TelescopePosition.Starting,
+        TelescopePosition.Intermediate,
+        TelescopePosition.Neutral,
     };
 
-    ArmPosition armStates[] = {
-      ArmPosition.Vertical,
-      ArmPosition.Lifting,
-      ArmPosition.Lifting,
-      ArmPosition.Grabbing,
-      ArmPosition.Grabbing,
-      ArmPosition.Tilting,
-      ArmPosition.Tilting,
-      ArmPosition.Vertical,
-      ArmPosition.Lifting,
-      ArmPosition.Lifting,
-      ArmPosition.Grabbing,
-      ArmPosition.Grabbing,
-      ArmPosition.Tilting,
-      ArmPosition.Tilting,
-      ArmPosition.Vertical,
-      ArmPosition.Lifting,
-      ArmPosition.Lifting,
-      ArmPosition.Grabbing,
-      ArmPosition.Grabbing,
-      ArmPosition.Tilting,
+    PivotPosition[] armStates = {
+      PivotPosition.Vertical,
+      PivotPosition.Lifting,
+      PivotPosition.Lifting,
+      PivotPosition.Grabbing,
+      PivotPosition.Grabbing,
+      PivotPosition.Tilting,
+      PivotPosition.Tilting,
+      PivotPosition.Vertical,
+      PivotPosition.Lifting,
+      PivotPosition.Lifting,
+      PivotPosition.Grabbing,
+      PivotPosition.Grabbing,
+      PivotPosition.Tilting,
+      PivotPosition.Tilting,
+      PivotPosition.Vertical,
+      PivotPosition.Lifting,
+      PivotPosition.Lifting,
+      PivotPosition.Grabbing,
+      PivotPosition.Grabbing,
+      PivotPosition.Tilting,
     };
 
     // Drive button to zero gyroscope
@@ -136,10 +137,10 @@ int currentState = 0;
 
 
     // A Button activates current climb state
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setArmPosition(armStates[currentState]));
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setElevatorPosition(elevatorStates[currentState]));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setPivot(armStates[currentState]));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setTelescope(elevatorStates[currentState]));
     
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.turretSubsystem.resetPosition());
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.turretSubsystem.home());
 
     // Left Bumper decreases climb state
     new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> { 
@@ -156,11 +157,11 @@ int currentState = 0;
 
     // B Button deploys intake and runs intake and indexer to the hold ball position
     new JoystickButton(operator, Button.kB.value).whenPressed(new SequentialCommandGroup(
-      new InstantCommand(() -> intakeSubsystem.setForward()),
+      new InstantCommand(() -> intakeSubsystem.open()),
       new WaitCommand(0.5),
-      new InstantCommand(() -> intakeSubsystem.setIntakeSpeed(Constants.INTAKE_SPEED)
+      new InstantCommand(() -> intakeSubsystem.set(Constants.INTAKE_SPEED)
     ))).whenReleased(() -> {
-      this.intakeSubsystem.setReverse();
+      this.intakeSubsystem.close();
       this.intakeSubsystem.stop();
     });
 

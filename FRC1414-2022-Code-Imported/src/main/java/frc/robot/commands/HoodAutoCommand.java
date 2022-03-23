@@ -21,6 +21,6 @@ public class HoodAutoCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        hoodSubsystem.setValue(0.3);
+        hoodSubsystem.set(0.3);
     }
 }

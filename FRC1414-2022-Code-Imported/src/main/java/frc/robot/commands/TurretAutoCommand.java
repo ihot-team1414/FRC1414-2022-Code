@@ -20,6 +20,6 @@ public class TurretAutoCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        turretSubsystem.resetPosition();
+        turretSubsystem.home();
     }
 }

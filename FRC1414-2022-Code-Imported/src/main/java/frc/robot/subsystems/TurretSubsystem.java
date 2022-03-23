@@ -1,5 +1,4 @@
 package frc.robot.subsystems;
-import frc.robot.Constants;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -7,10 +6,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import frc.robot.Constants;
+import frc.util.Limelight;
 
 public class TurretSubsystem extends SubsystemBase {
   private TalonFX turretMotor = new TalonFX(Constants.TURRET_MOTOR_ID);
@@ -23,89 +20,40 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.configPeakOutputForward(Constants.TURRET_MOTOR_MAX_OUTPUT, 0);
     turretMotor.configPeakOutputReverse(-Constants.TURRET_MOTOR_MAX_OUTPUT, 0);
     turretMotor.selectProfileSlot(0, 0);
-    turretMotor.config_kF(0, Constants.TURRET_ARM_MOTOR_kF, 0);
-    turretMotor.config_kP(0, Constants.TURRET_ARM_MOTOR_kP, 0);
-    turretMotor.config_kI(0, Constants.TURRET_ARM_MOTOR_kI, 0);
-    turretMotor.config_kD(0, Constants.TURRET_ARM_MOTOR_kD, 0);
+    turretMotor.config_kF(0, Constants.TURRET_MOTOR_kF, 0);
+    turretMotor.config_kP(0, Constants.TURRET_MOTOR_kP, 0);
+    turretMotor.config_kI(0, Constants.TURRET_MOTOR_kI, 0);
+    turretMotor.config_kD(0, Constants.TURRET_MOTOR_kD, 0);
 
-    turretMotor.configMotionCruiseVelocity(Constants.TURRET_ARM_MAX_VEL, 30);
-    turretMotor.configMotionAcceleration(Constants.TURRET_ARM_ACCEL, 30);
-    setVisionMode(true);
+    turretMotor.configMotionCruiseVelocity(Constants.TURRET_MAX_VEL, 30);
+    turretMotor.configMotionAcceleration(Constants.TURRET_ACCEL, 30);
   }
 
-  // public void moveTurret(double throttle) {
-  //   if (Constants.TURRET_MAX_POS > getEncoder() && getEncoder() > Constants.TURRET_MIN_POS) {
-  //     turretMotor.set(ControlMode.PercentOutput, throttle);
-  //   } else if (Constants.TURRET_MAX_POS <= getEncoder()) {
-  //     if (throttle > 0) {
-  //       turretMotor.set(ControlMode.PercentOutput, 0);
-  //     } else {
-  //       turretMotor.set(ControlMode.PercentOutput, throttle);
-  //     }
-  //   } else if (Constants.TURRET_MIN_POS >= getEncoder()) {
-  //     if (throttle > 0) {
-  //       turretMotor.set(ControlMode.PercentOutput, throttle);
-  //     } else {
-  //       turretMotor.set(ControlMode.PercentOutput, 0);
-  //     }
-  //   }
-  // }
-
-  public void moveTurret(double deltaPos) {
-    if (Constants.TURRET_MAX_POS > getEncoder() + deltaPos && getEncoder() + deltaPos > Constants.TURRET_MIN_POS) {
-      
-      turretMotor.set(ControlMode.Position, getEncoder() + deltaPos);
-      SmartDashboard.putNumber("Turret Target Position", getEncoder() + deltaPos);
+  public void moveTurret(double position) {
+    if (Constants.TURRET_MAX_POS > position && position > Constants.TURRET_MIN_POS) {
+      turretMotor.set(ControlMode.Position, position);
     }
   }
-  
-  public double getEncoder() {
-    return turretMotor.getSelectedSensorPosition();
+
+  public void home() {
+    moveTurret(0);
   }
 
-  public void resetEncoder() {
-    turretMotor.setSelectedSensorPosition(0, 0, 0);
-  }
-
-  public void resetPosition() {
-    turretMotor.set(ControlMode.Position, 0);
-  }
-
-  public void ejectPosition() {
-    turretMotor.set(ControlMode.Position, 4000);
+  public void eject() {
+    moveTurret(4000);
   }
 
   public void visionTargeting() {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry tx = table.getEntry("tx");
+    double deltaX = Limelight.getInstance().getDeltaX();
+    double deltaPos = Constants.TURRET_VISION_kP * -deltaX;
 
-    double error = tx.getDouble(0.0);
-    double deltaPos = Constants.TURRET_MOTOR_kP * -error;
-
-    this.moveTurret(deltaPos);
-    SmartDashboard.putNumber("Turret Delta Position", deltaPos);
-  }
-
-  public void setVisionMode(boolean on) {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry camMode = table.getEntry("camMode");
-    NetworkTableEntry ledMode = table.getEntry("ledMode");
-    
-    if (on) {
-      camMode.setDouble(0);
-      ledMode.setDouble(3);
-    } else {
-      camMode.setDouble(1);
-      ledMode.setDouble(1);
-    }
+    this.moveTurret(turretMotor.getSelectedSensorPosition() + deltaPos);
   }
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Current Turret Position", this.getEncoder());
+    SmartDashboard.putNumber("Turret Target", turretMotor.getClosedLoopTarget());
+    SmartDashboard.putNumber("Turret Position", turretMotor.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Turret Closed Loop Error", turretMotor.getClosedLoopError());
   }
 }

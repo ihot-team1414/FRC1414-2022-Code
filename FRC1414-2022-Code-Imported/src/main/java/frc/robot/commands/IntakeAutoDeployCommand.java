@@ -16,8 +16,8 @@ public class IntakeAutoDeployCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        this.intakeSubsystem.setForward();
-        this.intakeSubsystem.setIntakeSpeed(-Constants.INTAKE_SPEED);
+        this.intakeSubsystem.open();
+        this.intakeSubsystem.set(-Constants.INTAKE_SPEED);
     }
 
     @Override

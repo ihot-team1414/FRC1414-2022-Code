@@ -52,8 +52,8 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void load() {
-      funnel();
-      loadShooter();
+    funnel();
+    loadShooter();
   }
 
   @Override

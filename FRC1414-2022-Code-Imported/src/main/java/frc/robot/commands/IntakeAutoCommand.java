@@ -17,12 +17,12 @@ public class IntakeAutoCommand extends CommandBase {
     @Override
     public void execute() {
         var speed = Constants.INTAKE_SPEED;
-        intakeSubsystem.setIntakeSpeed(speed);
+        intakeSubsystem.set(speed);
     }
 
     @Override
     public void initialize() {
-        intakeSubsystem.setForward();
+        intakeSubsystem.open();
     }
 
 }

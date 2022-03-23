@@ -1,21 +1,17 @@
 package frc.robot.subsystems;
-import frc.robot.Constants;
-import frc.util.RollingAverage;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 
-public class ShooterSubsystem extends SubsystemBase{
+public class ShooterSubsystem extends SubsystemBase {
+  private final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
+  private final TalonFX shooterMotor2 = new TalonFX(Constants.SHOOTER_ID_2);
 
-  public final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
-  public final TalonFX shooterMotor2 = new TalonFX(Constants.SHOOTER_ID_2);
+  public double dashboardTarget = 0;
 
   public ShooterSubsystem() {
     shooterMotor1.selectProfileSlot(0, 0);
@@ -32,37 +28,15 @@ public class ShooterSubsystem extends SubsystemBase{
     SmartDashboard.putNumber("Target Shooter Velocity", 9000);
   }
 
-  private RollingAverage avg = new RollingAverage();
-
-  public double calculateVisionAngle() {
-    NetworkTableInstance.getDefault().startClientTeam(1414);
-    NetworkTableInstance.getDefault().startDSClient();
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    NetworkTableEntry ty = table.getEntry("ty");
-
-    avg.add(ty.getDouble(0.0));
-
-    return avg.getAverage();
-  }
-
-  public double calculateDistance() {
-    double height = Constants.TARGET_HEIGHT - Constants.LIMELIGHT_HEIGHT;
-    return height / Math.tan(Math.toRadians(calculateVisionAngle() + Constants.LIMELIGHT_Y_ANGLE));
-  }
-
-  public double targetSpeed = 0;
-
   public void shoot() {
-      // 21700
-      shooterMotor1.set(ControlMode.Velocity, targetSpeed);
+    // double distance = Limelight.getInstance().calculateDistance();
+
+    // 21700 is max theoretical speed for shooter.
+    shooterMotor1.set(ControlMode.Velocity, dashboardTarget);
   }
 
   public void eject() {
-    shooterMotor1.set(ControlMode.Velocity, 3000);
-  }
-
-  public void shootMaxRPM() {
-    shooterMotor1.set(ControlMode.PercentOutput, 1);
+    shooterMotor1.set(ControlMode.Velocity, 5000);
   }
 
   public void stop() {
@@ -71,7 +45,9 @@ public class ShooterSubsystem extends SubsystemBase{
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Current Shooter Velocity", this.shooterMotor1.getSelectedSensorVelocity());
-    targetSpeed = SmartDashboard.getNumber("Target Shooter Velocity", 0.0);
+    SmartDashboard.putNumber("Shooter Target", shooterMotor1.getClosedLoopTarget());
+    SmartDashboard.putNumber("Shooter Velocity", shooterMotor1.getSelectedSensorVelocity());
+    SmartDashboard.putNumber("Shooter Closed Loop Error", shooterMotor1.getClosedLoopError());
+    dashboardTarget = SmartDashboard.getNumber("Dashboard Shooter Target", 0.0);
   }
 }

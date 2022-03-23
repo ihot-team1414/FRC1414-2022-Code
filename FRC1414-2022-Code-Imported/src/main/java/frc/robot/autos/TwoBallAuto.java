@@ -34,7 +34,7 @@ public class TwoBallAuto {
         ),
         new TurnToAngleCommand(drivetrainSubsystem, 180).withTimeout(1),
         new ParallelCommandGroup(
-          new InstantCommand(() -> intakeSubsystem.setReverse(), intakeSubsystem),
+          new InstantCommand(() -> intakeSubsystem.close(), intakeSubsystem),
           new TurretAutoCommand(turretSubsystem),
           new HoodAutoCommand(hoodSubsystem),
           new ShooterCommand(shooterSubsystem, indexerSubsystem)

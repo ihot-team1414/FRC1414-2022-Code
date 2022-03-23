@@ -1,7 +1,6 @@
 package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
-import frc.robot.Constants;
 import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -9,11 +8,12 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.I2C;
+import frc.robot.Constants;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule frontLeftModule;
@@ -69,8 +69,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
         Constants.BACK_RIGHT_MODULE_STEER_ENCODER,
         Constants.BACK_RIGHT_MODULE_STEER_OFFSET);
 
-    odometry = new SwerveDriveOdometry(Constants.KINEMATICS, Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
-        startingPosition);
+    odometry = new SwerveDriveOdometry(
+      Constants.KINEMATICS,
+      Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
+      startingPosition
+    );
 
     shuffleboardTab.addNumber("Gyroscope Angle", () -> getRotation().getDegrees());
     shuffleboardTab.addNumber("Pose X", () -> odometry.getPoseMeters().getX());
@@ -94,7 +97,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public double getGyroAngle() {
     return Rotation2d.fromDegrees(-gyroscope.getFusedHeading()).getRadians();
   }
-  
+
   public double getRequiredTurningSpeedForAngle(double angle) {
     double currentAngle = this.getRotation().getDegrees() % 360;
     double error = angle - currentAngle;
@@ -113,38 +116,73 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public void setModuleStates(SwerveModuleState[] states) {
     frontLeftModule.set(
-        states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[0].angle.getRadians());
+        states[0].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[0].angle.getRadians()
+    );
     frontRightModule.set(
-        states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[1].angle.getRadians());
-    backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[2].angle.getRadians());
+        states[1].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[1].angle.getRadians()
+    );
+    backLeftModule.set(
+        states[2].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[2].angle.getRadians()
+    );
     backRightModule.set(
-        states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[3].angle.getRadians());
+        states[3].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[3].angle.getRadians()
+    );
   }
 
   @Override
   public void periodic() {
-    odometry.update(Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
-        new SwerveModuleState(frontLeftModule.getDriveVelocity(), new Rotation2d(frontLeftModule.getSteerAngle())),
-        new SwerveModuleState(frontRightModule.getDriveVelocity(), new Rotation2d(frontRightModule.getSteerAngle())),
-        new SwerveModuleState(backLeftModule.getDriveVelocity(), new Rotation2d(backLeftModule.getSteerAngle())),
-        new SwerveModuleState(backRightModule.getDriveVelocity(), new Rotation2d(backRightModule.getSteerAngle())));
+    odometry.update(
+        Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
+        new SwerveModuleState(
+          frontLeftModule.getDriveVelocity(),
+          new Rotation2d(frontLeftModule.getSteerAngle())
+        ),
+        new SwerveModuleState(
+          frontRightModule.getDriveVelocity(),
+          new Rotation2d(frontRightModule.getSteerAngle())
+        ),
+        new SwerveModuleState(
+          backLeftModule.getDriveVelocity(),
+          new Rotation2d(backLeftModule.getSteerAngle())
+        ),
+        new SwerveModuleState(
+          backRightModule.getDriveVelocity(),
+          new Rotation2d(backRightModule.getSteerAngle())
+        )
+    );
 
     SwerveModuleState[] states = Constants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
 
     frontLeftModule.set(
-        states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[0].angle.getRadians());
+        states[0].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[0].angle.getRadians()
+    );
+
     frontRightModule.set(
-        states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[1].angle.getRadians());
-    backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[2].angle.getRadians());
+        states[1].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[1].angle.getRadians()
+    );
+
+    backLeftModule.set(
+        states[2].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[2].angle.getRadians()
+    );
+
     backRightModule.set(
-        states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[3].angle.getRadians());
+        states[3].speedMetersPerSecond
+          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
+        states[3].angle.getRadians()
+    );
   }
 }
