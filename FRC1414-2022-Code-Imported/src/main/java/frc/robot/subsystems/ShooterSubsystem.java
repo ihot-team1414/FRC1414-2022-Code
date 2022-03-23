@@ -43,6 +43,15 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.set(ControlMode.PercentOutput, 0.0);
   }
 
+  public double getShooterVelocity() {
+    return shooterMotor1.getSelectedSensorVelocity();
+  }
+
+  public double getShooterTarget() {
+    return shooterMotor1.getClosedLoopTarget();
+  }
+
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Shooter Target", shooterMotor1.getClosedLoopTarget());

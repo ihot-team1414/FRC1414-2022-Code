@@ -15,7 +15,7 @@ public class TurretEjectCommand extends CommandBase {
 
     @Override
     public void execute() {
-        turretSubsystem.ejectPosition();
+        turretSubsystem.eject();
     }
 
     @Override

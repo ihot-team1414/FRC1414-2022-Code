@@ -21,7 +21,7 @@ public class ShooterCommand extends CommandBase {
   public void execute() {
     this.shooterSubsystem.shoot();
     
-    if (this.shooterSubsystem.shooterMotor1.getSelectedSensorVelocity() > this.shooterSubsystem.targetSpeed) {
+    if (this.shooterSubsystem.getShooterVelocity() > this.shooterSubsystem.getShooterTarget()) {
       this.indexerSubsystem.load();
     }
   }
