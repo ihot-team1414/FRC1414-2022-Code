@@ -17,45 +17,45 @@ public class DriveCommand extends CommandBase {
     private final BooleanSupplier isSlowSupplier;
 
     public DriveCommand(
-        DrivetrainSubsystem drivetrain,
-        DoubleSupplier translationXSupplier,
-        DoubleSupplier translationYSupplier,
-        DoubleSupplier rotationSupplier,
-        BooleanSupplier isFastSupplier,
-        BooleanSupplier isSlowSupplier
+      DrivetrainSubsystem drivetrain,
+      DoubleSupplier translationXSupplier,
+      DoubleSupplier translationYSupplier,
+      DoubleSupplier rotationSupplier,
+      BooleanSupplier isFastSupplier,
+      BooleanSupplier isSlowSupplier
     ) {
-        this.drivetrain = drivetrain;
-        this.translationXSupplier = translationXSupplier;
-        this.translationYSupplier = translationYSupplier;
-        this.rotationSupplier = rotationSupplier;
-        this.isSlowSupplier = isSlowSupplier;
-        this.isFastSupplier = isFastSupplier;
+      this.drivetrain = drivetrain;
+      this.translationXSupplier = translationXSupplier;
+      this.translationYSupplier = translationYSupplier;
+      this.rotationSupplier = rotationSupplier;
+      this.isSlowSupplier = isSlowSupplier;
+      this.isFastSupplier = isFastSupplier;
 
-        addRequirements(drivetrain);
+      addRequirements(drivetrain);
     }
 
     @Override
     public void execute() {
-        double translationXPercent = translationXSupplier.getAsDouble();
-        double translationYPercent = translationYSupplier.getAsDouble();
-        double rotationPercent = rotationSupplier.getAsDouble();
-        boolean isSlow = isSlowSupplier.getAsBoolean();
-        boolean isFast = isFastSupplier.getAsBoolean();
-        double fastSpeed = 1;
-        double defaultSpeed = 0.75;
-        double slowSpeed = 0.5;
-        double speedMultiplier = isFast ? fastSpeed : isSlow ? slowSpeed : defaultSpeed;
+      double translationXPercent = translationXSupplier.getAsDouble();
+      double translationYPercent = translationYSupplier.getAsDouble();
+      double rotationPercent = rotationSupplier.getAsDouble();
+      boolean isSlow = isSlowSupplier.getAsBoolean();
+      boolean isFast = isFastSupplier.getAsBoolean();
+      double fastSpeed = 1;
+      double defaultSpeed = 0.75;
+      double slowSpeed = 0.5;
+      double speedMultiplier = isFast ? fastSpeed : isSlow ? slowSpeed : defaultSpeed;
 
-       
+      
 
-        drivetrain.drive(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        translationXPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
-                        translationYPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
-                        rotationPercent * DrivetrainSubsystem.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-                        drivetrain.getRotation()
-                )
-        );
+      drivetrain.drive(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+          translationXPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
+          translationYPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
+          rotationPercent * Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
+          drivetrain.getRotation()
+        )
+      );
     }
 
     @Override
