@@ -6,11 +6,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 public class DriveStraightCommand extends CommandBase {
-    private final DrivetrainSubsystem m_drivetrainSubsystem;
+    private final DrivetrainSubsystem drivetrainSubsystem;
 
 
     public DriveStraightCommand(DrivetrainSubsystem drivetrainSubsystem) {
-        this.m_drivetrainSubsystem = drivetrainSubsystem;
+        this.drivetrainSubsystem = drivetrainSubsystem;
 
         addRequirements(drivetrainSubsystem);
     }
@@ -18,13 +18,11 @@ public class DriveStraightCommand extends CommandBase {
     @Override
     public void execute() {
 
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(-1.25, 0, 0));
-        
+        drivetrainSubsystem.drive(new ChassisSpeeds(-1.25, 0, 0));
     }
 
     @Override
     public void end(boolean interrupted) {
-        m_drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 0));
-
+        drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 0));
     }
 }

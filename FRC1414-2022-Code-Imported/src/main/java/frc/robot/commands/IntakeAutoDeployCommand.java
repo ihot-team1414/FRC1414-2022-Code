@@ -16,8 +16,8 @@ public class IntakeAutoDeployCommand extends CommandBase {
 
     @Override
     public void initialize() {
-        this.intakeSubsystem.open();
-        this.intakeSubsystem.set(-Constants.INTAKE_SPEED);
+        intakeSubsystem.open();
+        intakeSubsystem.set(-Constants.INTAKE_SPEED);
     }
 
     @Override
@@ -27,6 +27,6 @@ public class IntakeAutoDeployCommand extends CommandBase {
 
     @Override
     public void end(boolean interrupted) {
-        this.intakeSubsystem.stop();
+        intakeSubsystem.stop();
     }
 }

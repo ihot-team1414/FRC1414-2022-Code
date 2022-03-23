@@ -12,8 +12,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
-import frc.robot.subsystems.ClimbSubsystem.TelescopePosition;
 import frc.util.Utils;
 
 public class RobotContainer {
@@ -61,9 +59,9 @@ public class RobotContainer {
   public RobotContainer() {
     // AUTO CHOOSER
     SmartDashboard.putData("Auto Chooser", this.chooser);
-    this.chooser.addOption("Wait", new WaitCommand(15));
-    this.chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
-    this.chooser.addOption("2 Ball High", twoBallAuto.getAuto());
+    chooser.addOption("Wait", new WaitCommand(15));
+    chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
+    chooser.addOption("2 Ball High", twoBallAuto.getAuto());
 
     // DEFAULT COMMANDS
     hoodSubsystem.setDefaultCommand(new HoodAutoCommand(hoodSubsystem));
@@ -82,80 +80,29 @@ public class RobotContainer {
   }
 
   private void configureButtonBindings() {
-    TelescopePosition[] elevatorStates = {
-        TelescopePosition.Neutral, //
-        TelescopePosition.FirstRung, //
-        TelescopePosition.Starting, //
-        TelescopePosition.Starting, //
-        TelescopePosition.Intermediate,
-        TelescopePosition.Intermediate,
-        TelescopePosition.Extended,
-        TelescopePosition.Extended,
-        TelescopePosition.Intermediate,
-        TelescopePosition.Starting,
-        TelescopePosition.Starting,
-        TelescopePosition.Intermediate,
-        TelescopePosition.Intermediate,
-        TelescopePosition.Extended,
-        TelescopePosition.Extended,
-        TelescopePosition.Intermediate,
-        TelescopePosition.Starting,
-        TelescopePosition.Starting,
-        TelescopePosition.Intermediate,
-        TelescopePosition.Neutral,
-    };
-
-    PivotPosition[] armStates = {
-      PivotPosition.Vertical,
-      PivotPosition.Lifting,
-      PivotPosition.Lifting,
-      PivotPosition.Grabbing,
-      PivotPosition.Grabbing,
-      PivotPosition.Tilting,
-      PivotPosition.Tilting,
-      PivotPosition.Vertical,
-      PivotPosition.Lifting,
-      PivotPosition.Lifting,
-      PivotPosition.Grabbing,
-      PivotPosition.Grabbing,
-      PivotPosition.Tilting,
-      PivotPosition.Tilting,
-      PivotPosition.Vertical,
-      PivotPosition.Lifting,
-      PivotPosition.Lifting,
-      PivotPosition.Grabbing,
-      PivotPosition.Grabbing,
-      PivotPosition.Tilting,
-    };
-
     // Drive button to zero gyroscope
-    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> this.drivetrainSubsystem.zeroGyroscope());
+    new JoystickButton(driver, Button.kStart.value).whenPressed(() -> drivetrainSubsystem.zeroGyroscope());
 
     // Driver buttons for turn to angle
-    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(180), drivetrainSubsystem);
-    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(90), drivetrainSubsystem);
-    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(-90), drivetrainSubsystem);
-    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(()-> drivetrainSubsystem.turnToAngle(0), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(180), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(90), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(-90), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(0), drivetrainSubsystem);
 
 
     // A Button activates current climb state
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setPivot(armStates[currentState]));
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.climbSubsystem.setTelescope(elevatorStates[currentState]));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> climbSubsystem.activateState());
     
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> this.turretSubsystem.home());
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> turretSubsystem.home());
 
     // Left Bumper decreases climb state
-    new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> { 
-      currentState--;
-    } );
+    new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> climbSubsystem.previousState());
 
     // Right Bumper increases climb state
-    new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> {
-      currentState++;
-    });
+    new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> climbSubsystem.nextState());
 
     // X Button holds balls
-    new JoystickButton(operator, Button.kX.value).whenPressed(() -> this.indexerSubsystem.holdBalls()).whenReleased(() -> this.indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kX.value).whenPressed(() -> indexerSubsystem.holdBalls()).whenReleased(() -> indexerSubsystem.stop());
 
     // B Button deploys intake and runs intake and indexer to the hold ball position
     new JoystickButton(operator, Button.kB.value).whenPressed(new SequentialCommandGroup(
@@ -163,21 +110,21 @@ public class RobotContainer {
       new WaitCommand(0.5),
       new InstantCommand(() -> intakeSubsystem.set(Constants.INTAKE_SPEED)
     ))).whenReleased(() -> {
-      this.intakeSubsystem.close();
-      this.intakeSubsystem.stop();
+      intakeSubsystem.close();
+      intakeSubsystem.stop();
     });
 
-    new JoystickButton(operator, Button.kB.value).whenPressed(() -> this.indexerSubsystem.holdBalls()).whenReleased(() -> this.indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kB.value).whenPressed(() -> indexerSubsystem.holdBalls()).whenReleased(() -> indexerSubsystem.stop());
 
     // Y Button starts shooter
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new ShooterCommand(shooterSubsystem, indexerSubsystem));
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> this.turretSubsystem.visionTargeting());
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(() -> turretSubsystem.visionTargeting());
 
     // Start Button runs indexer backwards to clear shooter
-    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> this.indexerSubsystem.reverse()).whenReleased(() -> this.indexerSubsystem.stop());
+    new JoystickButton(operator, Button.kStart.value).whenPressed(() -> indexerSubsystem.reverse()).whenReleased(() -> indexerSubsystem.stop());
   }
 
   public Command getAutonomousCommand() {
-    return this.chooser.getSelected();  
+    return chooser.getSelected();  
   }
 }
