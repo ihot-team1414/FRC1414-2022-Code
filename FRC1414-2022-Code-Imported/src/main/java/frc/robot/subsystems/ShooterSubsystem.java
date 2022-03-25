@@ -6,12 +6,14 @@ import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.util.Limelight;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
   private final TalonFX shooterMotor2 = new TalonFX(Constants.SHOOTER_ID_2);
 
   public double dashboardTarget = 0;
+
 
   public ShooterSubsystem() {
     shooterMotor1.selectProfileSlot(0, 0);
@@ -25,7 +27,9 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.setInverted(true);
     shooterMotor1.setNeutralMode(NeutralMode.Coast);
     shooterMotor2.setNeutralMode(NeutralMode.Coast);
-    SmartDashboard.putNumber("Target Shooter Velocity", 9000);
+    SmartDashboard.putNumber("Dashboard Shooter Target", 9000);
+
+
   }
 
   public void shoot() {
@@ -36,7 +40,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isWithinAllowedError() {
-    return shooterMotor1.getClosedLoopError() < Constants.SHOOTER_ALLOWED_ERROR;
+    return Math.abs(shooterMotor1.getClosedLoopError()) < Constants.SHOOTER_ALLOWED_ERROR;
   }
 
   public void eject() {
@@ -47,18 +51,11 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.set(ControlMode.PercentOutput, 0.0);
   }
 
-  public double getShooterVelocity() {
-    return shooterMotor1.getSelectedSensorVelocity();
-  }
-
-  public double getShooterTarget() {
-    return shooterMotor1.getClosedLoopTarget();
-  }
-
-
   @Override
   public void periodic() {
+    
     SmartDashboard.putNumber("Shooter Target", shooterMotor1.getClosedLoopTarget());
+    SmartDashboard.putNumber("Limelight Distance", Limelight.getInstance().getDeltaY());
     SmartDashboard.putNumber("Shooter Velocity", shooterMotor1.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Shooter Closed Loop Error", shooterMotor1.getClosedLoopError());
     dashboardTarget = SmartDashboard.getNumber("Dashboard Shooter Target", 0.0);

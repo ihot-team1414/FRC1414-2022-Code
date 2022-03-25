@@ -33,7 +33,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
-    Neutral(100), Intermediate(97081), FirstRung(150000), Extended(190000);
+    Neutral(1414), Intermediate(97081), FirstRung(150000), Extended(190000);
 
     private int position;
 
@@ -180,6 +180,15 @@ public class ClimbSubsystem extends SubsystemBase {
     }
   }
 
+  public boolean isPivotAtTarget(PivotPosition armPosition) {
+    return pivotMotor.getSelectedSensorPosition() < Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET + armPosition.getPosition()
+      && pivotMotor.getSelectedSensorPosition() > armPosition.getPosition() - Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET ;
+  }
+
+  public boolean isTelescopeAtTarget(TelescopePosition elevatorPosition) {
+    return false;
+  }
+
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Pivot Target", pivotMotor.getClosedLoopTarget());
@@ -196,4 +205,6 @@ public class ClimbSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Telescope 2 Closed Loop Error",
         telescopingMotor2.getClosedLoopError());
   }
+
+  
 }

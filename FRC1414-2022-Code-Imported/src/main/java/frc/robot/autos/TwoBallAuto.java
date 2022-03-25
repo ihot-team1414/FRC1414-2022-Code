@@ -22,7 +22,7 @@ public class TwoBallAuto implements AutoInterface {
           new Intake(indexerSubsystem, intakeSubsystem).withTimeout(3.5),
           new DriveStraightOpenLoop(drivetrainSubsystem).withTimeout(3.5)
         ),
-        new TurnToAngle(drivetrainSubsystem, 180).withTimeout(1),
+        new TurnToAngle(drivetrainSubsystem, ()->0 , ()->0, 180).withTimeout(1),
         new ParallelCommandGroup(
           new Shoot(shooterSubsystem, indexerSubsystem)
         ).withTimeout(6)

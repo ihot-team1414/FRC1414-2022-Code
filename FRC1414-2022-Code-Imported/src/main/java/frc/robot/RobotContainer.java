@@ -1,13 +1,17 @@
 package frc.robot;
 
+import java.util.ArrayList;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.autos.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.util.Utils;
@@ -33,38 +37,53 @@ public class RobotContainer {
 
   private final TurretSubsystem turretSubsystem = new TurretSubsystem();
 
-  private int currentState = 0;
-
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  private final FourBallAuto fourBallAuto = new FourBallAuto(
-      drivetrainSubsystem,
-      intakeSubsystem,
-      indexerSubsystem,
-      shooterSubsystem,
-      turretSubsystem,
-      hoodSubsystem);
+  // private final FourBallAuto fourBallAuto = new FourBallAuto(
+  //     drivetrainSubsystem,
+  //     intakeSubsystem,
+  //     indexerSubsystem,
+  //     shooterSubsystem,
+  //     turretSubsystem,
+  //     hoodSubsystem);
 
-  private final TwoBallAuto twoBallAuto = new TwoBallAuto(
-      drivetrainSubsystem,
-      intakeSubsystem,
-      indexerSubsystem,
-      shooterSubsystem,
-      turretSubsystem,
-      hoodSubsystem);
+  // private final TwoBallAuto twoBallAuto = new TwoBallAuto(
+  //     drivetrainSubsystem,
+  //     intakeSubsystem,
+  //     indexerSubsystem,
+  //     shooterSubsystem,
+  //     turretSubsystem,
+  //     hoodSubsystem);
+
+  TrajectoryConfig config;
 
   public RobotContainer() {
     // AUTO CHOOSER
+
+    ArrayList<Translation2d> list = new ArrayList<>();
+    list.add(new Translation2d(6, 4.75));    
+    list.add(new Translation2d(7, 5.25));
+
+
     SmartDashboard.putData("Auto Chooser", this.chooser);
-    chooser.addOption("Wait", new WaitCommand(15));
-    chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
-    chooser.addOption("2 Ball High", twoBallAuto.getAuto());
+    chooser.addOption("Test", new FollowTrajectory(
+      drivetrainSubsystem, 
+      TrajectoryGenerator.generateTrajectory(
+        Constants.STARTING_POSITIONS[1],
+        list, 
+        new Pose2d(8, 5, Rotation2d.fromDegrees(90)),
+        Constants.TRAJECTORY_CONFIG
+      )
+      )
+    );
+    // chooser.addOption("Wait", new WaitCommand(15));
+    // chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
+    // chooser.addOption("2 Ball High", twoBallAuto.getAuto());
 
     // DEFAULT COMMANDS
     hoodSubsystem.setDefaultCommand(new AlignHood(hoodSubsystem));
-    turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem));
-    climbSubsystem.setDefaultCommand(new InitializeClimb(climbSubsystem));
+    turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem, climbSubsystem));
     drivetrainSubsystem.setDefaultCommand(new Drive(
         drivetrainSubsystem,
         () -> Utils.deadband(driver.getRightY(), 0.1),
@@ -78,14 +97,19 @@ public class RobotContainer {
   }
 
   private void configureButtonBindings() {
-    // Drive button to zero gyroscope
+
+    // DRIVER CONTROLS
+
+    // Start button to zero gyroscope
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> drivetrainSubsystem.zeroGyroscope());
 
     // Driver buttons for turn to angle
-    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(180), drivetrainSubsystem);
-    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(90), drivetrainSubsystem);
-    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(-90), drivetrainSubsystem);
-    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(() -> drivetrainSubsystem.turnToAngle(0), drivetrainSubsystem);
+    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(new TurnToAngle(drivetrainSubsystem, () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 180));
+    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(new TurnToAngle(drivetrainSubsystem, () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 90));
+    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(new TurnToAngle(drivetrainSubsystem, () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), -90));
+    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(new TurnToAngle(drivetrainSubsystem, () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 0));
+
+    // OPERATOR CONTROLS
 
     // A Button activates current climb state
     new JoystickButton(operator, Button.kA.value).whenPressed(() -> climbSubsystem.activateState());
@@ -107,7 +131,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot(shooterSubsystem, indexerSubsystem));
 
     // Start Button runs indexer backwards to clear shooter
-    new JoystickButton(operator, Button.kStart.value).whenPressed(new Deload(indexerSubsystem));
+    new JoystickButton(operator, Button.kStart.value).whileActiveContinuous(new Deload(indexerSubsystem));
 
     // Back Button moves turret to eject position and ejects balls through shooter
     new JoystickButton(operator, Button.kBack.value).whileActiveContinuous(new EjectBall(turretSubsystem, shooterSubsystem, indexerSubsystem));

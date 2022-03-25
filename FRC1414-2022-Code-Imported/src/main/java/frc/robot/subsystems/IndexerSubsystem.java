@@ -4,6 +4,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -11,6 +12,8 @@ public class IndexerSubsystem extends SubsystemBase {
   private final TalonSRX loaderFrontMotor = new TalonSRX(Constants.LOADER_FRONT_MOTOR_ID);
   private final TalonSRX loaderBackMotor = new TalonSRX(Constants.LOADER_BACK_MOTOR_ID);
   private final TalonSRX funnelMotor = new TalonSRX(Constants.FUNNEL_MOTOR_ID);
+
+
 
   public IndexerSubsystem() {
     loaderFrontMotor.setNeutralMode(NeutralMode.Brake);

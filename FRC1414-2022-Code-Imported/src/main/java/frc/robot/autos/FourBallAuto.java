@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -25,12 +26,12 @@ public class FourBallAuto implements AutoInterface {
   private Trajectory[] outside4BallAutoTrajectories = {
       TrajectoryGenerator.generateTrajectory(
           Constants.STARTING_POSITIONS[0],
-          List.of(),
+          List.of(new Translation2d(7.64, 0.72)),
           new Pose2d(7.64, 0.72, Rotation2d.fromDegrees(90)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
           new Pose2d(7.64, 0.72, Rotation2d.fromDegrees(270)),
-          List.of(),
+          List.of(new Translation2d(7.64, 0.72)),
           new Pose2d(1.43, 1.40, Rotation2d.fromDegrees(45)),
           Constants.TRAJECTORY_CONFIG),
   };
@@ -72,19 +73,17 @@ public class FourBallAuto implements AutoInterface {
         new Intake(indexerSubsystem, intakeSubsystem).withTimeout(2.5),
         outside4BallAutoCommands[0].withTimeout(2.5)
       ),
-      new TurnToAngle(drivetrainSubsystem, 180).withTimeout(1),
+      new TurnToAngle(drivetrainSubsystem, ()->0 , ()->0, 180).withTimeout(1),
       new ParallelCommandGroup(
         new Shoot(shooterSubsystem, indexerSubsystem)
       ).withTimeout(3),
       new ParallelCommandGroup(
         new Intake(indexerSubsystem, intakeSubsystem).withTimeout(3.5),
-        outside4BallAutoCommands[1].withTimeout(3.5)
+        outside4BallAutoCommands[1].withTimeout(2.5)
       ),
-      new TurnToAngle(drivetrainSubsystem, 25).withTimeout(1),
-      new ParallelCommandGroup(
-        new Intake(indexerSubsystem, intakeSubsystem),
-        new Shoot(shooterSubsystem, indexerSubsystem)
-      ).withTimeout(3)
+      new TurnToAngle(drivetrainSubsystem, ()->0 , ()->0, 25).withTimeout(1),
+      new Intake(indexerSubsystem, intakeSubsystem).withTimeout(2),
+      new Shoot(shooterSubsystem, indexerSubsystem).withTimeout(2)
     );
   }
 

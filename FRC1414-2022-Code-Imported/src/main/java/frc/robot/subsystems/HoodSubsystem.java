@@ -14,13 +14,11 @@ public class HoodSubsystem extends SubsystemBase {
   private final Servo servo2 = new Servo(Constants.HOOD_SERVO_ID_2);
 
   public HoodSubsystem() {
-    SmartDashboard.putNumber("Set Hood", 0.35);
+    SmartDashboard.putNumber("Dashboard Hood Target", 0.35);
   }
 
   public void visionTargeting() {
     // double distance = Limelight.getInstance().calculateDistance();
-    set(dashboardTarget);  
-    // set(0.015 * calculateDistance() + 0.22);  
   }
 
   public void set(double value) {
@@ -38,6 +36,6 @@ public class HoodSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Hood Target", target);
     dashboardTarget = SmartDashboard.getNumber("Dashboard Hood Target", 0.35);
 
-    SmartDashboard.putNumber("Goal Distance", Limelight.getInstance().calculateDistance());
+    SmartDashboard.putNumber("Goal Y", Limelight.getInstance().getDeltaY());
   }
 }

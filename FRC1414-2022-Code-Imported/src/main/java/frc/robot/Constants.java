@@ -6,13 +6,15 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public final class Constants {
   public static final Pose2d[] STARTING_POSITIONS = {
     new Pose2d(8, 2.84, Rotation2d.fromDegrees(68)),
-    new Pose2d(0, 0, Rotation2d.fromDegrees(0))
+    new Pose2d(5, 5, Rotation2d.fromDegrees(0))
   };
 
   // DRIVETRAIN
@@ -22,22 +24,31 @@ public final class Constants {
   public static final double DRIVETRAIN_MAX_VEL = 5;
   public static final double DRIVETRAIN_MAX_ACCELERATION = 3;
 
-  public static final double DRIVETRAIN_PATH_X_kP = 1.5;
-  public static final double DRIVETRAIN_PATH_Y_kP = 1.5;
-  public static final double DRIVETRAIN_PATH_THETA_kP = 3;
+  public static final double DRIVETRAIN_PATH_X_kP = 52e-1;
+  public static final double DRIVETRAIN_PATH_X_kI = 0.0;
+  public static final double DRIVETRAIN_PATH_X_kD = 0.0;
+  
+  public static final double DRIVETRAIN_PATH_Y_kP = 52e-1;
+  public static final double DRIVETRAIN_PATH_Y_kI = 0.0;
+  public static final double DRIVETRAIN_PATH_Y_kD = 0.0;
+
+  public static final double DRIVETRAIN_PATH_THETA_kP = 6e-1;
+  public static final double DRIVETRAIN_PATH_THETA_kI = 0.0;
+  public static final double DRIVETRAIN_PATH_THETA_kD = 15e-3;
+
 
   public static final double DRIVETRAIN_ROTATION_kP = 0.0875;
 
-  public static final TrapezoidProfile.Constraints THETA_CONTROLLER_CONSTRAINTS = 
-    new TrapezoidProfile.Constraints(
-      Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-      Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = 
+    new Constraints(
+      270,
+      90
     );
 
   public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
     Constants.DRIVETRAIN_MAX_VEL,
     Constants.DRIVETRAIN_MAX_ACCELERATION
-  ).setKinematics(Constants.KINEMATICS);
+  );
 
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 
     Constants.DRIVETRAIN_MAX_VEL / Math.hypot(
@@ -77,7 +88,7 @@ public final class Constants {
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 10;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(303);
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(293);
 
   public static final int ROLLING_AVERAGE_SIZE = 5;
   public static final double TIME_STEP = 0.1;
@@ -93,20 +104,20 @@ public final class Constants {
   public static final int HOOD_SERVO_ID_1 = 9;
   public static final int HOOD_SERVO_ID_2 = 8;
 
-  public static final double SHOOTER_kF = 0.0544833;
-  public static final double SHOOTER_kP = 0.01051414;
-  public static final double SHOOTER_kI = 0.0;
-  public static final double SHOOTER_kD = 0.0;
+  public static final double SHOOTER_kF = 0.0;
+  public static final double SHOOTER_kP = 0.6414;
+  public static final double SHOOTER_kI = 0.00018;
+  public static final double SHOOTER_kD = 0.0002;
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
   public static final double SHOOTER_ALLOWED_ERROR = 500;
 
   public static final int TURRET_MOTOR_ID = 15;
-  public static final double TURRET_MOTOR_MAX_OUTPUT = 0.65;
+  public static final double TURRET_MOTOR_MAX_OUTPUT = 0.85;
   public static final double TURRET_MAX_POS = 5500;
   public static final double TURRET_MIN_POS = -5500;
   public static final double TURRET_ALLOWED_ERROR = 500;
 
-  public static final double TURRET_VISION_kP = 50;
+  public static final double TURRET_VISION_kP = 68;
   public static final double TURRET_MOTOR_kF = 0;
   public static final double TURRET_MOTOR_kP = 0.5;
   public static final double TURRET_MOTOR_kI = 0;
@@ -124,6 +135,9 @@ public final class Constants {
   public static final double FUNNEL_SPEED = 0.25;
   public static final double INTAKE_SPEED = 0.75;
 
+  public static final Color BLUE_TARGET = new Color(0.143, 0.427, 0.429);
+  public static final Color RED_TARGET = new Color(0.561, 0.232, 0.114);
+
   public static final int TELESCOPING_ARM_1_MOTOR_ID = 14;
   public static final int TELESCOPING_ARM_2_MOTOR_ID = 18;
   public static final double TELESCOPING_ARM_ALLOWED_ERROR = 1000;
@@ -137,7 +151,7 @@ public final class Constants {
 
   public static final int PIVOT_ARM_1_MOTOR_ID = 13;
   public static final int PIVOT_ARM_2_MOTOR_ID = 19;
-  public static final double PIVOT_ARM_ALLOWED_ERROR = 0;
+  public static final double PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET = 8000;
   public static final double PIVOT_ARM_MOTOR_MAX_OUTPUT = 1;
   public static final double PIVOT_ARM_MOTOR_kF = 0;
   public static final double PIVOT_ARM_MOTOR_kP = 0.018;
