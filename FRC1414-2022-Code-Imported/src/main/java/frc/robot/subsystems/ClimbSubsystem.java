@@ -180,6 +180,10 @@ public class ClimbSubsystem extends SubsystemBase {
     }
   }
 
+  public void resetState() {
+    currentState = 0;
+  }
+
   public boolean isPivotAtTarget(PivotPosition armPosition) {
     return pivotMotor.getSelectedSensorPosition() < Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET + armPosition.getPosition()
       && pivotMotor.getSelectedSensorPosition() > armPosition.getPosition() - Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET ;

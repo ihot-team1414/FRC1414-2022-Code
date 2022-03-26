@@ -43,6 +43,11 @@ public class TurretSubsystem extends SubsystemBase {
     setTurret(4000);
   }
 
+  public boolean isHome() {
+    return turretMotor.getSelectedSensorPosition() < Constants.TURRET_ALLOWED_ERROR
+      && turretMotor.getSelectedSensorPosition() > -Constants.TURRET_ALLOWED_ERROR;
+  }
+
   public boolean isWithinAllowedError() {
     return Math.abs(turretMotor.getClosedLoopError()) < Constants.TURRET_ALLOWED_ERROR;
   }

@@ -18,10 +18,8 @@ public class AlignTurret extends CommandBase {
 
   @Override
   public void execute() {
-    // If the pivot is not at the vertical position, move it to the vertical position, then run targetting.
     if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical)) {
       turretSubsystem.home();
-      climbSubsystem.setPivot(PivotPosition.Vertical);
     } else {
       turretSubsystem.visionTargeting();
     }
