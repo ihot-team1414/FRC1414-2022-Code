@@ -111,7 +111,7 @@ public class RobotContainer {
                 List.of(),
                 new Pose2d(2.5, 2.5, Rotation2d.fromDegrees(0)),
                 Constants.TRAJECTORY_CONFIG)),
-        new Shoot(shooterSubsystem, indexerSubsystem)));
+        new Shoot(shooterSubsystem, indexerSubsystem))));
 
     // chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
     // chooser.addOption("2 Ball High", twoBallAuto.getAuto());
@@ -150,6 +150,9 @@ public class RobotContainer {
         () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), -90));
     new JoystickButton(driver, Button.kY.value).whileActiveContinuous(new TurnToAngle(drivetrainSubsystem,
         () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 0));
+
+    new JoystickButton(driver, Button.kLeftBumper.value).whileActiveContinuous(new AimContinuously(drivetrainSubsystem, climbSubsystem, turretSubsystem,
+        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
 
     // OPERATOR CONTROLS
 

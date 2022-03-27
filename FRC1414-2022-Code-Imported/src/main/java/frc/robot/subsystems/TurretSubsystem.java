@@ -60,6 +60,10 @@ public class TurretSubsystem extends SubsystemBase {
     return Math.abs(turretMotor.getClosedLoopError()) < Constants.TURRET_POSITION_ALLOWED_ERROR;
   }
 
+  public double getPosition() {
+    return turretMotor.getSelectedSensorPosition();
+  }
+
   public void visionTargeting() {
     double deltaX = Limelight.getInstance().getDeltaX();
 

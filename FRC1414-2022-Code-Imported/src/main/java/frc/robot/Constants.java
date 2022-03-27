@@ -36,7 +36,6 @@ public final class Constants {
   public static final double DRIVETRAIN_PATH_THETA_kI = 0.0;
   public static final double DRIVETRAIN_PATH_THETA_kD = 15e-3;
 
-
   public static final double DRIVETRAIN_ROTATION_kP = 0.0875;
 
   public static final Constraints THETA_CONTROLLER_CONSTRAINTS = 
