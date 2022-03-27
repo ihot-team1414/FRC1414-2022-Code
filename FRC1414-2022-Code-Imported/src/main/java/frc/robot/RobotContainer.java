@@ -1,9 +1,12 @@
 package frc.robot;
 
 import java.util.ArrayList;
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
@@ -11,8 +14,9 @@ import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.autos.FourBallAuto;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.util.Utils;
@@ -24,7 +28,7 @@ public class RobotContainer {
 
   // SUBSYSTEMS
   private final DrivetrainSubsystem drivetrainSubsystem = 
-      new DrivetrainSubsystem(Constants.STARTING_POSITIONS[1]);
+      new DrivetrainSubsystem(Constants.STARTING_POSITIONS[0]);
 
   private final HoodSubsystem hoodSubsystem = new HoodSubsystem();
 
@@ -41,13 +45,13 @@ public class RobotContainer {
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  // private final FourBallAuto fourBallAuto = new FourBallAuto(
-  //     drivetrainSubsystem,
-  //     intakeSubsystem,
-  //     indexerSubsystem,
-  //     shooterSubsystem,
-  //     turretSubsystem,
-  //     hoodSubsystem);
+  private final FourBallAuto fourBallAuto = new FourBallAuto(
+      drivetrainSubsystem,
+      intakeSubsystem,
+      indexerSubsystem,
+      shooterSubsystem,
+      turretSubsystem,
+      hoodSubsystem);
 
   // private final TwoBallAuto twoBallAuto = new TwoBallAuto(
   //     drivetrainSubsystem,
@@ -68,17 +72,36 @@ public class RobotContainer {
 
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
-    chooser.addOption("Test", new FollowTrajectory(
-      drivetrainSubsystem, 
-      TrajectoryGenerator.generateTrajectory(
-        Constants.STARTING_POSITIONS[1],
-        list, 
-        new Pose2d(8, 5, Rotation2d.fromDegrees(90)),
-        Constants.TRAJECTORY_CONFIG
-      )
-      )
-    );
+    
     // chooser.addOption("Wait", new WaitCommand(15));
+    chooser.addOption("Test", new SequentialCommandGroup(
+      new FollowTrajectory(
+        drivetrainSubsystem, 
+        TrajectoryGenerator.generateTrajectory(
+          Constants.STARTING_POSITIONS[0],
+          List.of(),
+          new Pose2d(7.64, 1.2, Rotation2d.fromDegrees(-90)),
+          Constants.TRAJECTORY_CONFIG)
+      ),
+      new FollowTrajectory(
+        drivetrainSubsystem, 
+        TrajectoryGenerator.generateTrajectory(
+          new Pose2d(7.64, 1.2, Rotation2d.fromDegrees(-100)),
+          List.of(),
+            new Pose2d(6, 1.6, Rotation2d.fromDegrees(-100)),
+            Constants.TRAJECTORY_CONFIG)
+      ),
+      new FollowTrajectory(
+        drivetrainSubsystem, 
+        TrajectoryGenerator.generateTrajectory(
+          new Pose2d(6, 1.6, Rotation2d.fromDegrees(-100)),
+          List.of(),
+            new Pose2d(1.43, 1.4, Rotation2d.fromDegrees(-135)),
+            Constants.TRAJECTORY_CONFIG)
+      )
+    )
+    );
+
     // chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
     // chooser.addOption("2 Ball High", twoBallAuto.getAuto());
 
@@ -117,7 +140,7 @@ public class RobotContainer {
 
     // A Button activates current climb state. The activate climb state checks if the turret is in the correct position.
     new JoystickButton(operator, Button.kA.value).whileActiveContinuous(new ActivateClimbState(climbSubsystem, turretSubsystem));
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> climbSubsystem.setDefaultCommand(new DescheduleClimb(climbSubsystem)));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> turretSubsystem.setDefaultCommand(new DescheduleSubsystem(turretSubsystem)));
 
     // Left Bumper decreases climb state
     new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> climbSubsystem.previousState());
@@ -133,6 +156,7 @@ public class RobotContainer {
 
     // Y Button starts shooter
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot(shooterSubsystem, indexerSubsystem));
+    new JoystickButton(operator, Button.kA.value).whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem, climbSubsystem)));
 
     // Start Button runs indexer backwards to clear shooter
     new JoystickButton(operator, Button.kStart.value).whileActiveContinuous(new Deload(indexerSubsystem));

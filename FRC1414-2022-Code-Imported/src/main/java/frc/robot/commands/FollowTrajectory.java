@@ -55,8 +55,11 @@ public class FollowTrajectory extends CommandBase {
   public void execute() {
     ChassisSpeeds speeds =
         controller.calculate(drivetrain.getPose(), trajectory.sample(timer.get()), trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation());
-    drivetrain.drive(speeds);
-    SmartDashboard.putBoolean("AUto?", true);
+    
+
+    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, -speeds.omegaRadiansPerSecond);
+    drivetrain.drive(invertedSpeeds);
+    SmartDashboard.putBoolean("Auto?", true);
     SmartDashboard.putNumber("timer", timer.get());
   }
 

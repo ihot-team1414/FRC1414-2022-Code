@@ -23,15 +23,15 @@ public class FourBallAuto implements AutoInterface {
   private ProfiledPIDController thetaController = new ProfiledPIDController(
     Constants.DRIVETRAIN_PATH_THETA_kP, 0, 0, Constants.THETA_CONTROLLER_CONSTRAINTS);
 
-  private Trajectory[] outside4BallAutoTrajectories = {
+  private Trajectory[] trajectories = {
       TrajectoryGenerator.generateTrajectory(
           Constants.STARTING_POSITIONS[0],
-          List.of(new Translation2d(7.64, 0.72)),
-          new Pose2d(7.64, 0.72, Rotation2d.fromDegrees(90)),
+          List.of(),
+          new Pose2d(7.64, 1.2, Rotation2d.fromDegrees(-90)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(7.64, 0.72, Rotation2d.fromDegrees(270)),
-          List.of(new Translation2d(7.64, 0.72)),
+        new Pose2d(7.64, 1.2, Rotation2d.fromDegrees(-90)),
+        List.of(),
           new Pose2d(1.43, 1.40, Rotation2d.fromDegrees(45)),
           Constants.TRAJECTORY_CONFIG),
   };
@@ -47,31 +47,10 @@ public class FourBallAuto implements AutoInterface {
       HoodSubsystem hoodSubsystem) {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    SwerveControllerCommand[] outside4BallAutoCommands = {
-      new SwerveControllerCommand(
-        outside4BallAutoTrajectories[0],
-        () -> drivetrainSubsystem.getPose(),
-        Constants.KINEMATICS,
-        xController,
-        yController,
-        thetaController,
-        drivetrainSubsystem::setModuleStates,
-        drivetrainSubsystem),
-      new SwerveControllerCommand(
-        outside4BallAutoTrajectories[1],
-        () -> drivetrainSubsystem.getPose(),
-        Constants.KINEMATICS,
-        xController,
-        yController,
-        thetaController,
-        drivetrainSubsystem::setModuleStates,
-        drivetrainSubsystem),
-    };
-
     auto = new SequentialCommandGroup(
       new ParallelCommandGroup(
         new Intake(indexerSubsystem, intakeSubsystem).withTimeout(2.5),
-        outside4BallAutoCommands[0].withTimeout(2.5)
+        new FollowTrajectory(drivetrainSubsystem, trajectories[0]).withTimeout(2.5)
       ),
       new TurnToAngle(drivetrainSubsystem, ()->0 , ()->0, 180).withTimeout(1),
       new ParallelCommandGroup(
@@ -79,7 +58,7 @@ public class FourBallAuto implements AutoInterface {
       ).withTimeout(3),
       new ParallelCommandGroup(
         new Intake(indexerSubsystem, intakeSubsystem).withTimeout(3.5),
-        outside4BallAutoCommands[1].withTimeout(2.5)
+        new FollowTrajectory(drivetrainSubsystem, trajectories[1]).withTimeout(2.5)
       ),
       new TurnToAngle(drivetrainSubsystem, ()->0 , ()->0, 25).withTimeout(1),
       new Intake(indexerSubsystem, intakeSubsystem).withTimeout(2),

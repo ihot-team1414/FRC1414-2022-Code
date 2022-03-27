@@ -78,6 +78,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     shuffleboardTab.addNumber("Gyroscope Angle", () -> getRotation().getDegrees());
     shuffleboardTab.addNumber("Pose X", () -> odometry.getPoseMeters().getX());
     shuffleboardTab.addNumber("Pose Y", () -> odometry.getPoseMeters().getY());
+    shuffleboardTab.addNumber("Pose Yaw", () -> odometry.getPoseMeters().getRotation().getDegrees());
+
   }
 
   public void zeroGyroscope() {
@@ -142,19 +144,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
     odometry.update(
         Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
         new SwerveModuleState(
-          frontLeftModule.getDriveVelocity(),
+          -frontLeftModule.getDriveVelocity(),
           new Rotation2d(frontLeftModule.getSteerAngle())
         ),
         new SwerveModuleState(
-          frontRightModule.getDriveVelocity(),
+          -frontRightModule.getDriveVelocity(),
           new Rotation2d(frontRightModule.getSteerAngle())
         ),
         new SwerveModuleState(
-          backLeftModule.getDriveVelocity(),
+          -backLeftModule.getDriveVelocity(),
           new Rotation2d(backLeftModule.getSteerAngle())
         ),
         new SwerveModuleState(
-          backRightModule.getDriveVelocity(),
+          -backRightModule.getDriveVelocity(),
           new Rotation2d(backRightModule.getSteerAngle())
         )
     );

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public final class Constants {
   public static final Pose2d[] STARTING_POSITIONS = {
-    new Pose2d(8, 2.84, Rotation2d.fromDegrees(68)),
+    new Pose2d(8, 2.84, Rotation2d.fromDegrees(-108)),
     new Pose2d(5, 5, Rotation2d.fromDegrees(0))
   };
 
@@ -113,17 +113,18 @@ public final class Constants {
 
   public static final int TURRET_MOTOR_ID = 15;
   public static final double TURRET_MOTOR_MAX_OUTPUT = 0.85;
-  public static final double TURRET_MAX_POS = 5500;
-  public static final double TURRET_MIN_POS = -5500;
-  public static final double TURRET_ALLOWED_ERROR = 500;
+  public static final double TURRET_MAX_POS = 5000;
+  public static final double TURRET_MIN_POS = -5000;
+  public static final double TURRET_POSITION_ALLOWED_ERROR = 500;
+  public static final double TURRET_MOTOR_POSITION_kF = 0.0;
+  public static final double TURRET_MOTOR_POSITION_kP = 0.5;
+  public static final double TURRET_MOTOR_POSITION_kI = 0;
+  public static final double TURRET_MOTOR_POSITION_kD = 0;
 
-  public static final double TURRET_VISION_kP = 68;
-  public static final double TURRET_MOTOR_kF = 0;
-  public static final double TURRET_MOTOR_kP = 0.5;
-  public static final double TURRET_MOTOR_kI = 0;
-  public static final double TURRET_MOTOR_kD = 0;
-  public static final double TURRET_MAX_VEL = 3000;
-  public static final double TURRET_ACCEL = 3000;
+  public static final double TURRET_VISION_ALLOWED_ERROR = 1;
+  public static final double TURRET_MOTOR_VISTION_kP = 0.013;
+  public static final double TURRET_MOTOR_VISTION_kI = 0.045;
+  public static final double TURRET_MOTOR_VISTION_kD = 0.003;
 
   public static final int LOADER_FRONT_MOTOR_ID = 9;
   public static final int LOADER_BACK_MOTOR_ID = 23;

@@ -19,14 +19,15 @@ public class AlignTurret extends CommandBase {
   @Override
   public void execute() {
     if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical)) {
-      turretSubsystem.home();
+      climbSubsystem.setPivot(PivotPosition.Vertical);
+      // turretSubsystem.home();
     } else {
-      turretSubsystem.visionTargeting();
+      // turretSubsystem.visionTargeting();
     }
   }
 
   @Override
   public void end(boolean interrupted) {
-    turretSubsystem.home();
+    // turretSubsystem.home();
   }
 }

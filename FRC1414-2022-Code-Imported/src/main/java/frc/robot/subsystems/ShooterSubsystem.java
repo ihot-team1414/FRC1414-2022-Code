@@ -22,21 +22,23 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.config_kP(0, Constants.SHOOTER_kP, 0);
     shooterMotor1.config_kI(0, Constants.SHOOTER_kI, 0);
     shooterMotor1.config_kD(0, Constants.SHOOTER_kD, 0);
+    shooterMotor1.enableVoltageCompensation(true);
+
     shooterMotor1.configPeakOutputForward(Constants.SHOOTER_MAX_OUTPUT);
     shooterMotor2.follow(shooterMotor1);
     shooterMotor1.setInverted(true);
     shooterMotor1.setNeutralMode(NeutralMode.Coast);
     shooterMotor2.setNeutralMode(NeutralMode.Coast);
+    shooterMotor2.enableVoltageCompensation(true);
     SmartDashboard.putNumber("Dashboard Shooter Target", 9000);
-
-
   }
 
   public void shoot() {
-    // double distance = Limelight.getInstance().calculateDistance();
+    double ty = Limelight.getInstance().getDeltaY();
 
+    double speed = -77.53619*ty + 8556.9126;
     // 21700 is max theoretical speed for shooter.
-    shooterMotor1.set(ControlMode.Velocity, dashboardTarget);
+    shooterMotor1.set(ControlMode.Velocity, speed);
   }
 
   public boolean isWithinAllowedError() {
