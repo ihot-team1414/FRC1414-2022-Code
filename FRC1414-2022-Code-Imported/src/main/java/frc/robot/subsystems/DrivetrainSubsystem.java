@@ -102,7 +102,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public double getRequiredTurningSpeedForAngle(double angle) {
     double currentAngle = getRotation().getDegrees() % 360;
-    double error = angle - currentAngle;
+    double targetAngle = angle % 360;
+    double error = targetAngle - currentAngle;
     double speed = (Constants.DRIVETRAIN_ROTATION_kP * error);
     return -speed;
   }
