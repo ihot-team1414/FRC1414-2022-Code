@@ -21,7 +21,6 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.FourBallAuto;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.util.ColorSensor;
 import frc.util.Utils;
 
 public class RobotContainer {
@@ -67,14 +66,12 @@ public class RobotContainer {
 
   public RobotContainer() {
     // AUTO CHOOSER
-
+    
     ArrayList<Translation2d> list = new ArrayList<>();
     list.add(new Translation2d(6, 4.75));
     list.add(new Translation2d(7, 5.25));
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
-
-    SmartDashboard.putBoolean("Auto Eject", true);
 
     // chooser.addOption("Wait", new WaitCommand(15));
     chooser.addOption("5 Ball", new SequentialCommandGroup(
@@ -179,7 +176,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new Intake(indexerSubsystem, intakeSubsystem));
 
     // Y Button starts shooter
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(ColorSensor.getInstance().isCorrectColor() || !SmartDashboard.getBoolean("Auto Eject", false) ? new Shoot(shooterSubsystem, indexerSubsystem) : new EjectBall(turretSubsystem, shooterSubsystem, indexerSubsystem));
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot(shooterSubsystem, indexerSubsystem));
     new JoystickButton(operator, Button.kA.value)
         .whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem, climbSubsystem)));
 
