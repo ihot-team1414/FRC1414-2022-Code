@@ -13,8 +13,6 @@ public class IndexerSubsystem extends SubsystemBase {
   private final TalonSRX loaderBackMotor = new TalonSRX(Constants.LOADER_BACK_MOTOR_ID);
   private final TalonSRX funnelMotor = new TalonSRX(Constants.FUNNEL_MOTOR_ID);
 
-
-
   public IndexerSubsystem() {
     loaderFrontMotor.setNeutralMode(NeutralMode.Brake);
     loaderBackMotor.setNeutralMode(NeutralMode.Brake);
@@ -57,9 +55,5 @@ public class IndexerSubsystem extends SubsystemBase {
   public void load() {
     funnel();
     loadShooter();
-  }
-
-  @Override
-  public void periodic() {
   }
 }

@@ -184,13 +184,14 @@ public class ClimbSubsystem extends SubsystemBase {
     currentState = 0;
   }
 
-  public boolean isPivotAtTarget(PivotPosition armPosition) {
-    return pivotMotor.getSelectedSensorPosition() < Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET + armPosition.getPosition()
-      && pivotMotor.getSelectedSensorPosition() > armPosition.getPosition() - Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET ;
+  public boolean isPivotAtTarget(PivotPosition pivotPosition) {
+    return pivotMotor.getSelectedSensorPosition() < Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET + pivotPosition.getPosition()
+      && pivotMotor.getSelectedSensorPosition() > pivotPosition.getPosition() - Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET ;
   }
 
-  public boolean isTelescopeAtTarget(TelescopePosition elevatorPosition) {
-    return false;
+  public boolean isTelescopeAtTarget(TelescopePosition telescopePosition) {
+    return telescopingMotor.getSelectedSensorPosition() < Constants.TELESCOPING_ARM_ALLOWED_ERROR + telescopePosition.getPosition()
+      && telescopingMotor.getSelectedSensorPosition() > telescopePosition.getPosition() - Constants.TELESCOPING_ARM_ALLOWED_ERROR ;
   }
 
   @Override
@@ -209,6 +210,4 @@ public class ClimbSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Telescope 2 Closed Loop Error",
         telescopingMotor2.getClosedLoopError());
   }
-
-  
 }
