@@ -17,7 +17,7 @@ public class TwoBallAuto implements AutoInterface {
     HoodSubsystem hoodSubsystem
   ) {
 
-    auto = new  SequentialCommandGroup(
+    auto = new SequentialCommandGroup(
         new ParallelCommandGroup(
           new Intake(indexerSubsystem, intakeSubsystem).withTimeout(3.5),
           new DriveStraightOpenLoop(drivetrainSubsystem).withTimeout(3.5)

@@ -1,24 +1,17 @@
 package frc.robot;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.robot.autos.FourBallAuto;
+import frc.robot.autos.FiveBallAuto;
+import frc.robot.autos.TwoBallAuto;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.util.Utils;
@@ -46,7 +39,7 @@ public class RobotContainer {
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
 
-  private final FourBallAuto fourBallAuto = new FourBallAuto(
+  private final FiveBallAuto fiveBallAuto = new FiveBallAuto(
       drivetrainSubsystem,
       intakeSubsystem,
       indexerSubsystem,
@@ -54,19 +47,19 @@ public class RobotContainer {
       turretSubsystem,
       hoodSubsystem);
 
-  // private final TwoBallAuto twoBallAuto = new TwoBallAuto(
-  // drivetrainSubsystem,
-  // intakeSubsystem,
-  // indexerSubsystem,
-  // shooterSubsystem,
-  // turretSubsystem,
-  // hoodSubsystem);
+  private final TwoBallAuto twoBallAuto = new TwoBallAuto(
+      drivetrainSubsystem,
+      intakeSubsystem,
+      indexerSubsystem,
+      shooterSubsystem,
+      turretSubsystem,
+      hoodSubsystem);
 
   TrajectoryConfig config;
 
   public RobotContainer() {
     // AUTO CHOOSER
-    
+
     ArrayList<Translation2d> list = new ArrayList<>();
     list.add(new Translation2d(6, 4.75));
     list.add(new Translation2d(7, 5.25));
@@ -74,47 +67,14 @@ public class RobotContainer {
     SmartDashboard.putData("Auto Chooser", this.chooser);
 
     // chooser.addOption("Wait", new WaitCommand(15));
-    chooser.addOption("5 Ball", new SequentialCommandGroup(
-          new Intake(indexerSubsystem, intakeSubsystem).alongWith(new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new FollowTrajectory(
-                    drivetrainSubsystem,
-                    TrajectoryGenerator.generateTrajectory(
-                        Constants.STARTING_POSITIONS[0],
-                        List.of(),
-                        new Pose2d(7.9, 1.1, Rotation2d.fromDegrees(-90)),
-                        Constants.TRAJECTORY_CONFIG)),
-                new FollowTrajectory(
-                    drivetrainSubsystem,
-                    TrajectoryGenerator.generateTrajectory(
-                        new Pose2d(7.9, 1.1, Rotation2d.fromDegrees(-90)),
-                        List.of(new Translation2d(6.5, 1.25)),
-                        new Pose2d(4.7, 1.45, Rotation2d.fromDegrees(90)),
-                        Constants.TRAJECTORY_CONFIG)))
-        ),
-        new Shoot(shooterSubsystem, indexerSubsystem).withTimeout(2),
-        new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new FollowTrajectory(
-                    drivetrainSubsystem,
-                    TrajectoryGenerator.generateTrajectory(
-                        new Pose2d(4.7, 1.45, Rotation2d.fromDegrees(90)),
-                        List.of(),
-                        new Pose2d(0.8, 1, Rotation2d.fromDegrees(225)),
-                        Constants.TRAJECTORY_CONFIG)),
-                new WaitCommand(2)),
-            new Intake(indexerSubsystem, intakeSubsystem).withTimeout(5)),
-        new FollowTrajectory(
-            drivetrainSubsystem,
-            TrajectoryGenerator.generateTrajectory(
-                new Pose2d(0.8, 1, Rotation2d.fromDegrees(225)),
-                List.of(),
-                new Pose2d(2.5, 2.5, Rotation2d.fromDegrees(0)),
-                Constants.TRAJECTORY_CONFIG)),
-        new Shoot(shooterSubsystem, indexerSubsystem))));
+    chooser.addOption("5 Ball", fiveBallAuto.getAuto());
 
     // chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
-    // chooser.addOption("2 Ball High", twoBallAuto.getAuto());
+    chooser.addOption("2 Ball", twoBallAuto.getAuto());
+
+    chooser.addOption("Drive Straight", new DriveStraightOpenLoop(drivetrainSubsystem).withTimeout(3.5));
+
+    chooser.addOption("Wait", new WaitCommand(15));
 
     // DEFAULT COMMANDS
     // hoodSubsystem.setDefaultCommand(new AlignHood(hoodSubsystem));
@@ -151,8 +111,9 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kY.value).whileActiveContinuous(new TurnToAngle(drivetrainSubsystem,
         () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 0));
 
-    new JoystickButton(driver, Button.kLeftBumper.value).whileActiveContinuous(new AimContinuously(drivetrainSubsystem, climbSubsystem, turretSubsystem,
-        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
+    new JoystickButton(driver, Button.kLeftBumper.value)
+        .whileActiveContinuous(new AimContinuously(drivetrainSubsystem, climbSubsystem, turretSubsystem,
+            () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
 
     // OPERATOR CONTROLS
 
