@@ -14,6 +14,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public double dashboardTarget = 0;
 
+  private double speed = 0;
 
   public ShooterSubsystem() {
     shooterMotor1.selectProfileSlot(0, 0);
@@ -36,13 +37,23 @@ public class ShooterSubsystem extends SubsystemBase {
   public void shoot() {
     double ty = Limelight.getInstance().getDeltaY();
 
-    double speed = -77.53619*ty + 8556.9126;
+    if (Limelight.getInstance().detectsTarget()) {
+      speed = -77.53619*ty + 8556.9126;
+    }
     // 21700 is max theoretical speed for shooter.
     shooterMotor1.set(ControlMode.Velocity, speed);
+
+  }
+
+  public void layup() {
+    speed = 7500;
+    shooterMotor1.set(ControlMode.Velocity, 7500);
   }
 
   public boolean isWithinAllowedError() {
-    return Math.abs(shooterMotor1.getClosedLoopError()) < Constants.SHOOTER_ALLOWED_ERROR;
+    SmartDashboard.putNumber("Shooter Error", shooterMotor1.getClosedLoopError());
+    // return Math.abs(shooterMotor1.getClosedLoopError()) < Constants.SHOOTER_ALLOWED_ERROR;
+    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < 0.02 * speed;
   }
 
   public void eject() {
@@ -51,6 +62,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
   public void stop() {
     shooterMotor1.set(ControlMode.PercentOutput, 0.0);
+    speed = 0;
   }
 
   @Override

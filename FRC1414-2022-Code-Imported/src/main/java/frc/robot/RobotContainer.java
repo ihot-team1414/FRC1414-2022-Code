@@ -66,18 +66,17 @@ public class RobotContainer {
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
 
-    // chooser.addOption("Wait", new WaitCommand(15));
     chooser.addOption("5 Ball", fiveBallAuto.getAuto());
 
     // chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
-    chooser.addOption("2 Ball", twoBallAuto.getAuto());
+    chooser.setDefaultOption("2 Ball", twoBallAuto.getAuto());
 
     chooser.addOption("Drive Straight", new DriveStraightOpenLoop(drivetrainSubsystem).withTimeout(3.5));
 
     chooser.addOption("Wait", new WaitCommand(15));
 
     // DEFAULT COMMANDS
-    // hoodSubsystem.setDefaultCommand(new AlignHood(hoodSubsystem));
+    hoodSubsystem.setDefaultCommand(new AlignHood(hoodSubsystem));
 
     // The align turret command checks to see if the pivot arms are in the vertical
     // position, otherwise, it homes.
@@ -88,8 +87,9 @@ public class RobotContainer {
         () -> Utils.deadband(driver.getRightY(), 0.1),
         () -> Utils.deadband(driver.getRightX(), 0.1),
         () -> Utils.deadband(driver.getLeftX(), 0.1),
-        () -> driver.getRightBumper(),
-        () -> driver.getLeftBumper()));
+        () -> (driver.getRightTriggerAxis() > 0.5),
+        () -> (driver.getLeftTriggerAxis() > 0.5))
+    );
 
     configureButtonBindings();
   }
@@ -131,7 +131,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kRightBumper.value).whenPressed(() -> climbSubsystem.nextState());
 
     // X Button holds balls
-    new JoystickButton(operator, Button.kX.value).whileActiveContinuous(new HoldBalls(indexerSubsystem));
+    new JoystickButton(operator, Button.kX.value).whileActiveContinuous(new Layup(shooterSubsystem, indexerSubsystem, hoodSubsystem, turretSubsystem));
 
     // B Button deploys intake and runs intake and indexer to the hold ball position
     new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new Intake(indexerSubsystem, intakeSubsystem));

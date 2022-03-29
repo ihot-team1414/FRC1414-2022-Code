@@ -27,22 +27,22 @@ public class FiveBallAuto implements AutoInterface {
       TrajectoryGenerator.generateTrajectory(
           Constants.STARTING_POSITIONS[0],
           List.of(),
-          new Pose2d(7.9, 1.1, Rotation2d.fromDegrees(-90)),
+          new Pose2d(7.9, 1, Rotation2d.fromDegrees(-90)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(7.9, 1.1, Rotation2d.fromDegrees(-90)),
+          new Pose2d(7.9, 1, Rotation2d.fromDegrees(-90)),
           List.of(new Translation2d(6.5, 1.25)),
-          new Pose2d(4.7, 1.45, Rotation2d.fromDegrees(90)),
+          new Pose2d(5.15, 1.45, Rotation2d.fromDegrees(90)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(4.7, 1.45, Rotation2d.fromDegrees(90)),
+          new Pose2d(5.15, 1.45, Rotation2d.fromDegrees(90)),
           List.of(),
-          new Pose2d(0.8, 1, Rotation2d.fromDegrees(225)),
+          new Pose2d(1.2, 1.2, Rotation2d.fromDegrees(225)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(0.8, 1, Rotation2d.fromDegrees(225)),
+          new Pose2d(1.2, 1.2, Rotation2d.fromDegrees(225)),
           List.of(),
-          new Pose2d(2.5, 2.5, Rotation2d.fromDegrees(0)),
+          new Pose2d(3, 3, Rotation2d.fromDegrees(0)),
           Constants.TRAJECTORY_CONFIG)
   };
 
@@ -58,26 +58,26 @@ public class FiveBallAuto implements AutoInterface {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
     auto = new SequentialCommandGroup(
-        new Intake(indexerSubsystem, intakeSubsystem).alongWith(new ParallelCommandGroup(
-            new SequentialCommandGroup(
-                new FollowTrajectory(
-                    drivetrainSubsystem,
-                    trajectories[0]),
-                new FollowTrajectory(
-                    drivetrainSubsystem,
-                    trajectories[1]))),
-            new Shoot(shooterSubsystem, indexerSubsystem).withTimeout(2),
             new ParallelCommandGroup(
                 new SequentialCommandGroup(
                     new FollowTrajectory(
                         drivetrainSubsystem,
-                        trajectories[2]),
-                    new WaitCommand(2)),
-                new Intake(indexerSubsystem, intakeSubsystem).withTimeout(5)),
-            new FollowTrajectory(
-                drivetrainSubsystem,
-                trajectories[3]),
-            new Shoot(shooterSubsystem, indexerSubsystem)));
+                        trajectories[0]),
+                    new FollowTrajectory(
+                        drivetrainSubsystem,
+                        trajectories[1]))).deadlineWith(new Intake(indexerSubsystem, intakeSubsystem)),
+        new Shoot(shooterSubsystem, indexerSubsystem).withTimeout(2),
+        new ParallelCommandGroup(
+            new SequentialCommandGroup(
+                new FollowTrajectory(
+                    drivetrainSubsystem,
+                    trajectories[2]),
+                new WaitCommand(2)),
+            new Intake(indexerSubsystem, intakeSubsystem).withTimeout(5)),
+        new FollowTrajectory(
+            drivetrainSubsystem,
+            trajectories[3]),
+        new Shoot(shooterSubsystem, indexerSubsystem));
   }
 
   public SequentialCommandGroup getAuto() {

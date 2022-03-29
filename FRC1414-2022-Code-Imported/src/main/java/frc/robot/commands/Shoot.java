@@ -21,6 +21,8 @@ public class Shoot extends CommandBase {
     
     if (shooterSubsystem.isWithinAllowedError()) {
       indexerSubsystem.load();
+    } else {
+      // indexerSubsystem.holdBalls();
     }
   }
 

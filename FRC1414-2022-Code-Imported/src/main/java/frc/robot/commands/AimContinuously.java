@@ -4,12 +4,14 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
+import frc.util.Limelight;
 
 public class AimContinuously extends CommandBase {
   private final DrivetrainSubsystem drivetrainSubsystem;
@@ -27,7 +29,7 @@ public class AimContinuously extends CommandBase {
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
 
-    rotationController = new PIDController(Constants.DRIVETRAIN_ROTATION_kP, 0, 0);
+    rotationController = new PIDController(Constants.DRIVETRAIN_VISION_ROTATION_kP, 0, 0);
 
     addRequirements(drivetrainSubsystem);
   }
@@ -44,7 +46,15 @@ public class AimContinuously extends CommandBase {
       turretSubsystem.visionTargeting();
     }
 
-    drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(translationYPercent, translationXPercent, rotationController.calculate(turretSubsystem.getPosition(), 0), drivetrainSubsystem.getRotation()));
+    double rotation = rotationController.calculate(turretSubsystem.getPosition(), 0);
+
+    if (!Limelight.getInstance().detectsTarget()) {
+      rotation = 6;
+    }
+
+    SmartDashboard.putNumber("Auto Drive Rotation Percent", rotation);
+
+    drivetrainSubsystem.drive(ChassisSpeeds.fromFieldRelativeSpeeds(translationYPercent, translationXPercent, rotation, drivetrainSubsystem.getRotation()));
   }
 
   @Override

@@ -21,7 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
     frontIntakeMotor.setNeutralMode(NeutralMode.Brake);
     frontIntakeMotor.setInverted(false);
 
-    compressor.disable();
+    compressor.enableDigital();
 
     close();
   }

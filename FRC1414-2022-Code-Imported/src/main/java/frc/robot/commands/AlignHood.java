@@ -14,11 +14,11 @@ public class AlignHood extends CommandBase {
 
   @Override
   public void execute() {
-    // hoodSubsystem.visionTargeting();
+    hoodSubsystem.visionTargeting();
   }
 
   @Override
   public void end(boolean interrupted) {
-    // hoodSubsystem.home();
+    hoodSubsystem.home();
   }
 }

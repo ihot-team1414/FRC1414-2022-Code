@@ -38,6 +38,8 @@ public final class Constants {
 
   public static final double DRIVETRAIN_ROTATION_kP = 0.0875;
 
+  public static final double DRIVETRAIN_VISION_ROTATION_kP = 0.000875;
+
   public static final Constraints THETA_CONTROLLER_CONSTRAINTS = 
     new Constraints(
       270,
@@ -45,7 +47,7 @@ public final class Constants {
     );
 
   public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
-    Constants.DRIVETRAIN_MAX_VEL,
+    Constants.DRIVETRAIN_MAX_VEL*0.75,
     Constants.DRIVETRAIN_MAX_ACCELERATION
   );
 
@@ -108,12 +110,12 @@ public final class Constants {
   public static final double SHOOTER_kI = 0.00018;
   public static final double SHOOTER_kD = 0.0002;
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
-  public static final double SHOOTER_ALLOWED_ERROR = 500;
+  public static final double SHOOTER_ALLOWED_ERROR = 100;
 
   public static final int TURRET_MOTOR_ID = 15;
-  public static final double TURRET_MOTOR_MAX_OUTPUT = 0.85;
-  public static final double TURRET_MAX_POS = 5000;
-  public static final double TURRET_MIN_POS = -5000;
+  public static final double TURRET_MOTOR_MAX_OUTPUT = 0.6;
+  public static final double TURRET_MAX_POS = 9500;
+  public static final double TURRET_MIN_POS = -9500;
   public static final double TURRET_POSITION_ALLOWED_ERROR = 500;
   public static final double TURRET_MOTOR_POSITION_kF = 0.0;
   public static final double TURRET_MOTOR_POSITION_kP = 0.5;
@@ -121,9 +123,9 @@ public final class Constants {
   public static final double TURRET_MOTOR_POSITION_kD = 0;
 
   public static final double TURRET_VISION_ALLOWED_ERROR = 1;
-  public static final double TURRET_MOTOR_VISTION_kP = 0.013;
-  public static final double TURRET_MOTOR_VISTION_kI = 0.045;
-  public static final double TURRET_MOTOR_VISTION_kD = 0.003;
+  public static final double TURRET_MOTOR_VISTION_kP = 0.01414;
+  public static final double TURRET_MOTOR_VISTION_kI = 0.00;
+  public static final double TURRET_MOTOR_VISTION_kD = 0.0;
 
   public static final int LOADER_FRONT_MOTOR_ID = 9;
   public static final int LOADER_BACK_MOTOR_ID = 23;

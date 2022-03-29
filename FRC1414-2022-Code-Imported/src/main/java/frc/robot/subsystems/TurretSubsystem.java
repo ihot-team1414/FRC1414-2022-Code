@@ -4,6 +4,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,12 +13,14 @@ import frc.robot.Constants;
 import frc.util.Limelight;
 
 public class TurretSubsystem extends SubsystemBase {
-  private TalonFX turretMotor = new TalonFX(Constants.TURRET_MOTOR_ID);
+  private TalonSRX turretMotor = new TalonSRX(Constants.TURRET_MOTOR_ID);
   private PIDController visionController = new PIDController(Constants.TURRET_MOTOR_VISTION_kP,
     Constants.TURRET_MOTOR_VISTION_kI, Constants.TURRET_MOTOR_VISTION_kD);
 
   public TurretSubsystem() {
-    turretMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
+    turretMotor.setInverted(true);
+
+    turretMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
     turretMotor.setNeutralMode(NeutralMode.Brake);
     turretMotor.configNominalOutputForward(0.0, 30);
     turretMotor.configNominalOutputReverse(0.0, 30);
@@ -33,6 +36,7 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.configReverseSoftLimitThreshold(Constants.TURRET_MIN_POS);
     turretMotor.configReverseSoftLimitEnable(true);
     turretMotor.configForwardSoftLimitEnable(true);
+
   }
 
   public void setTurret(double speed) {
@@ -67,7 +71,7 @@ public class TurretSubsystem extends SubsystemBase {
   public void visionTargeting() {
     double deltaX = Limelight.getInstance().getDeltaX();
 
-    if (Math.abs(deltaX) > Constants.TURRET_VISION_ALLOWED_ERROR) {
+    if (Math.abs(deltaX) > Constants.TURRET_VISION_ALLOWED_ERROR && (Limelight.getInstance().detectsTarget())) {
       setTurret(visionController.calculate(deltaX, 0));
     }
   }

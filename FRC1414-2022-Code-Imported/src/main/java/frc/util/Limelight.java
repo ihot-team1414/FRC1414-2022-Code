@@ -3,6 +3,7 @@ package frc.util;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Limelight {
 
@@ -40,7 +41,7 @@ public class Limelight {
 
   public boolean detectsTarget() {
     if (tv != null) {
-      return tv.getBoolean(false);
+      return tv.getNumber(0).intValue() > 0;
     }
 
     return false;
