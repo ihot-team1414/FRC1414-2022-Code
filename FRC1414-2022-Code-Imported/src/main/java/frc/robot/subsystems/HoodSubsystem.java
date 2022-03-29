@@ -25,9 +25,10 @@ public class HoodSubsystem extends SubsystemBase {
     double target = ShooterData.getInstance().getHoodAngle(ty);
 
     if (Constants.MANUAL_SPEED_AND_ANGLE) {
+      dashboardTarget = SmartDashboard.getNumber("Dashboard Hood Target", 0.0);
       set(dashboardTarget);
     } else if (Limelight.getInstance().detectsTarget()) {
-      SmartDashboard.putNumber("Hood Target", target);
+      SmartDashboard.putNumber("Dashboard Hood Target", target);
       set(target);
     }
   }
@@ -50,6 +51,5 @@ public class HoodSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Goal Y", Limelight.getInstance().getDeltaY());
-    dashboardTarget = SmartDashboard.getNumber("Dashboard Hood Target", 0.0);
   }
 }

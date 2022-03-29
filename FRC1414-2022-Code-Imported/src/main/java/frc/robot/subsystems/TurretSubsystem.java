@@ -70,7 +70,7 @@ public class TurretSubsystem extends SubsystemBase {
   public void visionTargeting() {
     double deltaX = Limelight.getInstance().getDeltaX();
 
-    if (Math.abs(deltaX) > Constants.TURRET_VISION_ALLOWED_ERROR && (Limelight.getInstance().detectsTarget())) {
+    if ((Limelight.getInstance().detectsTarget())) {
       setTurret(visionController.calculate(deltaX, 0));
     }
   }

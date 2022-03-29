@@ -2,6 +2,7 @@ package frc.util;
 
 import java.util.TreeMap;
 
+
 public class ShooterData {
     
     private static ShooterData instance;
@@ -9,7 +10,20 @@ public class ShooterData {
     private static final TreeMap<Double, Double[]> data = new TreeMap<>();
 
     private ShooterData() {
-        add(-6, 8000, 0.35);
+        add(23.34, 7500, 0.24);
+        add(18.06, 7500, 0.24);
+        add(13.97, 7750, 0.25);
+        add(10.6, 7750, 0.26);
+        add(8.89, 7500, 0.27);
+        add(3.69, 7500, 0.27);
+        add(0.11, 7750, 0.3);
+        add(-1.65, 8000, 0.28);
+        add(-3.1, 8250, 0.28);
+        add(-5.18, 8500, 0.28);
+        add(-6.5, 8800, 0.3);
+        add(-7.8, 8800, 0.3);
+        add(-9.1, 9000, 0.3);
+        add(-12.06, 9250, 0.32);
     }
 
     public static ShooterData getInstance() {
@@ -21,16 +35,22 @@ public class ShooterData {
     }
 
     public Double[] getEntry(double ty) {
+        Double[] empty = { 0.0, 0.0 };
+
         try {
-            double ceiling = data.ceilingKey(ty);
-            double floor = data.ceilingKey(ty);
+            Double ceiling = data.ceilingKey(ty);
+            Double floor = data.floorKey(ty);
 
-            double closest = Math.abs(ceiling - ty) < Math.abs(floor - ty) ? ceiling : floor;
-
-            return data.get(closest);
+            if (ceiling != null && floor != null) {
+                return Math.abs(ceiling - ty) < Math.abs(floor - ty) ? data.get(ceiling) : data.get(floor);
+            } else if (ceiling != null) {
+                return data.get(ceiling);
+            } else if (floor != null) {
+                return data.get(floor);
+            } else {
+                return empty;
+            }
         } catch(Exception e) {
-            Double[] empty = { 0.0, 0.0 };
-
             return empty;
         }
     }
