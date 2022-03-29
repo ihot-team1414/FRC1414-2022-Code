@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.util.Limelight;
+import frc.util.ShooterData;
 
 public class ShooterSubsystem extends SubsystemBase {
   private final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
@@ -38,11 +39,10 @@ public class ShooterSubsystem extends SubsystemBase {
     double ty = Limelight.getInstance().getDeltaY();
 
     if (Limelight.getInstance().detectsTarget()) {
-      speed = -77.53619*ty + 8556.9126;
+      speed = ShooterData.getInstance().getShooterSpeed(ty);
     }
     // 21700 is max theoretical speed for shooter.
     shooterMotor1.set(ControlMode.Velocity, speed);
-
   }
 
   public void layup() {

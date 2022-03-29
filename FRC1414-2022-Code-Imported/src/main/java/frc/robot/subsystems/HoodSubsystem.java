@@ -1,29 +1,20 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.math.interpolation.Interpolatable;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.util.Limelight;
+import frc.util.ShooterData;
 
 public class HoodSubsystem extends SubsystemBase {
-  private double target = 0;
-
-
   private final Servo servo1 = new Servo(Constants.HOOD_SERVO_ID_1);
   private final Servo servo2 = new Servo(Constants.HOOD_SERVO_ID_2);
-
-  public HoodSubsystem() {
-  }
-
 
   public void visionTargeting() {
     double ty = Limelight.getInstance().getDeltaY();
 
-    
-
-    double setpoint = Limelight.getInstance().detectsTarget() ? 0.254*Math.pow(Math.E, -0.0164881818*ty) : target;
+    double setpoint = ShooterData.getInstance().getHoodAngle(ty);
 
     SmartDashboard.putNumber("Hood Target", setpoint);
 
@@ -36,8 +27,6 @@ public class HoodSubsystem extends SubsystemBase {
     } else if (value > 0.5) {
       value = 0.5;
     }
-
-    target = value;
 
     servo1.set(value);
     servo2.set(value);
