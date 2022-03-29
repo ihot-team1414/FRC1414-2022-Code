@@ -13,7 +13,7 @@ public class ShooterSubsystem extends SubsystemBase {
   private final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
   private final TalonFX shooterMotor2 = new TalonFX(Constants.SHOOTER_ID_2);
 
-  public double dashboardTarget = 0;
+  private double dashboardSpeed = 0;
 
   private double speed = 0;
 
@@ -32,27 +32,31 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.setNeutralMode(NeutralMode.Coast);
     shooterMotor2.setNeutralMode(NeutralMode.Coast);
     shooterMotor2.enableVoltageCompensation(true);
-    SmartDashboard.putNumber("Dashboard Shooter Target", 9000);
+
+    if (Constants.MANUAL_SPEED_AND_ANGLE) {
+      SmartDashboard.putNumber("Dashboard Shooter Target", 9000);
+    }
   }
 
   public void shoot() {
     double ty = Limelight.getInstance().getDeltaY();
-
-    if (Limelight.getInstance().detectsTarget()) {
+    
+    if (Constants.MANUAL_SPEED_AND_ANGLE) {
+      speed = dashboardSpeed;
+    } else if (Limelight.getInstance().detectsTarget()) {
       speed = ShooterData.getInstance().getShooterSpeed(ty);
     }
+
     // 21700 is max theoretical speed for shooter.
     shooterMotor1.set(ControlMode.Velocity, speed);
   }
 
   public void layup() {
-    speed = 7500;
-    shooterMotor1.set(ControlMode.Velocity, 7500);
+    speed = Constants.SHOOTER_LAYUP_SPEED;
+    shooterMotor1.set(ControlMode.Velocity, speed);
   }
 
   public boolean isWithinAllowedError() {
-    SmartDashboard.putNumber("Shooter Error", shooterMotor1.getClosedLoopError());
-    // return Math.abs(shooterMotor1.getClosedLoopError()) < Constants.SHOOTER_ALLOWED_ERROR;
     return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < 0.02 * speed;
   }
 
@@ -67,11 +71,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    
     SmartDashboard.putNumber("Shooter Target", shooterMotor1.getClosedLoopTarget());
-    SmartDashboard.putNumber("Limelight Distance", Limelight.getInstance().getDeltaY());
     SmartDashboard.putNumber("Shooter Velocity", shooterMotor1.getSelectedSensorVelocity());
     SmartDashboard.putNumber("Shooter Closed Loop Error", shooterMotor1.getClosedLoopError());
-    dashboardTarget = SmartDashboard.getNumber("Dashboard Shooter Target", 0.0);
+    dashboardSpeed = SmartDashboard.getNumber("Dashboard Shooter Target", 0.0);
   }
 }

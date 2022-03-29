@@ -11,21 +11,32 @@ public class HoodSubsystem extends SubsystemBase {
   private final Servo servo1 = new Servo(Constants.HOOD_SERVO_ID_1);
   private final Servo servo2 = new Servo(Constants.HOOD_SERVO_ID_2);
 
+  private double dashboardTarget = 0;
+
+  public HoodSubsystem() {
+    if (Constants.MANUAL_SPEED_AND_ANGLE) {
+      SmartDashboard.putNumber("Dashboard Hood Target", Constants.HOOD_MIN);
+    }
+  }
+
   public void visionTargeting() {
     double ty = Limelight.getInstance().getDeltaY();
 
-    double setpoint = ShooterData.getInstance().getHoodAngle(ty);
+    double target = ShooterData.getInstance().getHoodAngle(ty);
 
-    SmartDashboard.putNumber("Hood Target", setpoint);
-
-    set(setpoint);
+    if (Constants.MANUAL_SPEED_AND_ANGLE) {
+      set(dashboardTarget);
+    } else if (Limelight.getInstance().detectsTarget()) {
+      SmartDashboard.putNumber("Hood Target", target);
+      set(target);
+    }
   }
 
   public void set(double value) {
-    if (value < 0.22) {
-      value = 0.22;
-    } else if (value > 0.5) {
-      value = 0.5;
+    if (value < Constants.HOOD_MIN) {
+      value = Constants.HOOD_MIN;
+    } else if (value > Constants.HOOD_MAX) {
+      value = Constants.HOOD_MAX;
     }
 
     servo1.set(value);
@@ -33,11 +44,12 @@ public class HoodSubsystem extends SubsystemBase {
   }
 
   public void home() {
-    set(0.35);
+    set(Constants.HOOD_MIN);
   }
 
   @Override
   public void periodic() {
     SmartDashboard.putNumber("Goal Y", Limelight.getInstance().getDeltaY());
+    dashboardTarget = SmartDashboard.getNumber("Dashboard Hood Target", 0.0);
   }
 }

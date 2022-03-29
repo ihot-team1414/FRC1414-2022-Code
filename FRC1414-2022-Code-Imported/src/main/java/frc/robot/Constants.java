@@ -5,13 +5,14 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public final class Constants {
+  public static final boolean MANUAL_SPEED_AND_ANGLE = true;
+
   public static final Pose2d[] STARTING_POSITIONS = {
     new Pose2d(8, 2.84, Rotation2d.fromDegrees(-108)),
     new Pose2d(5, 5, Rotation2d.fromDegrees(0))
@@ -104,6 +105,8 @@ public final class Constants {
   public static final int SHOOTER_ID_2 = 17;
   public static final int HOOD_SERVO_ID_1 = 9;
   public static final int HOOD_SERVO_ID_2 = 8;
+  public static final double HOOD_MIN = 0.22;
+  public static final double HOOD_MAX = 0.5;
 
   public static final double SHOOTER_kF = 0.0;
   public static final double SHOOTER_kP = 0.6414;
@@ -111,6 +114,7 @@ public final class Constants {
   public static final double SHOOTER_kD = 0.0002;
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
   public static final double SHOOTER_ALLOWED_ERROR = 100;
+  public static final double SHOOTER_LAYUP_SPEED = 7500;
 
   public static final int TURRET_MOTOR_ID = 15;
   public static final double TURRET_MOTOR_MAX_OUTPUT = 0.6;
