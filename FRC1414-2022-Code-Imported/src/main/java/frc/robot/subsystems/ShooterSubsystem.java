@@ -39,13 +39,13 @@ public class ShooterSubsystem extends SubsystemBase {
     this.speed = speed;
 
     //THERMOSTAT
-    if (shooterMotor1.getSelectedSensorVelocity() >= speed) {
-      shooterMotor1.set(ControlMode.PercentOutput, 0);
-    } else {
-      shooterMotor1.set(ControlMode.PercentOutput, 1);
-    }
+    // if (shooterMotor1.getSelectedSensorVelocity() >= speed) {
+    //   shooterMotor1.set(ControlMode.PercentOutput, 0);
+    // } else {
+    //   shooterMotor1.set(ControlMode.PercentOutput, 0.25);
+    // }
 
-    // shooterMotor1.set(ControlMode.Velocity, speed);
+    shooterMotor1.set(ControlMode.Velocity, speed);
     // shooterMotor1.set(ControlMode.PercentOutput, 0.5);
   }
 
@@ -55,7 +55,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isWithinAllowedError() {
-    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < 0.03 * speed;
+    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < 0.04 * speed;
   }
 
   public void eject() {

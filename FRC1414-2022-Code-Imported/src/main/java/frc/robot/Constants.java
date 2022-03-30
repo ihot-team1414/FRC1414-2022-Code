@@ -108,10 +108,10 @@ public final class Constants {
   public static final double HOOD_MIN = 0.24;
   public static final double HOOD_MAX = 0.5;
 
-  public static final double SHOOTER_kF = 0.0;
-  public static final double SHOOTER_kP = 0.6414;
-  public static final double SHOOTER_kI = 0.00018;
-  public static final double SHOOTER_kD = 0.0002;
+  public static final double SHOOTER_kF = 0.06;
+  public static final double SHOOTER_kP = 0.0;
+  public static final double SHOOTER_kI = 0.0;
+  public static final double SHOOTER_kD = 0.0;
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
   public static final double SHOOTER_ALLOWED_ERROR = 100;
   public static final double SHOOTER_LAYUP_SPEED = 6250;
@@ -137,7 +137,7 @@ public final class Constants {
   public static final int INTAKE_ID = 4;
 
   public static final double LOADING_SPEED = 0.85;
-  public static final double HOLDING_SPEED = 0.4;
+  public static final double HOLDING_SPEED = 0.75;
   public static final double FUNNEL_SPEED = 0.25;
   public static final double INTAKE_SPEED = 0.75;
 
