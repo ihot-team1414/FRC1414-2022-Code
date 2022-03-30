@@ -67,14 +67,14 @@ public class Shoot extends CommandBase {
       withinError = true;
     } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
       withinError = false;
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.5) {
-      this.indexerSubsystem.loadShooter();
+    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.6) {
+      this.indexerSubsystem.load();
       SmartDashboard.putBoolean("hOLDING", false);
     } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.4) {
-      this.indexerSubsystem.reverse();
+      this.indexerSubsystem.stop();
       SmartDashboard.putBoolean("hOLDING", false);
     } else {
-      this.indexerSubsystem.holdBalls();
+      this.indexerSubsystem.stop();
       SmartDashboard.putBoolean("hOLDING", true);
     }
   }

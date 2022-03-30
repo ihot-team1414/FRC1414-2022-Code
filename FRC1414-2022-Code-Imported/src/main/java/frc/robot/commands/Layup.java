@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
@@ -13,6 +14,8 @@ public class Layup extends CommandBase {
   private final HoodSubsystem hoodSubsystem;
   private final TurretSubsystem turretSubsystem;
 
+  private double startTime = Timer.getFPGATimestamp();
+
   public Layup(ShooterSubsystem shooterSubsystem, IndexerSubsystem indexerSubsystem, HoodSubsystem hoodSubsystem, TurretSubsystem turretSubsystem) {
     this.shooterSubsystem = shooterSubsystem;
     this.indexerSubsystem = indexerSubsystem;
@@ -22,13 +25,24 @@ public class Layup extends CommandBase {
   }
 
   @Override
+  public void initialize() {
+    // TODO Auto-generated method stub
+    super.initialize();
+    this.startTime = Timer.getFPGATimestamp();
+  }
+
+  @Override
   public void execute() {
-    shooterSubsystem.layup();
-    hoodSubsystem.set(0.22);
+    hoodSubsystem.set(0.28);
     turretSubsystem.home();
-    if (shooterSubsystem.isWithinAllowedError()) {
-      indexerSubsystem.load();
-    }
+
+    shooterSubsystem.layup();
+
+    if (Timer.getFPGATimestamp() - this.startTime > 0.5) {
+      if (shooterSubsystem.isWithinAllowedError()) {
+        indexerSubsystem.load();
+      }
+    } 
   }
 
   @Override
