@@ -137,7 +137,7 @@ public final class Constants {
   public static final int INTAKE_ID = 4;
 
   public static final double LOADING_SPEED = 0.85;
-  public static final double HOLDING_SPEED = 0.75;
+  public static final double HOLDING_SPEED = 0.4;
   public static final double FUNNEL_SPEED = 0.25;
   public static final double INTAKE_SPEED = 0.75;
 

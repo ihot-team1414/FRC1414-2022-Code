@@ -24,7 +24,7 @@ public class TwoBallAuto implements AutoInterface {
         ),
         new TurnToAngle(drivetrainSubsystem, ()->0 , ()->0, 180).withTimeout(1),
         new ParallelCommandGroup(
-          new Shoot(shooterSubsystem, indexerSubsystem)
+          new Shoot(shooterSubsystem, indexerSubsystem, hoodSubsystem)
         ).withTimeout(6)
     );
   }
