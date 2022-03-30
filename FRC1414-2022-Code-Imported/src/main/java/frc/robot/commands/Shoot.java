@@ -54,9 +54,11 @@ public class Shoot extends CommandBase {
     // if (Timer.getFPGATimestamp() - startTime > 1.5) {
     //   this.indexerSubsystem.load();
     //   SmartDashboard.putBoolean("hOLDING", false);
-    // } else if (Timer.getFPGATimestamp() - startTime > 1) {
-    //   this.indexerSubsystem.stop();
-    // } else {
+    // }
+    // // } else if (Timer.getFPGATimestamp() - startTime > 1) {
+    // //   this.indexerSubsystem.stop();
+    // // } 
+    // else {
     //   this.indexerSubsystem.holdBalls();
     //   SmartDashboard.putBoolean("hOLDING", true);
     // }
@@ -66,9 +68,9 @@ public class Shoot extends CommandBase {
     } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
       withinError = false;
     } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.5) {
-      this.indexerSubsystem.load();
+      this.indexerSubsystem.loadShooter();
       SmartDashboard.putBoolean("hOLDING", false);
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.25) {
+    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.4) {
       this.indexerSubsystem.reverse();
       SmartDashboard.putBoolean("hOLDING", false);
     } else {

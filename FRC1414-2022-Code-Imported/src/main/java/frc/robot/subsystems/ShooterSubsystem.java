@@ -21,13 +21,15 @@ public class ShooterSubsystem extends SubsystemBase {
     shooterMotor1.config_kI(0, Constants.SHOOTER_kI, 0);
     shooterMotor1.config_kD(0, Constants.SHOOTER_kD, 0);
     shooterMotor1.enableVoltageCompensation(true);
-
+    shooterMotor1.configVoltageCompSaturation(12.0, 30);
     shooterMotor1.configPeakOutputForward(Constants.SHOOTER_MAX_OUTPUT);
-    shooterMotor2.follow(shooterMotor1);
     shooterMotor1.setInverted(true);
     shooterMotor1.setNeutralMode(NeutralMode.Coast);
+
+    shooterMotor2.follow(shooterMotor1);
     shooterMotor2.setNeutralMode(NeutralMode.Coast);
     shooterMotor2.enableVoltageCompensation(true);
+    shooterMotor2.configVoltageCompSaturation(12.0, 30);
 
     if (Constants.MANUAL_SPEED_AND_ANGLE) {
       SmartDashboard.putNumber("Dashboard Shooter Target", 9000);
@@ -55,7 +57,7 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isWithinAllowedError() {
-    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < 0.04 * speed;
+    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < Constants.SHOOTER_ALLOWED_ERROR;
   }
 
   public void eject() {
