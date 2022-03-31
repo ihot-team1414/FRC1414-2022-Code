@@ -1,6 +1,10 @@
 package frc.robot;
 
 import java.util.ArrayList;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cscore.VideoSource;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.XboxController;
@@ -58,6 +62,11 @@ public class RobotContainer {
   TrajectoryConfig config;
 
   public RobotContainer() {
+    UsbCamera camera = CameraServer.startAutomaticCapture();
+    camera.setResolution(192, 108);
+    camera.setExposureManual(20);
+    camera.setExposureHoldCurrent();
+
     // AUTO CHOOSER
 
     ArrayList<Translation2d> list = new ArrayList<>();
@@ -66,10 +75,10 @@ public class RobotContainer {
 
     SmartDashboard.putData("Auto Chooser", this.chooser);
 
-    chooser.addOption("5 Ball", fiveBallAuto.getAuto());
+    chooser.setDefaultOption("5 Ball", fiveBallAuto.getAuto());
 
     // chooser.addOption("4 Ball Outside", fourBallAuto.getAuto());
-    chooser.setDefaultOption("2 Ball", twoBallAuto.getAuto());
+    chooser.addOption("2 Ball", twoBallAuto.getAuto());
 
     chooser.addOption("Drive Straight", new DriveStraightOpenLoop(drivetrainSubsystem).withTimeout(3.5));
 
@@ -123,6 +132,8 @@ public class RobotContainer {
         .whileActiveContinuous(new ActivateClimbState(climbSubsystem, turretSubsystem));
     new JoystickButton(operator, Button.kA.value)
         .whenPressed(() -> turretSubsystem.setDefaultCommand(new DescheduleSubsystem(turretSubsystem)));
+    new JoystickButton(operator, Button.kA.value)
+        .whenPressed(() -> climbSubsystem.setDefaultCommand(new DescheduleSubsystem(climbSubsystem)));
 
     // Left Bumper decreases climb state
     new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> climbSubsystem.previousState());
@@ -138,8 +149,10 @@ public class RobotContainer {
 
     // Y Button starts shooter
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot(shooterSubsystem, indexerSubsystem, hoodSubsystem));
-    new JoystickButton(operator, Button.kA.value)
-        .whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem, climbSubsystem)));
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new AlignTurret(turretSubsystem, climbSubsystem));
+    new JoystickButton(operator, Button.kY.value).whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem, climbSubsystem)));
+
+    new JoystickButton(operator, Button.kRightStick.value).whileActiveContinuous(new AlignTurretManually(turretSubsystem, () -> operator.getRightX()));
 
     // Start Button runs indexer backwards to clear shooter
     new JoystickButton(operator, Button.kStart.value).whileActiveContinuous(new Deload(indexerSubsystem));

@@ -12,7 +12,7 @@ public class ActivateClimbState extends CommandBase {
     this.climbSubsystem = climbSubsystem;
     this.turretSubsystem = turretSubsystem;
 
-    addRequirements(climbSubsystem);
+    addRequirements(climbSubsystem, turretSubsystem);
   }
 
   @Override

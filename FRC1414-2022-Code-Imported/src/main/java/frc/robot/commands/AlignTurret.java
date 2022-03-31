@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
@@ -14,6 +15,8 @@ public class AlignTurret extends CommandBase {
     this.climbSubsystem = climbSubsystem;
 
     addRequirements(turretSubsystem, climbSubsystem);
+
+    SmartDashboard.putBoolean("ALIGN", false);
   }
 
   @Override
@@ -24,10 +27,13 @@ public class AlignTurret extends CommandBase {
     } else {
       turretSubsystem.visionTargeting();
     }
+
+    SmartDashboard.putBoolean("ALIGN", true);
   }
 
   @Override
   public void end(boolean interrupted) {
     turretSubsystem.home();
+    SmartDashboard.putBoolean("ALIGN", false);
   }
 }

@@ -46,6 +46,10 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.set(ControlMode.Position, 0);
   }
 
+  public void zero() {
+    turretMotor.setSelectedSensorPosition(0);
+  }
+
   public void eject() {
     setTurret(4000);
   }

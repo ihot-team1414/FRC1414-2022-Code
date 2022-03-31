@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public final class Constants {
-  public static final boolean MANUAL_SPEED_AND_ANGLE = false;
+  public static final boolean MANUAL_SPEED_AND_ANGLE = true;
 
   public static final Pose2d[] STARTING_POSITIONS = {
     new Pose2d(8, 2.84, Rotation2d.fromDegrees(-108)),
@@ -109,7 +109,7 @@ public final class Constants {
   public static final double HOOD_MAX = 0.5;
 
   public static final double SHOOTER_kF = 0.05;
-  public static final double SHOOTER_kP = 0.1;
+  public static final double SHOOTER_kP = 0.075;
   public static final double SHOOTER_kI = 0.0;
   public static final double SHOOTER_kD = 0.0;
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
@@ -120,7 +120,7 @@ public final class Constants {
   public static final double TURRET_MOTOR_MAX_OUTPUT = 0.6;
   public static final double TURRET_MAX_POS = 9500;
   public static final double TURRET_MIN_POS = -9500;
-  public static final double TURRET_POSITION_ALLOWED_ERROR = 500;
+  public static final double TURRET_POSITION_ALLOWED_ERROR = 200;
   public static final double TURRET_MOTOR_POSITION_kF = 0.0;
   public static final double TURRET_MOTOR_POSITION_kP = 0.5;
   public static final double TURRET_MOTOR_POSITION_kI = 0;
@@ -170,6 +170,6 @@ public final class Constants {
 
   public static final Value INTAKE_PISTON_OPEN = Value.kForward;
   public static final Value INTAKE_PISTON_CLOSED = Value.kReverse;
-  public static final int INTAKE_PISTON_FORWARD = 8;
+  public static final int INTAKE_PISTON_FORWARD = 11;
   public static final int INTAKE_PISTON_REVERSE = 13;
 }
