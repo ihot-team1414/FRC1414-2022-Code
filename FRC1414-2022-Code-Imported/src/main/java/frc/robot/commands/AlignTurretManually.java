@@ -13,18 +13,18 @@ import frc.robot.subsystems.ClimbSubsystem;
 
 public class AlignTurretManually extends CommandBase {
   private final TurretSubsystem turretSubsystem;
-  private final double translationXPercent;
+  private final DoubleSupplier translationXSupplier;
 
   public AlignTurretManually(TurretSubsystem turretSubsystem, DoubleSupplier translationXSupplier) {
     this.turretSubsystem = turretSubsystem;
-    translationXPercent = translationXSupplier.getAsDouble();
-
+    this.translationXSupplier = translationXSupplier;
     addRequirements(turretSubsystem);
   }
 
   @Override
   public void execute() {
-    turretSubsystem.setTurret(Utils.deadband(0.2 * translationXPercent, 0.1));
+    turretSubsystem.setTurret(Utils.deadband(0.4 * translationXSupplier.getAsDouble(), 0.1));
+    System.out.println("G3 GIRL!G3 GIRL!G3 GIRL!G3 GIRL!G3 GIRL!G3 GIRL!G3 GIRL!G3 GIRL!");
   }
 
   @Override

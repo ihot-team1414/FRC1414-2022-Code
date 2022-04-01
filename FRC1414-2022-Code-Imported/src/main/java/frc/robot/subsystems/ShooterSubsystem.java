@@ -57,7 +57,11 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public boolean isWithinAllowedError() {
-    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < Constants.SHOOTER_ALLOWED_ERROR * (1 + ((speed - 7000) / 4000));
+    double allowedError = Constants.SHOOTER_ALLOWED_ERROR;
+    if (speed >= 7000) {
+      allowedError = Constants.SHOOTER_ALLOWED_ERROR * (1 + ((speed - 7000) / 4000));
+    }
+    return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < allowedError;
   }
 
   public void eject() {

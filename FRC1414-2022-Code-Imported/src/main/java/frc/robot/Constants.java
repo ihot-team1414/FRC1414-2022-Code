@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 public final class Constants {
-  public static final boolean MANUAL_SPEED_AND_ANGLE = true;
+  public static final boolean MANUAL_SPEED_AND_ANGLE = false;
 
   public static final Pose2d[] STARTING_POSITIONS = {
     new Pose2d(8, 2.84, Rotation2d.fromDegrees(-108)),
