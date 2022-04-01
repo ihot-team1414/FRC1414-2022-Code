@@ -155,7 +155,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kRightStick.value).whileActiveContinuous(new AlignTurretManually(turretSubsystem, () -> operator.getRightX()));
 
     // Start Button runs indexer backwards to clear shooter
-    new JoystickButton(operator, Button.kStart.value).whileActiveContinuous(new Deload(indexerSubsystem));
+    new JoystickButton(operator, Button.kStart.value).whileActiveContinuous(new Deload(indexerSubsystem, intakeSubsystem));
 
     // Back Button moves turret to eject position and ejects balls through shooter
     new JoystickButton(operator, Button.kBack.value)

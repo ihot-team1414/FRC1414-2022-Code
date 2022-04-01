@@ -42,7 +42,7 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void reverse() {
-    funnelMotor.set(ControlMode.PercentOutput, -Constants.FUNNEL_SPEED);
+    funnelMotor.set(ControlMode.PercentOutput, -Constants.OUTTAKE_FUNNEL_SPEED);
     loaderBackMotor.set(ControlMode.PercentOutput, -Constants.LOADING_SPEED);
     loaderFrontMotor.set(ControlMode.PercentOutput, -Constants.LOADING_SPEED);  
   }

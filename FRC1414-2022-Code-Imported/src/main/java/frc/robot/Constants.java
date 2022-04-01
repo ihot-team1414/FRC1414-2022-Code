@@ -139,6 +139,7 @@ public final class Constants {
   public static final double LOADING_SPEED = 0.75;
   public static final double HOLDING_SPEED = 0.75;
   public static final double FUNNEL_SPEED = 0.25;
+  public static final double OUTTAKE_FUNNEL_SPEED = 0.1;
   public static final double INTAKE_SPEED = 0.75;
 
   public static final Color BLUE_TARGET = new Color(0.143, 0.427, 0.429);
