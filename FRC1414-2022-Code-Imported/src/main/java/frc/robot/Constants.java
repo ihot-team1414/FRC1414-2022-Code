@@ -127,7 +127,7 @@ public final class Constants {
   public static final double TURRET_MOTOR_POSITION_kD = 0;
 
   public static final double TURRET_VISION_ALLOWED_ERROR = 1;
-  public static final double TURRET_MOTOR_VISTION_kP = 0.01414;
+  public static final double TURRET_MOTOR_VISTION_kP = 0.02;
   public static final double TURRET_MOTOR_VISTION_kI = 0.00;
   public static final double TURRET_MOTOR_VISTION_kD = 0.0;
 
