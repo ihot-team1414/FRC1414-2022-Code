@@ -17,9 +17,10 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 
 public class FollowTrajectory extends CommandBase {
 
-  Trajectory trajectory;
-  DrivetrainSubsystem drivetrain;
+  private Trajectory trajectory;
+  private DrivetrainSubsystem drivetrain;
 
+  private boolean reverseRotation = false;
   private static HolonomicDriveController controller;
   private static Timer timer = new Timer();
 
@@ -29,12 +30,17 @@ public class FollowTrajectory extends CommandBase {
   ProfiledPIDController thetaController = new ProfiledPIDController(
   Constants.DRIVETRAIN_PATH_THETA_kP, Constants.DRIVETRAIN_PATH_THETA_kI, Constants.DRIVETRAIN_PATH_THETA_kD, Constants.THETA_CONTROLLER_CONSTRAINTS);
 
+  public FollowTrajectory(DrivetrainSubsystem drivetrainSubsystem, Trajectory trajectory) {
+    this(drivetrainSubsystem, trajectory, false);
+  }
+
   /** Creates a new FollowTrajectory. */
-  public FollowTrajectory(DrivetrainSubsystem drivetrain, Trajectory trajectory) {
+  public FollowTrajectory(DrivetrainSubsystem drivetrain, Trajectory trajectory, boolean reverseRotation) {
     addRequirements(drivetrain);
 
     this.trajectory = trajectory;
     this.drivetrain = drivetrain;
+    this.reverseRotation = reverseRotation;
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -57,7 +63,7 @@ public class FollowTrajectory extends CommandBase {
         controller.calculate(drivetrain.getPose(), trajectory.sample(timer.get()), trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation());
     
 
-    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, drivetrain.getRequiredTurningSpeedForAngle(trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation().getDegrees()));
+    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, drivetrain.getRequiredTurningSpeedForAngle(trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation().getDegrees(), reverseRotation));
     drivetrain.drive(invertedSpeeds);
     SmartDashboard.putBoolean("Auto?", true);
     SmartDashboard.putNumber("timer", timer.get());
