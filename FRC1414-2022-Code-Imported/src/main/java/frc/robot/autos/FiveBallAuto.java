@@ -75,8 +75,7 @@ public class FiveBallAuto implements AutoInterface {
                 new FollowTrajectory(
                         drivetrainSubsystem,
                         trajectories[3]),
-                new ParallelCommandGroup(new AutoShoot(shooterSubsystem, indexerSubsystem, hoodSubsystem),
-                        new IntakeRoll(intakeSubsystem)));
+                new AutoShoot(shooterSubsystem, indexerSubsystem, hoodSubsystem));
     }
 
     public SequentialCommandGroup getAuto() {

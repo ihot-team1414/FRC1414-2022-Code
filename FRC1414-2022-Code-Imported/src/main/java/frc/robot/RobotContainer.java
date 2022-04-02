@@ -123,6 +123,9 @@ public class RobotContainer {
         .whileActiveContinuous(new AimContinuously(drivetrainSubsystem, climbSubsystem, turretSubsystem,
             () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
 
+    // Right Bumper resets climb state
+    new JoystickButton(druver, Button.kRightBumper.value).whenPressed(() -> climbSubsystem.resetState());
+
     // OPERATOR CONTROLS
 
     // A Button activates current climb state. The activate climb state checks if
