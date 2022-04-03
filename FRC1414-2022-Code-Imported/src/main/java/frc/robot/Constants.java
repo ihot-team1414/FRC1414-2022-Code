@@ -9,6 +9,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import frc.lib.Mk3SwerveModuleHelper;
+import frc.lib.SdsModuleConfigurations;
 
 public final class Constants {
   public static final boolean MANUAL_SPEED_AND_ANGLE = false;
@@ -24,7 +26,7 @@ public final class Constants {
   public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5969;
   public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
   public static final double DRIVETRAIN_MAX_VOLTAGE = 8;
-  public static final double DRIVETRAIN_MAX_VEL = 5;
+  // public static final double DRIVETRAIN_MAX_VEL = 5;
   public static final double DRIVETRAIN_MAX_ACCELERATION = 3;
 
   public static final double DRIVETRAIN_PATH_X_kP = 52e-1;
@@ -49,15 +51,17 @@ public final class Constants {
       90
     );
 
-  public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
-    Constants.DRIVETRAIN_MAX_VEL*0.75,
-    Constants.DRIVETRAIN_MAX_ACCELERATION
-  );
+  public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 * SdsModuleConfigurations.MK3_FAST.getDriveReduction() * SdsModuleConfigurations.MK3_FAST.getWheelDiameter() * Math.PI;
 
   public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = 
-    Constants.DRIVETRAIN_MAX_VEL / Math.hypot(
-      Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
-    );
+    Constants.MAX_VELOCITY_METERS_PER_SECOND / Math.hypot(
+    Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0
+  );
+  
+  public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
+    Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
+    Constants.DRIVETRAIN_MAX_ACCELERATION
+  );
 
   public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
     new Translation2d(
