@@ -71,7 +71,7 @@ public class FiveBallAuto implements AutoInterface {
                                         drivetrainSubsystem,
                                         trajectories[2]),
                                 new WaitCommand(0.5)))
-                        .deadlineWith(new Intake(indexerSubsystem, intakeSubsystem).withTimeout(5)),
+                        .deadlineWith(new Intake(indexerSubsystem, intakeSubsystem)),
                 new FollowTrajectory(
                         drivetrainSubsystem,
                         trajectories[3]),

@@ -11,6 +11,7 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.DrivetrainSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
+import frc.robot.subsystems.ClimbSubsystem.TelescopePosition;
 import frc.util.Limelight;
 
 public class AimContinuously extends CommandBase {
@@ -41,6 +42,7 @@ public class AimContinuously extends CommandBase {
 
     if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical)) {
       climbSubsystem.setPivot(PivotPosition.Vertical);
+      // climbSubsystem.setTelescope(TelescopePosition.Starting);
       turretSubsystem.home();
     } else {
       turretSubsystem.visionTargeting();

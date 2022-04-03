@@ -33,7 +33,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
-    Neutral(1414), Intermediate(97081), FirstRung(150000), Extended(190000);
+    Neutral(100), Starting(1414), Intermediate(97081), FirstRung(150000), Extended(190000);
 
     private int position;
 
