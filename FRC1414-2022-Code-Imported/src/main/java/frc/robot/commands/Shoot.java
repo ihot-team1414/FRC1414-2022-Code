@@ -51,6 +51,7 @@ public class Shoot extends CommandBase {
     SmartDashboard.putNumber("Start Time", startTime);
     SmartDashboard.putNumber("Curr Time", Timer.getFPGATimestamp());
     
+    // Time Based Indexing
     // if (Timer.getFPGATimestamp() - startTime > 1.5) {
     //   this.indexerSubsystem.load();
     //   SmartDashboard.putBoolean("hOLDING", false);
@@ -62,6 +63,8 @@ public class Shoot extends CommandBase {
     //   this.indexerSubsystem.holdBalls();
     //   SmartDashboard.putBoolean("hOLDING", true);
     // }
+
+    // RPM + Time Based Indexing
     if (!withinError && shooterSubsystem.isWithinAllowedError()) {
       startTime = Timer.getFPGATimestamp();
       withinError = true;

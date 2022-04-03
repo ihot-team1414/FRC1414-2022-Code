@@ -17,6 +17,7 @@ import frc.robot.autos.FiveBallAuto;
 import frc.robot.autos.TwoBallAuto;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.util.ColorSensor;
 import frc.util.Utils;
 
 public class RobotContainer {
@@ -150,7 +151,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new Intake(indexerSubsystem, intakeSubsystem));
 
     // Y Button starts shooter
-    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot(shooterSubsystem, indexerSubsystem, hoodSubsystem));
+    new JoystickButton(operator, Button.kY.value).whileActiveContinuous(ColorSensor.getInstance().isCorrectColor() ? new Shoot(shooterSubsystem, indexerSubsystem, hoodSubsystem) : new EjectBall(turretSubsystem, shooterSubsystem, indexerSubsystem));
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new AlignTurret(turretSubsystem, climbSubsystem));
     new JoystickButton(operator, Button.kY.value).whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret(turretSubsystem, climbSubsystem)));
 
@@ -166,5 +167,9 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return chooser.getSelected();
+  }
+
+  public Command getTestCommand() {
+    return new Spool(climbSubsystem);
   }
 }

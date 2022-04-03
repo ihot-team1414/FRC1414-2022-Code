@@ -1,5 +1,9 @@
 package frc.util;
 
+import java.time.Period;
+import java.util.HashMap;
+import java.util.Map;
+
 import com.revrobotics.ColorMatch;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
@@ -18,9 +22,13 @@ public class ColorSensor {
 
   private static ColorSensor instance = null;
 
+  private static Color previousColor;
+
   private ColorSensor() {
     colorMatcher.addColorMatch(Constants.BLUE_TARGET);  
-    colorMatcher.addColorMatch(Constants.RED_TARGET);  
+    colorMatcher.addColorMatch(Constants.RED_TARGET);
+
+    previousColor = Color.kBlack;
   }
 
   public static ColorSensor getInstance() {
@@ -38,6 +46,17 @@ public class ColorSensor {
 
     ColorMatchResult match = colorMatcher.matchClosestColor(detectedColor);
 
-    return match.color == Constants.RED_TARGET && allianceColor == Alliance.Red || match.color == Constants.BLUE_TARGET && allianceColor == Alliance.Blue;
+    Map<Color, DriverStation.Alliance> colorCombos = new HashMap<>();
+    colorCombos.put(Constants.RED_TARGET, Alliance.Red);
+    colorCombos.put(Constants.BLUE_TARGET, Alliance.Blue);
+
+    boolean isCurrentMatch = match.color != null && allianceColor == colorCombos.get(match.color);
+    boolean isPreviousColor = allianceColor == colorCombos.get(previousColor);
+
+    if (match.color != null) {
+      previousColor = match.color;
+    }
+
+    return isCurrentMatch || isPreviousColor;
   }
 }

@@ -18,6 +18,8 @@ public final class Constants {
     new Pose2d(5, 5, Rotation2d.fromDegrees(0))
   };
 
+  public static final double FALCON_500_STALL_CURRENT = 250;
+
   // DRIVETRAIN
   public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5969;
   public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
@@ -155,6 +157,7 @@ public final class Constants {
   public static final double TELESCOPING_ARM_MOTOR_kD = 0;
   public static final double TELESCOPING_ARM_MAX_VEL = 10000;
   public static final double TELESCOPING_ARM_ACCEL = 3000;
+  public static final double TELESCOPING_ARM_SPOOL_SPEED = 0.1;
 
   public static final int PIVOT_ARM_1_MOTOR_ID = 13;
   public static final int PIVOT_ARM_2_MOTOR_ID = 19;

@@ -157,6 +157,21 @@ public class ClimbSubsystem extends SubsystemBase {
 
   public void stopTelescope() {
     telescopingMotor.set(ControlMode.PercentOutput, 0.0);
+    telescopingMotor2.set(ControlMode.PercentOutput, 0.0);
+  }
+
+  public void spool() {
+    if (!isStalling()) {
+      telescopingMotor.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
+      telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
+    } else {
+      telescopingMotor.set(ControlMode.PercentOutput, 0);
+      telescopingMotor2.set(ControlMode.PercentOutput, 0);
+    }
+  }
+
+  public boolean isStalling() {
+    return telescopingMotor.getSupplyCurrent() >= Constants.FALCON_500_STALL_CURRENT;
   }
 
   public void activateState() {
