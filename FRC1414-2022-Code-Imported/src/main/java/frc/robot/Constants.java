@@ -7,8 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.util.Color;
 
 public final class Constants {
   public static final boolean MANUAL_SPEED_AND_ANGLE = false;
@@ -43,14 +43,10 @@ public final class Constants {
 
   public static final double DRIVETRAIN_VISION_ROTATION_kP = 0.000875;
 
-  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = 
-    new Constraints(
-      270,
-      90
-    );
+  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = new Constraints(270, 90);
 
   public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
-    Constants.DRIVETRAIN_MAX_VEL*0.75,
+    Constants.DRIVETRAIN_MAX_VEL * 0.75,
     Constants.DRIVETRAIN_MAX_ACCELERATION
   );
 
@@ -82,7 +78,7 @@ public final class Constants {
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 7;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 8;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 6;
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(52+180);
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(52 + 180);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 22;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 21;
@@ -92,7 +88,7 @@ public final class Constants {
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 10;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(126+180);
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(126 + 180);
 
   public static final int ROLLING_AVERAGE_SIZE = 5;
   public static final double TIME_STEP = 0.1;

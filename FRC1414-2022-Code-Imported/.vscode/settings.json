@@ -29,5 +29,5 @@
   "editor.tabSize": 2,
   "java.jdt.ls.vmargs": "-XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xmx4G -Xms100m",
   "java.checkstyle.version": "10.0",
-  "java.checkstyle.configuration": "${workspaceFolder}\\checkstyle.xml"
+  "java.checkstyle.configuration": "${workspaceFolder}/checkstyle.xml"
 }

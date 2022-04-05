@@ -9,12 +9,12 @@ public class TwoBallAuto implements AutoInterface {
 
   public TwoBallAuto() {
     auto = new SequentialCommandGroup(
-        new ParallelCommandGroup(
-          new IntakeAndHold().withTimeout(3.5),
-          new DriveStraightOpenLoop().withTimeout(3.5)
-        ),
-        new TurnToAngle(()->0 , ()->0, 180).withTimeout(1),
-        new Shoot().withTimeout(6)
+      new ParallelCommandGroup(
+        new IntakeAndHold().withTimeout(3.5),
+        new DriveStraightOpenLoop().withTimeout(3.5)
+      ),
+      new TurnToAngle(() -> 0, () -> 0, 180).withTimeout(1),
+      new Shoot().withTimeout(6)
     );
   }
 

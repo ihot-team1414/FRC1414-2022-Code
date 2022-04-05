@@ -27,7 +27,11 @@ public class FollowTrajectory extends CommandBase {
   PIDController yController = new PIDController(Constants.DRIVETRAIN_PATH_Y_kP, 0, 0);
 
   ProfiledPIDController thetaController = new ProfiledPIDController(
-  Constants.DRIVETRAIN_PATH_THETA_kP, Constants.DRIVETRAIN_PATH_THETA_kI, Constants.DRIVETRAIN_PATH_THETA_kD, Constants.THETA_CONTROLLER_CONSTRAINTS);
+    Constants.DRIVETRAIN_PATH_THETA_kP,
+    Constants.DRIVETRAIN_PATH_THETA_kI,
+    Constants.DRIVETRAIN_PATH_THETA_kD,
+    Constants.THETA_CONTROLLER_CONSTRAINTS
+  );
 
   public FollowTrajectory(Trajectory trajectory) {
     this(trajectory, false);
@@ -57,17 +61,25 @@ public class FollowTrajectory extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    ChassisSpeeds speeds =
-        controller.calculate(drivetrainSubsystem.getPose(), trajectory.sample(timer.get()), trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation());
+    ChassisSpeeds speeds = 
+      controller.calculate(
+        drivetrainSubsystem.getPose(),
+        trajectory.sample(timer.get()), 
+        trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation()
+      );
     
-
-    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, drivetrainSubsystem.getRequiredTurningSpeedForAngle(trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation().getDegrees(), reverseRotation));
+    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(
+      -speeds.vxMetersPerSecond,
+      -speeds.vyMetersPerSecond,
+      drivetrainSubsystem.getRequiredTurningSpeedForAngle(
+        trajectory.getStates().get(trajectory.getStates().size() - 1
+      ).poseMeters.getRotation().getDegrees(), reverseRotation));
     drivetrainSubsystem.drive(invertedSpeeds);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrainSubsystem.drive(new ChassisSpeeds(0,0,0));
+    drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 0));
   }
 }
