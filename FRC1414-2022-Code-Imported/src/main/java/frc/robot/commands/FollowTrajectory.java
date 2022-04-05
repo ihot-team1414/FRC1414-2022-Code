@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import javax.swing.plaf.basic.BasicInternalFrameUI.InternalFramePropertyChangeListener;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -81,5 +83,14 @@ public class FollowTrajectory extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 0));
+  }
+
+  @Override
+  public boolean isFinished() {
+    boolean isCorrectX = Math.abs(drivetrainSubsystem.getPose().getX() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getX()) < 0.2;
+    boolean isCorrectY = Math.abs(drivetrainSubsystem.getPose().getY() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getY()) < 0.2;
+    boolean isCorrectAngle = Math.abs(drivetrainSubsystem.getPose().getRotation().getDegrees() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation().getDegrees()) < 10;
+    
+    return isCorrectX && isCorrectY && isCorrectAngle;
   }
 }

@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -24,8 +26,11 @@ public final class Constants {
   public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5969;
   public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
   public static final double DRIVETRAIN_MAX_VOLTAGE = 8;
-  public static final double DRIVETRAIN_MAX_VEL = 5;
-  public static final double DRIVETRAIN_MAX_ACCELERATION = 3;
+  // public static final double DRIVETRAIN_MAX_VEL = 5;
+  public static final double DRIVETRAIN_MAX_VEL = 6380.0 / 60.0 *
+          SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
+          SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
+  public static final double DRIVETRAIN_MAX_ACCELERATION = 2;
 
   public static final double DRIVETRAIN_PATH_X_kP = 52e-1;
   public static final double DRIVETRAIN_PATH_X_kI = 0.0;
@@ -43,7 +48,7 @@ public final class Constants {
 
   public static final double DRIVETRAIN_VISION_ROTATION_kP = 0.000875;
 
-  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = new Constraints(270, 90);
+  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = new Constraints(360, 180);
 
   public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
     Constants.DRIVETRAIN_MAX_VEL * 0.75,

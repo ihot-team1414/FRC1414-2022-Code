@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -28,6 +30,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private SwerveDriveOdometry odometry;
 
   private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
+
+  private PIDController thetaController = new PIDController(Constants.DRIVETRAIN_ROTATION_kP, 0, 0);
 
   public static synchronized DrivetrainSubsystem getInstance() {
     if (instance == null) {
@@ -111,10 +115,11 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public double getRequiredTurningSpeedForAngle(double angle, boolean reverseRotation) {
-    double currentAngle = getRotation().getDegrees() % 360;
-    double targetAngle = angle % 360;
-    double error = targetAngle - currentAngle;
-    double speed = (Constants.DRIVETRAIN_ROTATION_kP * error);
+    thetaController.enableContinuousInput(-180, 180);
+
+    double currentAngle = getRotation().getDegrees() % 180;
+    double targetAngle = angle % 180;
+    double speed = thetaController.calculate(currentAngle, targetAngle);
     return reverseRotation ? speed : -speed;
   }
 
