@@ -8,13 +8,12 @@ import frc.robot.Constants;
 import frc.robot.subsystems.DrivetrainSubsystem;
 
 public class TurnToAngle extends CommandBase {
-  private final DrivetrainSubsystem drivetrainSubsystem;
+  private final DrivetrainSubsystem drivetrainSubsystem = DrivetrainSubsystem.getInstance();
   private final double angle;
   private final DoubleSupplier translationXSupplier;
   private final DoubleSupplier translationYSupplier;
 
-  public TurnToAngle(DrivetrainSubsystem drivetrainSubsystem, DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, double angle) {
-    this.drivetrainSubsystem = drivetrainSubsystem;
+  public TurnToAngle(DoubleSupplier translationXSupplier, DoubleSupplier translationYSupplier, double angle) {
     this.angle = angle;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;

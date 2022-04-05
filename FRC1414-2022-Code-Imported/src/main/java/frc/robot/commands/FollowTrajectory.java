@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -18,7 +17,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class FollowTrajectory extends CommandBase {
 
   private Trajectory trajectory;
-  private DrivetrainSubsystem drivetrain;
+  private final DrivetrainSubsystem drivetrainSubsystem = DrivetrainSubsystem.getInstance();
 
   private boolean reverseRotation = false;
   private static HolonomicDriveController controller;
@@ -30,16 +29,15 @@ public class FollowTrajectory extends CommandBase {
   ProfiledPIDController thetaController = new ProfiledPIDController(
   Constants.DRIVETRAIN_PATH_THETA_kP, Constants.DRIVETRAIN_PATH_THETA_kI, Constants.DRIVETRAIN_PATH_THETA_kD, Constants.THETA_CONTROLLER_CONSTRAINTS);
 
-  public FollowTrajectory(DrivetrainSubsystem drivetrainSubsystem, Trajectory trajectory) {
-    this(drivetrainSubsystem, trajectory, false);
+  public FollowTrajectory(Trajectory trajectory) {
+    this(trajectory, false);
   }
 
   /** Creates a new FollowTrajectory. */
-  public FollowTrajectory(DrivetrainSubsystem drivetrain, Trajectory trajectory, boolean reverseRotation) {
-    addRequirements(drivetrain);
+  public FollowTrajectory(Trajectory trajectory, boolean reverseRotation) {
+    addRequirements(drivetrainSubsystem);
 
     this.trajectory = trajectory;
-    this.drivetrain = drivetrain;
     this.reverseRotation = reverseRotation;
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
@@ -60,25 +58,16 @@ public class FollowTrajectory extends CommandBase {
   @Override
   public void execute() {
     ChassisSpeeds speeds =
-        controller.calculate(drivetrain.getPose(), trajectory.sample(timer.get()), trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation());
+        controller.calculate(drivetrainSubsystem.getPose(), trajectory.sample(timer.get()), trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation());
     
 
-    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, drivetrain.getRequiredTurningSpeedForAngle(trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation().getDegrees(), reverseRotation));
-    drivetrain.drive(invertedSpeeds);
-    SmartDashboard.putBoolean("Auto?", true);
-    SmartDashboard.putNumber("timer", timer.get());
+    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, drivetrainSubsystem.getRequiredTurningSpeedForAngle(trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation().getDegrees(), reverseRotation));
+    drivetrainSubsystem.drive(invertedSpeeds);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrain.drive(new ChassisSpeeds(0,0,0));
-    SmartDashboard.putBoolean("AUto?", false);
-  }
-
-  // Returns true when the command should end.
-  @Override
-  public boolean isFinished() {
-    return timer.get() > trajectory.getTotalTimeSeconds();
+    drivetrainSubsystem.drive(new ChassisSpeeds(0,0,0));
   }
 }

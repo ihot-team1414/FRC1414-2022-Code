@@ -10,6 +10,8 @@ import frc.robot.Constants;
 
 public class ClimbSubsystem extends SubsystemBase {
 
+  private static ClimbSubsystem instance;
+
   private final TalonFX telescopingMotor = new TalonFX(Constants.TELESCOPING_ARM_1_MOTOR_ID);
   private final TalonFX telescopingMotor2 = new TalonFX(Constants.TELESCOPING_ARM_2_MOTOR_ID);
   private final TalonFX pivotMotor = new TalonFX(Constants.PIVOT_ARM_1_MOTOR_ID);
@@ -17,6 +19,14 @@ public class ClimbSubsystem extends SubsystemBase {
 
   private int currentState = 0;
   private boolean stateTriggered = false;
+
+  public static synchronized ClimbSubsystem getInstance() {
+    if (instance == null) {
+      instance = new ClimbSubsystem();
+    }
+
+    return instance;
+  }
 
   public enum PivotPosition {
     Starting(2000), Vertical(70000), Grabbing(60000), Tilting(100000), Lifting(40000);
@@ -130,7 +140,7 @@ public class ClimbSubsystem extends SubsystemBase {
     motor.configMotionAcceleration(Constants.PIVOT_ARM_ACCEL, 30);
   }
 
-  public ClimbSubsystem() {
+  private ClimbSubsystem() {
     configureTelescopingMotor(telescopingMotor);
     telescopingMotor.setInverted(true);
 

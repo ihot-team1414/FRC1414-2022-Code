@@ -11,19 +11,15 @@ import frc.util.Limelight;
 import frc.util.ShooterData;
 
 public class Shoot extends CommandBase {
-
-  private final ShooterSubsystem shooterSubsystem;
-  private final IndexerSubsystem indexerSubsystem;
-  private final HoodSubsystem hoodSubsystem;
+  private final ShooterSubsystem shooterSubsystem = ShooterSubsystem.getInstance();
+  private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
+  private final HoodSubsystem hoodSubsystem = HoodSubsystem.getInstance();
 
   private double startTime;
   private double speed;
   private boolean withinError = false;
 
-  public Shoot(ShooterSubsystem shooterSubsystem, IndexerSubsystem indexerSubsystem, HoodSubsystem hoodSubsystem) {
-    this.shooterSubsystem = shooterSubsystem;
-    this.indexerSubsystem = indexerSubsystem;
-    this.hoodSubsystem = hoodSubsystem;
+  public Shoot() {
     this.startTime = Timer.getFPGATimestamp();
     this.withinError = false;
     addRequirements(shooterSubsystem, indexerSubsystem, hoodSubsystem);
@@ -48,21 +44,6 @@ public class Shoot extends CommandBase {
   @Override
   public void execute() {
     shooterSubsystem.shoot(speed);
-    SmartDashboard.putNumber("Start Time", startTime);
-    SmartDashboard.putNumber("Curr Time", Timer.getFPGATimestamp());
-    
-    // Time Based Indexing
-    // if (Timer.getFPGATimestamp() - startTime > 1.5) {
-    //   this.indexerSubsystem.load();
-    //   SmartDashboard.putBoolean("hOLDING", false);
-    // }
-    // // } else if (Timer.getFPGATimestamp() - startTime > 1) {
-    // //   this.indexerSubsystem.stop();
-    // // } 
-    // else {
-    //   this.indexerSubsystem.holdBalls();
-    //   SmartDashboard.putBoolean("hOLDING", true);
-    // }
 
     // RPM + Time Based Indexing
     if (!withinError && shooterSubsystem.isWithinAllowedError()) {
@@ -72,13 +53,8 @@ public class Shoot extends CommandBase {
       withinError = false;
     } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.05) {
       this.indexerSubsystem.load();
-      SmartDashboard.putBoolean("hOLDING", false);
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.03) {
-      this.indexerSubsystem.stop();
-      SmartDashboard.putBoolean("hOLDING", false);
     } else {
       this.indexerSubsystem.stop();
-      SmartDashboard.putBoolean("hOLDING", true);
     }
   }
 

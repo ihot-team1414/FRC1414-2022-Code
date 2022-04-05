@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
-import com.swervedrivespecialties.swervelib.Mk4SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -17,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class DrivetrainSubsystem extends SubsystemBase {
+  private static DrivetrainSubsystem instance;
+
   private final SwerveModule frontLeftModule;
   private final SwerveModule frontRightModule;
   private final SwerveModule backLeftModule;
@@ -24,11 +25,19 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   private final AHRS gyroscope = new AHRS(I2C.Port.kMXP);
 
-  private final SwerveDriveOdometry odometry;
+  private SwerveDriveOdometry odometry;
 
   private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-  public DrivetrainSubsystem(Pose2d startingPosition) {
+  public static synchronized DrivetrainSubsystem getInstance() {
+    if (instance == null) {
+      instance = new DrivetrainSubsystem();
+    }
+
+    return instance;
+  }
+
+  private DrivetrainSubsystem() {
     ShuffleboardTab shuffleboardTab = Shuffleboard.getTab("Drivetrain");
     frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
         shuffleboardTab.getLayout("Front Left Module", BuiltInLayouts.kList)
@@ -69,18 +78,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
         Constants.BACK_RIGHT_MODULE_STEER_MOTOR,
         Constants.BACK_RIGHT_MODULE_STEER_ENCODER,
         Constants.BACK_RIGHT_MODULE_STEER_OFFSET);
+  }
 
+  public void setStartingPosition(Pose2d startingPosition) {
     odometry = new SwerveDriveOdometry(
       Constants.KINEMATICS,
       Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
       startingPosition
     );
-
-    shuffleboardTab.addNumber("Gyroscope Angle", () -> getRotation().getDegrees());
-    shuffleboardTab.addNumber("Pose X", () -> odometry.getPoseMeters().getX());
-    shuffleboardTab.addNumber("Pose Y", () -> odometry.getPoseMeters().getY());
-    shuffleboardTab.addNumber("Pose Yaw", () -> odometry.getPoseMeters().getRotation().getDegrees());
-
   }
 
   public void zeroGyroscope() {

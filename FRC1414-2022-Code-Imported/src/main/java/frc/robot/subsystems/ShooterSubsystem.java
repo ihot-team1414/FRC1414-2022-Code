@@ -8,10 +8,20 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class ShooterSubsystem extends SubsystemBase {
+  private static ShooterSubsystem instance;
+
   private final TalonFX shooterMotor1 = new TalonFX(Constants.SHOOTER_ID_1);
   private final TalonFX shooterMotor2 = new TalonFX(Constants.SHOOTER_ID_2);
 
   private double speed = 0;
+
+  public static synchronized ShooterSubsystem getInstance() {
+    if (instance == null) {
+      instance = new ShooterSubsystem();
+    }
+
+    return instance;
+  }
 
   public ShooterSubsystem() {
     shooterMotor1.selectProfileSlot(0, 0);

@@ -8,12 +8,22 @@ import frc.util.Limelight;
 import frc.util.ShooterData;
 
 public class HoodSubsystem extends SubsystemBase {
+  private static HoodSubsystem instance;
+
   private final Servo servo1 = new Servo(Constants.HOOD_SERVO_ID_1);
   private final Servo servo2 = new Servo(Constants.HOOD_SERVO_ID_2);
 
   private double dashboardTarget = 0;
+  
+  public static synchronized HoodSubsystem getInstance() {
+    if (instance == null) {
+      instance = new HoodSubsystem();
+    }
 
-  public HoodSubsystem() {
+    return instance;
+  }
+
+  private HoodSubsystem() {
     if (Constants.MANUAL_SPEED_AND_ANGLE) {
       SmartDashboard.putNumber("Dashboard Hood Target", Constants.HOOD_MIN);
     }

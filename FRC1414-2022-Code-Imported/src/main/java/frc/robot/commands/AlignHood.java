@@ -4,11 +4,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.HoodSubsystem;
 
 public class AlignHood extends CommandBase {
-  private final HoodSubsystem hoodSubsystem;
+  private final HoodSubsystem hoodSubsystem = HoodSubsystem.getInstance();
 
-  public AlignHood(HoodSubsystem hoodSubsystem) {
-    this.hoodSubsystem = hoodSubsystem;
-
+  public AlignHood() {
     addRequirements(hoodSubsystem);
   }
 

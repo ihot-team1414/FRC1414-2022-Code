@@ -5,13 +5,10 @@ import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class Intake extends CommandBase {
-  private final IndexerSubsystem indexerSubsystem;
-  private final IntakeSubsystem intakeSubsystem;
+  private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
+  private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
-  public Intake(IndexerSubsystem indexerSubsystem, IntakeSubsystem intakeSubsystem) {
-    this.indexerSubsystem = indexerSubsystem;
-    this.intakeSubsystem = intakeSubsystem;
-
+  public Intake() {
     addRequirements(indexerSubsystem, intakeSubsystem);
   }
 
@@ -24,8 +21,8 @@ public class Intake extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    this.intakeSubsystem.stop();
-    this.intakeSubsystem.close();
-    this.indexerSubsystem.stop();
+    intakeSubsystem.stop();
+    intakeSubsystem.close();
+    indexerSubsystem.stop();
   }
 }

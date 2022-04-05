@@ -4,11 +4,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
 
 public class LoadBalls extends CommandBase {
-  private final IndexerSubsystem indexerSubsystem;
+  private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
 
-  public LoadBalls(IndexerSubsystem indexerSubsystem) {
-    this.indexerSubsystem = indexerSubsystem;
-
+  public LoadBalls() {
     addRequirements(indexerSubsystem);
   }
 

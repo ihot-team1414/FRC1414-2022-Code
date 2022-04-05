@@ -8,7 +8,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 public class Drive extends CommandBase {
-  private final DrivetrainSubsystem drivetrain;
+  private final DrivetrainSubsystem drivetrainSubsystem = DrivetrainSubsystem.getInstance();
   private final DoubleSupplier translationXSupplier;
   private final DoubleSupplier translationYSupplier;
   private final DoubleSupplier rotationSupplier;
@@ -16,20 +16,18 @@ public class Drive extends CommandBase {
   private final BooleanSupplier isSlowSupplier;
 
   public Drive(
-      DrivetrainSubsystem drivetrain,
       DoubleSupplier translationXSupplier,
       DoubleSupplier translationYSupplier,
       DoubleSupplier rotationSupplier,
       BooleanSupplier isFastSupplier,
       BooleanSupplier isSlowSupplier) {
-    this.drivetrain = drivetrain;
     this.translationXSupplier = translationXSupplier;
     this.translationYSupplier = translationYSupplier;
     this.rotationSupplier = rotationSupplier;
     this.isSlowSupplier = isSlowSupplier;
     this.isFastSupplier = isFastSupplier;
 
-    addRequirements(drivetrain);
+    addRequirements(drivetrainSubsystem);
   }
 
   @Override
@@ -44,16 +42,16 @@ public class Drive extends CommandBase {
     double slowSpeed = 0.5;
     double speedMultiplier = isFast ? fastSpeed : isSlow ? slowSpeed : defaultSpeed;
 
-    drivetrain.drive(
+    drivetrainSubsystem.drive(
         ChassisSpeeds.fromFieldRelativeSpeeds(
             translationXPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
             translationYPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
             rotationPercent * Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-            drivetrain.getRotation()));
+            drivetrainSubsystem.getRotation()));
   }
 
   @Override
   public void end(boolean interrupted) {
-    drivetrain.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
+    drivetrainSubsystem.drive(new ChassisSpeeds(0.0, 0.0, 0.0));
   }
 }

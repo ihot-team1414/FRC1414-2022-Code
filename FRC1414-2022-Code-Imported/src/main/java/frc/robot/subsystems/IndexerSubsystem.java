@@ -9,11 +9,21 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IndexerSubsystem extends SubsystemBase {
+  private static IndexerSubsystem instance;
+
   private final TalonSRX loaderFrontMotor = new TalonSRX(Constants.LOADER_FRONT_MOTOR_ID);
   private final TalonSRX loaderBackMotor = new TalonSRX(Constants.LOADER_BACK_MOTOR_ID);
   private final TalonSRX funnelMotor = new TalonSRX(Constants.FUNNEL_MOTOR_ID);
+  
+  public static synchronized IndexerSubsystem getInstance() {
+    if (instance == null) {
+      instance = new IndexerSubsystem();
+    }
 
-  public IndexerSubsystem() {
+    return instance;
+  }
+
+  private IndexerSubsystem() {
     loaderFrontMotor.setNeutralMode(NeutralMode.Brake);
     loaderBackMotor.setNeutralMode(NeutralMode.Brake);
     funnelMotor.setNeutralMode(NeutralMode.Coast);

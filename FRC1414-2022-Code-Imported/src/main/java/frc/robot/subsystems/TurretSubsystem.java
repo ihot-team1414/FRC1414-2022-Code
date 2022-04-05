@@ -12,9 +12,20 @@ import frc.robot.Constants;
 import frc.util.Limelight;
 
 public class TurretSubsystem extends SubsystemBase {
+  private static TurretSubsystem instance;
+
   private TalonSRX turretMotor = new TalonSRX(Constants.TURRET_MOTOR_ID);
   private PIDController visionController = new PIDController(Constants.TURRET_MOTOR_VISTION_kP,
     Constants.TURRET_MOTOR_VISTION_kI, Constants.TURRET_MOTOR_VISTION_kD);
+
+
+  public static synchronized TurretSubsystem getInstance() {
+    if (instance == null) {
+      instance = new TurretSubsystem();
+    }
+
+    return instance;
+  }
 
   public TurretSubsystem() {
     turretMotor.setInverted(true);

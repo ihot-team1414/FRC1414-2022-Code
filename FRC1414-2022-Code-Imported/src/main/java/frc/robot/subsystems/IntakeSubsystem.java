@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class IntakeSubsystem extends SubsystemBase {
+  private static IntakeSubsystem instance;
+
   private final DoubleSolenoid intakePiston = new DoubleSolenoid(24, Constants.PCM_TYPE,
       Constants.INTAKE_PISTON_FORWARD, Constants.INTAKE_PISTON_REVERSE);
 
@@ -17,7 +19,15 @@ public class IntakeSubsystem extends SubsystemBase {
 
   public final TalonSRX frontIntakeMotor = new TalonSRX(Constants.INTAKE_ID);
 
-  public IntakeSubsystem() {
+  public static synchronized IntakeSubsystem getInstance() {
+    if (instance == null) {
+      instance = new IntakeSubsystem();
+    }
+
+    return instance;
+  }
+
+  private IntakeSubsystem() {
     frontIntakeMotor.setNeutralMode(NeutralMode.Brake);
     frontIntakeMotor.setInverted(false);
 
