@@ -70,10 +70,10 @@ public class Shoot extends CommandBase {
       withinError = true;
     } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
       withinError = false;
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.6) {
+    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.05) {
       this.indexerSubsystem.load();
       SmartDashboard.putBoolean("hOLDING", false);
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.4) {
+    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.03) {
       this.indexerSubsystem.stop();
       SmartDashboard.putBoolean("hOLDING", false);
     } else {
