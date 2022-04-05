@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class Intake extends CommandBase {
+public class IntakeAndHold extends CommandBase {
   private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
   private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
-  public Intake() {
+  public IntakeAndHold() {
     addRequirements(indexerSubsystem, intakeSubsystem);
   }
 

@@ -2,7 +2,6 @@ package frc.robot;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -18,8 +17,8 @@ import frc.util.Utils;
 
 public class RobotContainer {
   // CONTROLLERS
-  private final XboxController driver = new XboxController(1);
   private final XboxController operator = new XboxController(0);
+  private final XboxController driver = new XboxController(1);
 
   // SUBSYSTEMS
   private final DrivetrainSubsystem drivetrainSubsystem = DrivetrainSubsystem.getInstance();
@@ -29,12 +28,8 @@ public class RobotContainer {
 
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
-
   private final FiveBallAuto fiveBallAuto = new FiveBallAuto();
-
   private final TwoBallAuto twoBallAuto = new TwoBallAuto();
-
-  TrajectoryConfig config;
 
   public RobotContainer() {
     // INITIALIZE REMAINING SUBSYSTEMS
@@ -60,8 +55,6 @@ public class RobotContainer {
 
     // DEFAULT COMMANDS
     hoodSubsystem.setDefaultCommand(new AlignHood());
-
-    // The align turret command checks to see if the pivot arms are in the vertical position, otherwise, it homes.
     turretSubsystem.setDefaultCommand(new AlignTurret());
 
     drivetrainSubsystem.setDefaultCommand(new Drive(
@@ -110,7 +103,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kX.value).whileActiveContinuous(new ShootLowGoal());
 
     // B Button deploys intake and runs intake and indexer to the hold ball position
-    new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new Intake());
+    new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new IntakeAndHold());
 
     // Y Button starts shooter
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot());

@@ -20,8 +20,8 @@ public class Shoot extends CommandBase {
   private boolean withinError = false;
 
   public Shoot() {
-    this.startTime = Timer.getFPGATimestamp();
-    this.withinError = false;
+    startTime = Timer.getFPGATimestamp();
+    withinError = false;
     addRequirements(shooterSubsystem, indexerSubsystem, hoodSubsystem);
   }
 
@@ -52,9 +52,9 @@ public class Shoot extends CommandBase {
     } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
       withinError = false;
     } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.05) {
-      this.indexerSubsystem.load();
+      indexerSubsystem.load();
     } else {
-      this.indexerSubsystem.stop();
+      indexerSubsystem.stop();
     }
   }
 
@@ -62,7 +62,7 @@ public class Shoot extends CommandBase {
   public void end(boolean interrupted) {
     speed = 0;
     withinError = false;
-    this.shooterSubsystem.stop();
-    this.indexerSubsystem.stop();
+    shooterSubsystem.stop();
+    indexerSubsystem.stop();
   }
 }

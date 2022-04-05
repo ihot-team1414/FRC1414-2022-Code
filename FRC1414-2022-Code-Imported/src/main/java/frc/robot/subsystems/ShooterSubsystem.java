@@ -74,6 +74,10 @@ public class ShooterSubsystem extends SubsystemBase {
     return Math.abs(shooterMotor1.getSelectedSensorVelocity() - speed) < allowedError;
   }
 
+  public double getShooterSpeed() {
+    return shooterMotor1.getSelectedSensorVelocity();
+  }
+
   public void eject() {
     shooterMotor1.set(ControlMode.Velocity, 5000);
   }

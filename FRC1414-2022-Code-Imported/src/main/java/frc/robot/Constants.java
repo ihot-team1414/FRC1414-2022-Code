@@ -117,6 +117,7 @@ public final class Constants {
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
   public static final double SHOOTER_ALLOWED_ERROR = 200;
   public static final double SHOOTER_LAYUP_SPEED = 3750;
+  public static final double SHOOTER_MIN_LOAD_SPEED = 3000;
 
   public static final int TURRET_MOTOR_ID = 15;
   public static final double TURRET_MOTOR_MAX_OUTPUT = 0.6;

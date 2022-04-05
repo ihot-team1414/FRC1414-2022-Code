@@ -51,7 +51,7 @@ public class FiveBallAuto implements AutoInterface {
                 new FollowTrajectory(trajectories[0]),
                 new FollowTrajectory(trajectories[1])
             )
-        ).deadlineWith(new Intake()),
+        ).deadlineWith(new IntakeAndHold()),
         new ParallelCommandGroup(
             new Shoot(),
             new IntakeWithoutIndexer()
@@ -59,7 +59,7 @@ public class FiveBallAuto implements AutoInterface {
         new SequentialCommandGroup(
             new FollowTrajectory(trajectories[2]),
             new WaitCommand(0.5)
-        ).deadlineWith(new Intake()),
+        ).deadlineWith(new IntakeAndHold()),
         new FollowTrajectory(trajectories[3]),
         new Shoot()
     );
