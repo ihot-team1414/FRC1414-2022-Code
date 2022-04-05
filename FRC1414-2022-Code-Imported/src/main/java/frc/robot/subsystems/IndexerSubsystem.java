@@ -7,6 +7,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.commands.Shoot;
 
 public class IndexerSubsystem extends SubsystemBase {
   private static IndexerSubsystem instance;
@@ -32,8 +33,10 @@ public class IndexerSubsystem extends SubsystemBase {
   }
 
   public void loadShooter() {
-    loaderBackMotor.set(ControlMode.PercentOutput, Constants.LOADING_SPEED);
-    loaderFrontMotor.set(ControlMode.PercentOutput, Constants.LOADING_SPEED);
+    if (ShooterSubsystem.getInstance().getShooterSpeed() > Constants.SHOOTER_MIN_LOAD_SPEED) {
+      loaderBackMotor.set(ControlMode.PercentOutput, Constants.LOADING_SPEED);
+      loaderFrontMotor.set(ControlMode.PercentOutput, Constants.LOADING_SPEED);
+    }
   }
 
   public void holdBall() {
