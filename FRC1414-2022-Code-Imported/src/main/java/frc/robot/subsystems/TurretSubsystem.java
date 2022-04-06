@@ -82,6 +82,10 @@ public class TurretSubsystem extends SubsystemBase {
     return Math.abs(turretMotor.getClosedLoopError()) < Constants.TURRET_POSITION_ALLOWED_ERROR;
   }
 
+  public boolean isWithinAllowedVisionError() {
+    return Math.abs(Limelight.getInstance().getDeltaX()) < Constants.TURRET_VISION_ALLOWED_ERROR;
+  }
+
   public double getPosition() {
     return turretMotor.getSelectedSensorPosition();
   }

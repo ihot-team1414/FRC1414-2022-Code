@@ -17,7 +17,7 @@ public final class Constants {
 
   public static final Pose2d[] STARTING_POSITIONS = {
     new Pose2d(8, 2.84, Rotation2d.fromDegrees(-108)),
-    new Pose2d(5, 5, Rotation2d.fromDegrees(0))
+    new Pose2d(6.04, 4.7, Rotation2d.fromDegrees(0))
   };
 
   public static final double FALCON_500_STALL_CURRENT = 250;
@@ -130,7 +130,7 @@ public final class Constants {
   public static final double TURRET_MOTOR_POSITION_kI = 0;
   public static final double TURRET_MOTOR_POSITION_kD = 0;
 
-  public static final double TURRET_VISION_ALLOWED_ERROR = 1;
+  public static final double TURRET_VISION_ALLOWED_ERROR = 5;
   public static final double TURRET_MOTOR_VISTION_kP = 0.02;
   public static final double TURRET_MOTOR_VISTION_kI = 0.00;
   public static final double TURRET_MOTOR_VISTION_kD = 0.0;

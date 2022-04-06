@@ -35,16 +35,11 @@ public class FollowTrajectory extends CommandBase {
     Constants.THETA_CONTROLLER_CONSTRAINTS
   );
 
-  public FollowTrajectory(Trajectory trajectory) {
-    this(trajectory, false);
-  }
-
   /** Creates a new FollowTrajectory. */
-  public FollowTrajectory(Trajectory trajectory, boolean reverseRotation) {
+  public FollowTrajectory(Trajectory trajectory) {
     addRequirements(drivetrainSubsystem);
 
     this.trajectory = trajectory;
-    this.reverseRotation = reverseRotation;
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -75,7 +70,7 @@ public class FollowTrajectory extends CommandBase {
       -speeds.vyMetersPerSecond,
       drivetrainSubsystem.getRequiredTurningSpeedForAngle(
         trajectory.getStates().get(trajectory.getStates().size() - 1
-      ).poseMeters.getRotation().getDegrees(), reverseRotation));
+      ).poseMeters.getRotation().getDegrees()));
     drivetrainSubsystem.drive(invertedSpeeds);
   }
 
@@ -91,6 +86,6 @@ public class FollowTrajectory extends CommandBase {
     boolean isCorrectY = Math.abs(drivetrainSubsystem.getPose().getY() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getY()) < 0.2;
     boolean isCorrectAngle = Math.abs(drivetrainSubsystem.getPose().getRotation().getDegrees() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation().getDegrees()) < 10;
     
-    return isCorrectX && isCorrectY && isCorrectAngle;
+    return (isCorrectX && isCorrectY && isCorrectAngle) || timer.get() > trajectory.getTotalTimeSeconds() + 2;
   }
 }

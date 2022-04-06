@@ -24,16 +24,16 @@ public class FiveBallAuto implements AutoInterface {
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
           new Pose2d(7.8, 1.25, Rotation2d.fromDegrees(-90)),
-          List.of(new Translation2d(6.8, 1.5)),
-          new Pose2d(5.25, 2.15, Rotation2d.fromDegrees(85)),
+          List.of(new Translation2d(6.8, 1.7)),
+          new Pose2d(5.25, 2.2, Rotation2d.fromDegrees(85)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(5.25, 2.15, Rotation2d.fromDegrees(85)),
+          new Pose2d(5.25, 2.2, Rotation2d.fromDegrees(85)),
           List.of(),
-          new Pose2d(2, 2, Rotation2d.fromDegrees(225)),
+          new Pose2d(2.15, 2.15, Rotation2d.fromDegrees(225)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(2, 2, Rotation2d.fromDegrees(225)),
+          new Pose2d(2.15, 2.15, Rotation2d.fromDegrees(225)),
           List.of(),
           new Pose2d(4, 4, Rotation2d.fromDegrees(0)),
           Constants.TRAJECTORY_CONFIG)
@@ -52,11 +52,11 @@ public class FiveBallAuto implements AutoInterface {
         new ParallelCommandGroup(
             new AlignTurret(),
             new Shoot(),
-            new IntakeWithoutIndexer()).withTimeout(3),
+            new IntakeWithoutIndexer()).withTimeout(4),
         new SequentialCommandGroup(
             new FollowTrajectory(trajectories[2]),
             new SetTurretPosition(0),
-            new WaitCommand(0.5)).deadlineWith(new IntakeAndHold()),
+            new WaitCommand(1)).deadlineWith(new IntakeAndHold()),
         new FollowTrajectory(trajectories[3]).deadlineWith(new ParallelCommandGroup(
             new AlignTurret(),
             new IntakeAndHold())),

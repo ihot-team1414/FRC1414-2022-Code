@@ -18,24 +18,24 @@ import java.util.List;
 public class TwoBallCleanupAuto implements AutoInterface {
   private Trajectory[] trajectories = {
       TrajectoryGenerator.generateTrajectory(
-          Constants.STARTING_POSITIONS[0],
-          List.of(),
-          new Pose2d(7.8, 1.25, Rotation2d.fromDegrees(-90)),
+          Constants.STARTING_POSITIONS[1],
+          List.of(new Translation2d(5.7, 4.7)),
+          new Pose2d(5, 5.84, Rotation2d.fromDegrees(20)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(7.8, 1.25, Rotation2d.fromDegrees(-90)),
-          List.of(new Translation2d(6.8, 1.5)),
-          new Pose2d(5.25, 2.15, Rotation2d.fromDegrees(85)),
+          new Pose2d(5, 5.84, Rotation2d.fromDegrees(20)),
+          List.of(),
+          new Pose2d(4.8, 3.3, Rotation2d.fromDegrees(-90)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(5.25, 2.15, Rotation2d.fromDegrees(85)),
-          List.of(),
-          new Pose2d(2, 2, Rotation2d.fromDegrees(225)),
+          new Pose2d(4.8, 3.3, Rotation2d.fromDegrees(-90)),
+          List.of(new Translation2d(6.8, 5.8)),
+          new Pose2d(6.2, 7.03, Rotation2d.fromDegrees(120)),
           Constants.TRAJECTORY_CONFIG),
       TrajectoryGenerator.generateTrajectory(
-          new Pose2d(2, 2, Rotation2d.fromDegrees(225)),
+          new Pose2d(6.2, 7.03, Rotation2d.fromDegrees(120)),
           List.of(),
-          new Pose2d(4, 4, Rotation2d.fromDegrees(0)),
+          new Pose2d(5, 6.8, Rotation2d.fromDegrees(180)),
           Constants.TRAJECTORY_CONFIG)
   };
 
@@ -44,25 +44,17 @@ public class TwoBallCleanupAuto implements AutoInterface {
   public TwoBallCleanupAuto() {
     auto = new SequentialCommandGroup(
         new InstantCommand(
-            () -> DrivetrainSubsystem.getInstance().setStartingPosition(Constants.STARTING_POSITIONS[0])),
+            () -> DrivetrainSubsystem.getInstance().setStartingPosition(Constants.STARTING_POSITIONS[1])),
         new SetTurretPosition(-6700).withTimeout(0.5),
-        new SequentialCommandGroup(
-            new FollowTrajectory(trajectories[0]),
-            new FollowTrajectory(trajectories[1])).deadlineWith(new IntakeAndHold()),
+        new FollowTrajectory(trajectories[0]).deadlineWith(new IntakeAndHold()),
         new ParallelCommandGroup(
             new AlignTurret(),
             new Shoot(),
             new IntakeWithoutIndexer()).withTimeout(3),
-        new SequentialCommandGroup(
-            new FollowTrajectory(trajectories[2]),
-            new SetTurretPosition(0),
-            new WaitCommand(0.5)).deadlineWith(new IntakeAndHold()),
-        new FollowTrajectory(trajectories[3]).deadlineWith(new ParallelCommandGroup(
-            new AlignTurret(),
-            new IntakeAndHold())),
-        new ParallelCommandGroup(
-            new AlignTurret(),
-            new Shoot()));
+        new FollowTrajectory(trajectories[1]).deadlineWith(new IntakeAndHold()),
+        new FollowTrajectory(trajectories[2]).deadlineWith(new IntakeAndHold()),
+        new FollowTrajectory(trajectories[3]).deadlineWith(new IntakeAndHold()),
+        new Deload());
   }
 
   public SequentialCommandGroup getAuto() {

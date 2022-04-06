@@ -111,16 +111,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public double getRequiredTurningSpeedForAngle(double angle) {
-    return getRequiredTurningSpeedForAngle(angle, false);
-  }
-
-  public double getRequiredTurningSpeedForAngle(double angle, boolean reverseRotation) {
     thetaController.enableContinuousInput(-180, 180);
 
     double currentAngle = getRotation().getDegrees() % 180;
     double targetAngle = angle % 180;
     double speed = thetaController.calculate(currentAngle, targetAngle);
-    return reverseRotation ? speed : -speed;
+    return -speed;
   }
 
   public void turnToAngle(double angle) {

@@ -7,6 +7,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.util.Limelight;
 import frc.util.ShooterData;
 
@@ -18,6 +19,7 @@ public class Shoot extends CommandBase {
   private double startTime;
   private double speed;
   private boolean withinError = false;
+  private boolean linedUp = false;
 
   public Shoot() {
     startTime = Timer.getFPGATimestamp();
@@ -30,6 +32,7 @@ public class Shoot extends CommandBase {
     super.initialize();
     startTime = Timer.getFPGATimestamp();
     withinError = false;
+    linedUp = false;
 
     if (Constants.MANUAL_SPEED_AND_ANGLE) {
       speed = SmartDashboard.getNumber("Dashboard Shooter Target", 0.0);
@@ -45,16 +48,27 @@ public class Shoot extends CommandBase {
   public void execute() {
     shooterSubsystem.shoot(speed);
 
+    if (!Constants.MANUAL_SPEED_AND_ANGLE && !linedUp && TurretSubsystem.getInstance().isWithinAllowedVisionError()) {
+      double ty = Limelight.getInstance().getDeltaY();
+      speed = ShooterData.getInstance().getShooterSpeed(ty);
+      hoodSubsystem.set(ShooterData.getInstance().getHoodAngle(ty));
+      linedUp = true;
+    }
+
     // RPM + Time Based Indexing
-    if (!withinError && shooterSubsystem.isWithinAllowedError()) {
-      startTime = Timer.getFPGATimestamp();
-      withinError = true;
-    } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
-      withinError = false;
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.05) {
-      indexerSubsystem.load();
-    } else {
-      indexerSubsystem.stop();
+    if (linedUp) {
+      if (!Constants.MANUAL_SPEED_AND_ANGLE && !TurretSubsystem.getInstance().isWithinAllowedVisionError()) {
+        linedUp = false;
+      } else if (!withinError && shooterSubsystem.isWithinAllowedError()) {
+        startTime = Timer.getFPGATimestamp();
+        withinError = true;
+      } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
+        withinError = false;
+      } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.05) {
+        indexerSubsystem.load();
+      } else {
+        indexerSubsystem.stop();
+      }
     }
   }
 

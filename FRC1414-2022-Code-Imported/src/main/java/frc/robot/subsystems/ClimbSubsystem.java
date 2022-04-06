@@ -106,8 +106,11 @@ public class ClimbSubsystem extends SubsystemBase {
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
     motor.setNeutralMode(NeutralMode.Brake);
 
-    motor.configPeakOutputForward(0, 0);
-    motor.configPeakOutputReverse(0, 0);
+    motor.configPeakOutputForward(Constants.TELESCOPING_ARM_MOTOR_MAX_OUTPUT, 0);
+    motor.configPeakOutputReverse(-Constants.TELESCOPING_ARM_MOTOR_MAX_OUTPUT, 0);
+
+    motor.enableVoltageCompensation(true);
+    motor.configVoltageCompSaturation(12.0, 30);
 
     motor.configAllowableClosedloopError(0, Constants.TELESCOPING_ARM_ALLOWED_ERROR, 30);
 

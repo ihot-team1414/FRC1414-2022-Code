@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.autos.FiveBallAuto;
 import frc.robot.autos.TwoBallAuto;
+import frc.robot.autos.TwoBallCleanupAuto;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.util.Utils;
@@ -29,6 +30,7 @@ public class RobotContainer {
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
   private final FiveBallAuto fiveBallAuto = new FiveBallAuto();
+  private final TwoBallCleanupAuto twoBallCleanupAuto = new TwoBallCleanupAuto();
   private final TwoBallAuto twoBallAuto = new TwoBallAuto();
 
   public RobotContainer() {
@@ -49,6 +51,7 @@ public class RobotContainer {
     // AUTO CHOOSER
     SmartDashboard.putData("Auto Chooser", this.chooser);
     chooser.setDefaultOption("5 Ball", fiveBallAuto.getAuto());
+    chooser.addOption("2 Ball Clean Up", twoBallCleanupAuto.getAuto());
     chooser.addOption("2 Ball", twoBallAuto.getAuto());
     chooser.addOption("Taxi", new DriveStraightOpenLoop().withTimeout(3.5));
     chooser.addOption("Wait", new WaitCommand(15));
@@ -62,8 +65,7 @@ public class RobotContainer {
         () -> Utils.deadband(driver.getRightX(), 0.1),
         () -> Utils.deadband(driver.getLeftX(), 0.1),
         () -> (driver.getRightTriggerAxis() > 0.5),
-        () -> (driver.getLeftTriggerAxis() > 0.5))
-    );
+        () -> (driver.getLeftTriggerAxis() > 0.5)));
 
     configureButtonBindings();
   }
@@ -75,23 +77,31 @@ public class RobotContainer {
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> drivetrainSubsystem.zeroGyroscope());
 
     // Driver buttons for turn to angle
-    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(new TurnToAngle(() -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 180));
-    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(new TurnToAngle(() -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 90));
-    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(new TurnToAngle(() -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), -90));
-    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(new TurnToAngle(() -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 0));
+    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(new TurnToAngle(
+        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 180));
+    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(new TurnToAngle(
+        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 90));
+    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(new TurnToAngle(
+        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), -90));
+    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(new TurnToAngle(
+        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 0));
 
     // Left bumper aims continuously
-    new JoystickButton(driver, Button.kLeftBumper.value).whileActiveContinuous(new AimContinuously(() -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
+    new JoystickButton(driver, Button.kLeftBumper.value).whileActiveContinuous(new AimContinuously(
+        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
 
     // Back button resets climb state
     new JoystickButton(driver, Button.kBack.value).whenPressed(() -> climbSubsystem.resetState());
 
     // OPERATOR CONTROLS
 
-    // A Button activates current climb state. The activate climb state checks if the turret is in the correct position.
+    // A Button activates current climb state. The activate climb state checks if
+    // the turret is in the correct position.
     new JoystickButton(operator, Button.kA.value).whileActiveContinuous(new ActivateClimbState());
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> turretSubsystem.setDefaultCommand(new DescheduleSubsystem(turretSubsystem)));
-    new JoystickButton(operator, Button.kA.value).whenPressed(() -> climbSubsystem.setDefaultCommand(new DescheduleSubsystem(climbSubsystem)));
+    new JoystickButton(operator, Button.kA.value)
+        .whenPressed(() -> turretSubsystem.setDefaultCommand(new DescheduleSubsystem(turretSubsystem)));
+    new JoystickButton(operator, Button.kA.value)
+        .whenPressed(() -> climbSubsystem.setDefaultCommand(new DescheduleSubsystem(climbSubsystem)));
 
     // Left Bumper decreases climb state
     new JoystickButton(operator, Button.kLeftBumper.value).whenPressed(() -> climbSubsystem.previousState());
@@ -108,10 +118,12 @@ public class RobotContainer {
     // Y Button starts shooter
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new Shoot());
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new AlignTurret());
-    new JoystickButton(operator, Button.kY.value).whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret()));
+    new JoystickButton(operator, Button.kY.value)
+        .whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret()));
 
     // Right stick homes turret
-    new JoystickButton(operator, Button.kRightStick.value).whileActiveContinuous(new AlignTurretManually(() -> operator.getRightX()));
+    new JoystickButton(operator, Button.kRightStick.value)
+        .whileActiveContinuous(new AlignTurretManually(() -> operator.getRightX()));
 
     // Start Button runs indexer backwards to clear shooter
     new JoystickButton(operator, Button.kStart.value).whileActiveContinuous(new Deload());
