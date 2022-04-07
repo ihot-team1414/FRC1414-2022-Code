@@ -16,6 +16,8 @@ public class ClimbSubsystem extends SubsystemBase {
   private final TalonFX telescopingMotor2 = new TalonFX(Constants.TELESCOPING_ARM_2_MOTOR_ID);
   private final TalonFX pivotMotor = new TalonFX(Constants.PIVOT_ARM_1_MOTOR_ID);
   private final TalonFX pivotMotor2 = new TalonFX(Constants.PIVOT_ARM_2_MOTOR_ID);
+  private boolean isSpooled = false;
+  private boolean isSpooled2 = false;
 
   private int currentState = 0;
   private boolean stateTriggered = false;
@@ -29,7 +31,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum PivotPosition {
-    Starting(2000), Vertical(70000), Grabbing(59000), Tilting(100000), Lifting(40000);
+    Starting(2000), Vertical(70000), Grabbing(62000), Tilting(100000), Lifting(40000);
 
     private int position;
 
@@ -43,7 +45,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
-    Neutral(100), Starting(1414), Intermediate(40000), FirstRung(150000), Extended(190000);
+    Neutral(100), Starting(1414), Intermediate(50000), FirstRung(150000), Extended(190000);
 
     private int position;
 
@@ -174,23 +176,30 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void spool() {
-    if (!isStalling(telescopingMotor)) {
+    if (!isStalling(telescopingMotor) && !isSpooled) {
       telescopingMotor.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
       telescopingMotor.set(ControlMode.PercentOutput, 0);
       telescopingMotor.setSelectedSensorPosition(0);
+      isSpooled = true;
     }
 
-    if (!isStalling(telescopingMotor2)) {
+    if (!isStalling(telescopingMotor2) && !isSpooled2) {
       telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
       telescopingMotor2.set(ControlMode.PercentOutput, 0);
       telescopingMotor2.setSelectedSensorPosition(0);
+      isSpooled2 = true;
     }
   }
 
+  public void resetSpool() {
+    isSpooled = false;
+    isSpooled2 = false;
+  }
+
   public boolean isStalling(TalonFX motor) {
-    return motor.getSupplyCurrent() >= 10;
+    return motor.getSupplyCurrent() >= 5;
   }
 
   public void activateState() {

@@ -22,22 +22,23 @@ public class RobotContainer {
   private final XboxController driver = new XboxController(1);
 
   // SUBSYSTEMS
-  private final DrivetrainSubsystem drivetrainSubsystem = DrivetrainSubsystem.getInstance();
-  private final HoodSubsystem hoodSubsystem = HoodSubsystem.getInstance();
-  private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
-  private final TurretSubsystem turretSubsystem = TurretSubsystem.getInstance();
+  private final DrivetrainSubsystem drivetrainSubsystem;
+  private final HoodSubsystem hoodSubsystem;
+  private final ClimbSubsystem climbSubsystem;
+  private final TurretSubsystem turretSubsystem;
 
   // AUTOS
   private SendableChooser<Command> chooser = new SendableChooser<>();
-  private final FiveBallAuto fiveBallAuto = new FiveBallAuto();
-  private final TwoBallCleanupAuto twoBallCleanupAuto = new TwoBallCleanupAuto();
-  private final TwoBallAuto twoBallAuto = new TwoBallAuto();
 
   public RobotContainer() {
     // INITIALIZE REMAINING SUBSYSTEMS
     IndexerSubsystem.getInstance();
     IntakeSubsystem.getInstance();
     ShooterSubsystem.getInstance();
+    turretSubsystem = TurretSubsystem.getInstance();
+    climbSubsystem = ClimbSubsystem.getInstance();
+    hoodSubsystem = HoodSubsystem.getInstance();
+    drivetrainSubsystem = DrivetrainSubsystem.getInstance();
 
     // STARTING POSITION CONFIG
     drivetrainSubsystem.setStartingPosition(Constants.STARTING_POSITIONS[0]);
@@ -50,9 +51,9 @@ public class RobotContainer {
 
     // AUTO CHOOSER
     SmartDashboard.putData("Auto Chooser", this.chooser);
-    chooser.setDefaultOption("5 Ball", fiveBallAuto.getAuto());
-    chooser.addOption("2 Ball Clean Up", twoBallCleanupAuto.getAuto());
-    chooser.addOption("2 Ball", twoBallAuto.getAuto());
+    chooser.setDefaultOption("5 Ball", new FiveBallAuto().getAuto());
+    chooser.addOption("2 Ball Clean Up", new TwoBallCleanupAuto().getAuto());
+    chooser.addOption("2 Ball", new TwoBallAuto().getAuto());
     chooser.addOption("Taxi", new DriveStraightOpenLoop().withTimeout(3.5));
     chooser.addOption("Wait", new WaitCommand(15));
 

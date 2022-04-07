@@ -18,8 +18,9 @@ public class AlignTurret extends CommandBase {
   @Override
   public void execute() {
     SmartDashboard.putBoolean("Aligning Turret", true);
-    if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical)) {
+    if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical) && !climbSubsystem.isTelescopeAtTarget(TelescopePosition.Starting)) {
       climbSubsystem.setPivot(PivotPosition.Vertical);
+      climbSubsystem.setTelescope(TelescopePosition.Starting);
       turretSubsystem.home();
     } else {
       turretSubsystem.visionTargeting();

@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
 import frc.robot.subsystems.ClimbSubsystem.TelescopePosition;
+import frc.robot.Constants;
 import frc.robot.subsystems.ClimbSubsystem;
 
 public class SetTurretPosition extends CommandBase {
@@ -28,6 +29,6 @@ public class SetTurretPosition extends CommandBase {
 
   @Override
   public boolean isFinished() {
-    return turretSubsystem.isWithinAllowedError();
+    return Math.abs(pos - turretSubsystem.getPosition()) < Constants.TURRET_POSITION_ALLOWED_ERROR;
   }
 }
