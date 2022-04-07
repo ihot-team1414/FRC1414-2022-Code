@@ -157,8 +157,8 @@ public final class Constants {
   public static final double TELESCOPING_ARM_MOTOR_kP = 0.03;
   public static final double TELESCOPING_ARM_MOTOR_kI = 0;
   public static final double TELESCOPING_ARM_MOTOR_kD = 0;
-  public static final double TELESCOPING_ARM_MAX_VEL = 10000;
-  public static final double TELESCOPING_ARM_ACCEL = 3000;
+  public static final double TELESCOPING_ARM_MAX_VEL = 15000;
+  public static final double TELESCOPING_ARM_ACCEL = 2000;
   public static final double TELESCOPING_ARM_SPOOL_SPEED = 0.1;
 
   public static final int PIVOT_ARM_1_MOTOR_ID = 13;
@@ -169,13 +169,13 @@ public final class Constants {
   public static final double PIVOT_ARM_MOTOR_kP = 0.018;
   public static final double PIVOT_ARM_MOTOR_kI = 0;
   public static final double PIVOT_ARM_MOTOR_kD = 0;
-  public static final double PIVOT_ARM_MAX_VEL = 20000;
-  public static final double PIVOT_ARM_ACCEL = 5000;
+  public static final double PIVOT_ARM_MAX_VEL = 10000;
+  public static final double PIVOT_ARM_ACCEL = 2000;
 
-  public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.REVPH;
+  public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.CTREPCM;
 
   public static final Value INTAKE_PISTON_OPEN = Value.kForward;
   public static final Value INTAKE_PISTON_CLOSED = Value.kReverse;
-  public static final int INTAKE_PISTON_FORWARD = 11;
-  public static final int INTAKE_PISTON_REVERSE = 8;
+  public static final int INTAKE_PISTON_FORWARD = 0;
+  public static final int INTAKE_PISTON_REVERSE = 1;
 }

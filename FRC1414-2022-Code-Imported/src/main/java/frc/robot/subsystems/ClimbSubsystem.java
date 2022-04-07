@@ -29,7 +29,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum PivotPosition {
-    Starting(2000), Vertical(70000), Grabbing(60000), Tilting(100000), Lifting(40000);
+    Starting(2000), Vertical(70000), Grabbing(59000), Tilting(100000), Lifting(40000);
 
     private int position;
 
@@ -43,7 +43,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
-    Neutral(100), Starting(1414), Intermediate(97081), FirstRung(150000), Extended(190000);
+    Neutral(100), Starting(1414), Intermediate(40000), FirstRung(150000), Extended(190000);
 
     private int position;
 
@@ -174,17 +174,21 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void spool() {
-    if (!isStalling()) {
+    if (!isStalling(telescopingMotor)) {
       telescopingMotor.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
-      telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
       telescopingMotor.set(ControlMode.PercentOutput, 0);
+    }
+
+    if (!isStalling(telescopingMotor2)) {
+      telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
+    } else {
       telescopingMotor2.set(ControlMode.PercentOutput, 0);
     }
   }
 
-  public boolean isStalling() {
-    return telescopingMotor.getSupplyCurrent() >= Constants.FALCON_500_STALL_CURRENT;
+  public boolean isStalling(TalonFX motor) {
+    return motor.getSupplyCurrent() >= Constants.FALCON_500_STALL_CURRENT * Constants.TELESCOPING_ARM_SPOOL_SPEED;
   }
 
   public void activateState() {
