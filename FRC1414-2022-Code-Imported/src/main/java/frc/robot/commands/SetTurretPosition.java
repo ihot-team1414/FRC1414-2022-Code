@@ -18,9 +18,8 @@ public class SetTurretPosition extends CommandBase {
 
   @Override
   public void execute() {
-    if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical) && !climbSubsystem.isTelescopeAtTarget(TelescopePosition.Starting)) {
+    if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical)) {
       climbSubsystem.setPivot(PivotPosition.Vertical);
-      climbSubsystem.setTelescope(TelescopePosition.Starting);
       turretSubsystem.home();
     } else {
       turretSubsystem.setPosition(pos);

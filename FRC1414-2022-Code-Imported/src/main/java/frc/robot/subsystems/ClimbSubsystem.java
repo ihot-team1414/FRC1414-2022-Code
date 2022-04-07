@@ -178,17 +178,19 @@ public class ClimbSubsystem extends SubsystemBase {
       telescopingMotor.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
       telescopingMotor.set(ControlMode.PercentOutput, 0);
+      telescopingMotor.setSelectedSensorPosition(0);
     }
 
     if (!isStalling(telescopingMotor2)) {
       telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
       telescopingMotor2.set(ControlMode.PercentOutput, 0);
+      telescopingMotor2.setSelectedSensorPosition(0);
     }
   }
 
   public boolean isStalling(TalonFX motor) {
-    return motor.getSupplyCurrent() >= Constants.FALCON_500_STALL_CURRENT * Constants.TELESCOPING_ARM_SPOOL_SPEED;
+    return motor.getSupplyCurrent() >= 10;
   }
 
   public void activateState() {
