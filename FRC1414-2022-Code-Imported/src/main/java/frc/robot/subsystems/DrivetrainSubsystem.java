@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+
 import com.kauailabs.navx.frc.AHRS;
 import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
 import com.swervedrivespecialties.swervelib.SwerveModule;
@@ -15,7 +16,9 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.lib.Mk3SwerveModuleHelper;
+import frc.lib.SdsModuleConfigurations;
+import frc.lib.SwerveModule;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   private static DrivetrainSubsystem instance;
@@ -24,6 +27,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   private final SwerveModule frontRightModule;
   private final SwerveModule backLeftModule;
   private final SwerveModule backRightModule;
+
 
   private final AHRS gyroscope = new AHRS(I2C.Port.kMXP);
 
@@ -93,17 +97,34 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void zeroGyroscope() {
-    odometry.resetPosition(
-        new Pose2d(odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
-        Rotation2d.fromDegrees(-gyroscope.getFusedHeading()));
+    navx.zeroYaw();
   }
 
-  public Rotation2d getRotation() {
-    return odometry.getPoseMeters().getRotation();
+  public Rotation2d getGyroscopeRotation() {
+   if (navx.isMagnetometerCalibrated()) {
+     return Rotation2d.fromDegrees(navx.getFusedHeading());
+   }
+
+   return Rotation2d.fromDegrees(360.0 - navx.getYaw());
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
     this.chassisSpeeds = chassisSpeeds;
+  }
+
+  @Override
+  public void periodic() {
+    SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
+    SwerveDriveKinematics.normalizeWheelSpeeds(states, Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND);
+
+    frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
+    frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
+    backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
+    backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
+  }
+
+  public Rotation2d getRotation() {
+    return odometry.getPoseMeters().getRotation();
   }
 
   public double getGyroAngle() {
@@ -126,77 +147,5 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public Pose2d getPose() {
     return odometry.getPoseMeters();
-  }
-
-  public void setModuleStates(SwerveModuleState[] states) {
-    frontLeftModule.set(
-        states[0].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[0].angle.getRadians()
-    );
-    frontRightModule.set(
-        states[1].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[1].angle.getRadians()
-    );
-    backLeftModule.set(
-        states[2].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[2].angle.getRadians()
-    );
-    backRightModule.set(
-        states[3].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[3].angle.getRadians()
-    );
-  }
-
-  @Override
-  public void periodic() {
-    odometry.update(
-        Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
-        new SwerveModuleState(
-          -frontLeftModule.getDriveVelocity(),
-          new Rotation2d(frontLeftModule.getSteerAngle())
-        ),
-        new SwerveModuleState(
-          -frontRightModule.getDriveVelocity(),
-          new Rotation2d(frontRightModule.getSteerAngle())
-        ),
-        new SwerveModuleState(
-          -backLeftModule.getDriveVelocity(),
-          new Rotation2d(backLeftModule.getSteerAngle())
-        ),
-        new SwerveModuleState(
-          -backRightModule.getDriveVelocity(),
-          new Rotation2d(backRightModule.getSteerAngle())
-        )
-    );
-
-    SwerveModuleState[] states = Constants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
-
-    frontLeftModule.set(
-        states[0].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[0].angle.getRadians()
-    );
-
-    frontRightModule.set(
-        states[1].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[1].angle.getRadians()
-    );
-
-    backLeftModule.set(
-        states[2].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[2].angle.getRadians()
-    );
-
-    backRightModule.set(
-        states[3].speedMetersPerSecond
-          / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE,
-        states[3].angle.getRadians()
-    );
   }
 }
