@@ -10,16 +10,28 @@ import frc.robot.Constants;
 
 public class ClimbSubsystem extends SubsystemBase {
 
+  private static ClimbSubsystem instance;
+
   private final TalonFX telescopingMotor = new TalonFX(Constants.TELESCOPING_ARM_1_MOTOR_ID);
   private final TalonFX telescopingMotor2 = new TalonFX(Constants.TELESCOPING_ARM_2_MOTOR_ID);
   private final TalonFX pivotMotor = new TalonFX(Constants.PIVOT_ARM_1_MOTOR_ID);
   private final TalonFX pivotMotor2 = new TalonFX(Constants.PIVOT_ARM_2_MOTOR_ID);
+  private boolean isSpooled = false;
+  private boolean isSpooled2 = false;
 
   private int currentState = 0;
   private boolean stateTriggered = false;
 
+  public static synchronized ClimbSubsystem getInstance() {
+    if (instance == null) {
+      instance = new ClimbSubsystem();
+    }
+
+    return instance;
+  }
+
   public enum PivotPosition {
-    Starting(2000), Vertical(70000), Grabbing(60000), Tilting(100000), Lifting(40000);
+    Starting(2000), Vertical(70000), Grabbing(62000), Tilting(100000), Lifting(40000);
 
     private int position;
 
@@ -33,7 +45,7 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
-    Neutral(100), Starting(1414), Intermediate(97081), FirstRung(150000), Extended(190000);
+    Neutral(100), Starting(1414), Intermediate(50000), FirstRung(150000), Extended(190000);
 
     private int position;
 
@@ -99,6 +111,9 @@ public class ClimbSubsystem extends SubsystemBase {
     motor.configPeakOutputForward(Constants.TELESCOPING_ARM_MOTOR_MAX_OUTPUT, 0);
     motor.configPeakOutputReverse(-Constants.TELESCOPING_ARM_MOTOR_MAX_OUTPUT, 0);
 
+    motor.enableVoltageCompensation(true);
+    motor.configVoltageCompSaturation(12.0, 30);
+
     motor.configAllowableClosedloopError(0, Constants.TELESCOPING_ARM_ALLOWED_ERROR, 30);
 
     motor.selectProfileSlot(0, 0);
@@ -130,7 +145,7 @@ public class ClimbSubsystem extends SubsystemBase {
     motor.configMotionAcceleration(Constants.PIVOT_ARM_ACCEL, 30);
   }
 
-  public ClimbSubsystem() {
+  private ClimbSubsystem() {
     configureTelescopingMotor(telescopingMotor);
     telescopingMotor.setInverted(true);
 
@@ -161,17 +176,30 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void spool() {
-    if (!isStalling()) {
+    if (!isStalling(telescopingMotor) && !isSpooled) {
       telescopingMotor.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
-      telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
       telescopingMotor.set(ControlMode.PercentOutput, 0);
+      telescopingMotor.setSelectedSensorPosition(0);
+      isSpooled = true;
+    }
+
+    if (!isStalling(telescopingMotor2) && !isSpooled2) {
+      telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
+    } else {
       telescopingMotor2.set(ControlMode.PercentOutput, 0);
+      telescopingMotor2.setSelectedSensorPosition(0);
+      isSpooled2 = true;
     }
   }
 
-  public boolean isStalling() {
-    return telescopingMotor.getSupplyCurrent() >= Constants.FALCON_500_STALL_CURRENT;
+  public void resetSpool() {
+    isSpooled = false;
+    isSpooled2 = false;
+  }
+
+  public boolean isStalling(TalonFX motor) {
+    return motor.getSupplyCurrent() >= 5;
   }
 
   public void activateState() {

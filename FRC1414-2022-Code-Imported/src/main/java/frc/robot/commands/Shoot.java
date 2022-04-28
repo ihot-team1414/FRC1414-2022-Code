@@ -7,25 +7,23 @@ import frc.robot.Constants;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IndexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.TurretSubsystem;
 import frc.util.Limelight;
 import frc.util.ShooterData;
 
 public class Shoot extends CommandBase {
-
-  private final ShooterSubsystem shooterSubsystem;
-  private final IndexerSubsystem indexerSubsystem;
-  private final HoodSubsystem hoodSubsystem;
+  private final ShooterSubsystem shooterSubsystem = ShooterSubsystem.getInstance();
+  private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
+  private final HoodSubsystem hoodSubsystem = HoodSubsystem.getInstance();
 
   private double startTime;
   private double speed;
   private boolean withinError = false;
+  private boolean linedUp = false;
 
-  public Shoot(ShooterSubsystem shooterSubsystem, IndexerSubsystem indexerSubsystem, HoodSubsystem hoodSubsystem) {
-    this.shooterSubsystem = shooterSubsystem;
-    this.indexerSubsystem = indexerSubsystem;
-    this.hoodSubsystem = hoodSubsystem;
-    this.startTime = Timer.getFPGATimestamp();
-    this.withinError = false;
+  public Shoot() {
+    startTime = Timer.getFPGATimestamp();
+    withinError = false;
     addRequirements(shooterSubsystem, indexerSubsystem, hoodSubsystem);
   }
 
@@ -34,6 +32,7 @@ public class Shoot extends CommandBase {
     super.initialize();
     startTime = Timer.getFPGATimestamp();
     withinError = false;
+    linedUp = false;
 
     if (Constants.MANUAL_SPEED_AND_ANGLE) {
       speed = SmartDashboard.getNumber("Dashboard Shooter Target", 0.0);
@@ -48,37 +47,28 @@ public class Shoot extends CommandBase {
   @Override
   public void execute() {
     shooterSubsystem.shoot(speed);
-    SmartDashboard.putNumber("Start Time", startTime);
-    SmartDashboard.putNumber("Curr Time", Timer.getFPGATimestamp());
-    
-    // Time Based Indexing
-    // if (Timer.getFPGATimestamp() - startTime > 1.5) {
-    //   this.indexerSubsystem.load();
-    //   SmartDashboard.putBoolean("hOLDING", false);
-    // }
-    // // } else if (Timer.getFPGATimestamp() - startTime > 1) {
-    // //   this.indexerSubsystem.stop();
-    // // } 
-    // else {
-    //   this.indexerSubsystem.holdBalls();
-    //   SmartDashboard.putBoolean("hOLDING", true);
-    // }
+
+    if (!Constants.MANUAL_SPEED_AND_ANGLE && !linedUp && TurretSubsystem.getInstance().isWithinAllowedVisionError()) {
+      double ty = Limelight.getInstance().getDeltaY();
+      speed = ShooterData.getInstance().getShooterSpeed(ty);
+      hoodSubsystem.set(ShooterData.getInstance().getHoodAngle(ty));
+      linedUp = true;
+    }
 
     // RPM + Time Based Indexing
-    if (!withinError && shooterSubsystem.isWithinAllowedError()) {
-      startTime = Timer.getFPGATimestamp();
-      withinError = true;
-    } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
-      withinError = false;
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.6) {
-      this.indexerSubsystem.load();
-      SmartDashboard.putBoolean("hOLDING", false);
-    } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.4) {
-      this.indexerSubsystem.stop();
-      SmartDashboard.putBoolean("hOLDING", false);
-    } else {
-      this.indexerSubsystem.stop();
-      SmartDashboard.putBoolean("hOLDING", true);
+    if (linedUp) {
+      if (!Constants.MANUAL_SPEED_AND_ANGLE && !TurretSubsystem.getInstance().isWithinAllowedVisionError()) {
+        linedUp = false;
+      } else if (!withinError && shooterSubsystem.isWithinAllowedError()) {
+        startTime = Timer.getFPGATimestamp();
+        withinError = true;
+      } else if (withinError && !shooterSubsystem.isWithinAllowedError()) {
+        withinError = false;
+      } else if (withinError && Timer.getFPGATimestamp() - startTime > 0.05) {
+        indexerSubsystem.load();
+      } else {
+        indexerSubsystem.stop();
+      }
     }
   }
 
@@ -86,7 +76,7 @@ public class Shoot extends CommandBase {
   public void end(boolean interrupted) {
     speed = 0;
     withinError = false;
-    this.shooterSubsystem.stop();
-    this.indexerSubsystem.stop();
+    shooterSubsystem.stop();
+    indexerSubsystem.stop();
   }
 }

@@ -1,35 +1,34 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.TurretSubsystem;
 import frc.robot.subsystems.ClimbSubsystem.PivotPosition;
 import frc.robot.subsystems.ClimbSubsystem.TelescopePosition;
+import frc.robot.Constants;
 import frc.robot.subsystems.ClimbSubsystem;
 
-public class AlignTurret extends CommandBase {
+public class SetTurretPosition extends CommandBase {
   private final TurretSubsystem turretSubsystem = TurretSubsystem.getInstance();
   private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+  private double pos;
 
-  public AlignTurret() {
+  public SetTurretPosition(double pos) {
+    this.pos = pos;
     addRequirements(turretSubsystem, climbSubsystem);
   }
 
   @Override
   public void execute() {
-    SmartDashboard.putBoolean("Aligning Turret", true);
-    if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical) && !climbSubsystem.isTelescopeAtTarget(TelescopePosition.Starting)) {
+    if (!climbSubsystem.isPivotAtTarget(PivotPosition.Vertical)) {
       climbSubsystem.setPivot(PivotPosition.Vertical);
-      climbSubsystem.setTelescope(TelescopePosition.Starting);
       turretSubsystem.home();
     } else {
-      turretSubsystem.visionTargeting();
+      turretSubsystem.setPosition(pos);
     }
   }
 
   @Override
-  public void end(boolean interrupted) {
-    SmartDashboard.putBoolean("Aligning Turret", false);
-    turretSubsystem.home();
+  public boolean isFinished() {
+    return Math.abs(pos - turretSubsystem.getPosition()) < Constants.TURRET_POSITION_ALLOWED_ERROR;
   }
 }

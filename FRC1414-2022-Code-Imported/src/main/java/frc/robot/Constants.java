@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -7,17 +9,17 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import frc.lib.Mk3SwerveModuleHelper;
-import frc.lib.SdsModuleConfigurations;
+
+import edu.wpi.first.wpilibj.util.Color;
+
 
 public final class Constants {
   public static final boolean MANUAL_SPEED_AND_ANGLE = false;
 
   public static final Pose2d[] STARTING_POSITIONS = {
     new Pose2d(8, 2.84, Rotation2d.fromDegrees(-108)),
-    new Pose2d(5, 5, Rotation2d.fromDegrees(0))
+    new Pose2d(6.04, 4.7, Rotation2d.fromDegrees(0))
   };
 
   public static final double FALCON_500_STALL_CURRENT = 250;
@@ -26,8 +28,11 @@ public final class Constants {
   public static final double DRIVETRAIN_TRACKWIDTH_METERS = 0.5969;
   public static final double DRIVETRAIN_WHEELBASE_METERS = 0.5969;
   public static final double DRIVETRAIN_MAX_VOLTAGE = 8;
-  // public static final double DRIVETRAIN_MAX_VEL = 5;
-  public static final double DRIVETRAIN_MAX_ACCELERATION = 3;
+  public static final double DRIVETRAIN_MAX_VEL = 6380.0 / 60.0 *
+          SdsModuleConfigurations.MK3_STANDARD.getDriveReduction() *
+          SdsModuleConfigurations.MK3_STANDARD.getWheelDiameter() * Math.PI;
+  public static final double DRIVETRAIN_MAX_ACCELERATION = 2;
+
 
   public static final double DRIVETRAIN_PATH_X_kP = 52e-1;
   public static final double DRIVETRAIN_PATH_X_kI = 0.0;
@@ -45,11 +50,7 @@ public final class Constants {
 
   public static final double DRIVETRAIN_VISION_ROTATION_kP = 0.000875;
 
-  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = 
-    new Constraints(
-      270,
-      90
-    );
+  public static final Constraints THETA_CONTROLLER_CONSTRAINTS = new Constraints(360, 180);
 
   public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 * SdsModuleConfigurations.MK3_FAST.getDriveReduction() * SdsModuleConfigurations.MK3_FAST.getWheelDiameter() * Math.PI;
 
@@ -59,7 +60,7 @@ public final class Constants {
   );
   
   public static TrajectoryConfig TRAJECTORY_CONFIG = new TrajectoryConfig(
-    Constants.MAX_VELOCITY_METERS_PER_SECOND * 0.75,
+    Constants.DRIVETRAIN_MAX_VEL * 0.75,
     Constants.DRIVETRAIN_MAX_ACCELERATION
   );
 
@@ -81,22 +82,22 @@ public final class Constants {
   public static final int FRONT_LEFT_MODULE_DRIVE_MOTOR = 1;
   public static final int FRONT_LEFT_MODULE_STEER_MOTOR = 2;
   public static final int FRONT_LEFT_MODULE_STEER_ENCODER = 3;
-  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(261);
+  public static final double FRONT_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(36);
 
   public static final int FRONT_RIGHT_MODULE_DRIVE_MOTOR = 7;
   public static final int FRONT_RIGHT_MODULE_STEER_MOTOR = 8;
   public static final int FRONT_RIGHT_MODULE_STEER_ENCODER = 6;
-  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(202+180);
+  public static final double FRONT_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(52 + 180);
 
   public static final int BACK_LEFT_MODULE_DRIVE_MOTOR = 22;
   public static final int BACK_LEFT_MODULE_STEER_MOTOR = 21;
   public static final int BACK_LEFT_MODULE_STEER_ENCODER = 20;
-  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(308);
+  public static final double BACK_LEFT_MODULE_STEER_OFFSET = -Math.toRadians(192);
 
   public static final int BACK_RIGHT_MODULE_DRIVE_MOTOR = 11;
   public static final int BACK_RIGHT_MODULE_STEER_MOTOR = 10;
   public static final int BACK_RIGHT_MODULE_STEER_ENCODER = 12;
-  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(124+180);
+  public static final double BACK_RIGHT_MODULE_STEER_OFFSET = -Math.toRadians(126 + 180);
 
   public static final int ROLLING_AVERAGE_SIZE = 5;
   public static final double TIME_STEP = 0.1;
@@ -121,6 +122,7 @@ public final class Constants {
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
   public static final double SHOOTER_ALLOWED_ERROR = 200;
   public static final double SHOOTER_LAYUP_SPEED = 3750;
+  public static final double SHOOTER_MIN_LOAD_SPEED = 3000;
 
   public static final int TURRET_MOTOR_ID = 15;
   public static final double TURRET_MOTOR_MAX_OUTPUT = 0.6;
@@ -132,7 +134,7 @@ public final class Constants {
   public static final double TURRET_MOTOR_POSITION_kI = 0;
   public static final double TURRET_MOTOR_POSITION_kD = 0;
 
-  public static final double TURRET_VISION_ALLOWED_ERROR = 1;
+  public static final double TURRET_VISION_ALLOWED_ERROR = 5;
   public static final double TURRET_MOTOR_VISTION_kP = 0.02;
   public static final double TURRET_MOTOR_VISTION_kI = 0.00;
   public static final double TURRET_MOTOR_VISTION_kD = 0.0;
@@ -159,8 +161,8 @@ public final class Constants {
   public static final double TELESCOPING_ARM_MOTOR_kP = 0.03;
   public static final double TELESCOPING_ARM_MOTOR_kI = 0;
   public static final double TELESCOPING_ARM_MOTOR_kD = 0;
-  public static final double TELESCOPING_ARM_MAX_VEL = 10000;
-  public static final double TELESCOPING_ARM_ACCEL = 3000;
+  public static final double TELESCOPING_ARM_MAX_VEL = 15000;
+  public static final double TELESCOPING_ARM_ACCEL = 2000;
   public static final double TELESCOPING_ARM_SPOOL_SPEED = 0.1;
 
   public static final int PIVOT_ARM_1_MOTOR_ID = 13;
@@ -171,13 +173,13 @@ public final class Constants {
   public static final double PIVOT_ARM_MOTOR_kP = 0.018;
   public static final double PIVOT_ARM_MOTOR_kI = 0;
   public static final double PIVOT_ARM_MOTOR_kD = 0;
-  public static final double PIVOT_ARM_MAX_VEL = 20000;
-  public static final double PIVOT_ARM_ACCEL = 5000;
+  public static final double PIVOT_ARM_MAX_VEL = 10000;
+  public static final double PIVOT_ARM_ACCEL = 2000;
 
-  public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.REVPH;
+  public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.CTREPCM;
 
   public static final Value INTAKE_PISTON_OPEN = Value.kForward;
   public static final Value INTAKE_PISTON_CLOSED = Value.kReverse;
-  public static final int INTAKE_PISTON_FORWARD = 11;
-  public static final int INTAKE_PISTON_REVERSE = 13;
+  public static final int INTAKE_PISTON_FORWARD = 0;
+  public static final int INTAKE_PISTON_REVERSE = 1;
 }

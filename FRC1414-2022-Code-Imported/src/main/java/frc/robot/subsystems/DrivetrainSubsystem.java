@@ -1,11 +1,17 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
-import edu.wpi.first.wpilibj.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.geometry.Translation2d;
-import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
-import edu.wpi.first.wpilibj.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.wpilibj.kinematics.SwerveModuleState;
+
+import com.kauailabs.navx.frc.AHRS;
+import com.swervedrivespecialties.swervelib.Mk3SwerveModuleHelper;
+import com.swervedrivespecialties.swervelib.SwerveModule;
+
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -15,60 +21,78 @@ import frc.lib.SdsModuleConfigurations;
 import frc.lib.SwerveModule;
 
 public class DrivetrainSubsystem extends SubsystemBase {
-  private final AHRS navx = new AHRS(SPI.Port.kMXP, (byte) 200);
+  private static DrivetrainSubsystem instance;
 
   private final SwerveModule frontLeftModule;
   private final SwerveModule frontRightModule;
   private final SwerveModule backLeftModule;
   private final SwerveModule backRightModule;
 
+
+  private final AHRS gyroscope = new AHRS(I2C.Port.kMXP);
+
+  private SwerveDriveOdometry odometry;
+
   private ChassisSpeeds chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-  public DrivetrainSubsystem() {
-    ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-    
+  private PIDController thetaController = new PIDController(Constants.DRIVETRAIN_ROTATION_kP, 0, 0);
+
+  public static synchronized DrivetrainSubsystem getInstance() {
+    if (instance == null) {
+      instance = new DrivetrainSubsystem();
+    }
+
+    return instance;
+  }
+
+  private DrivetrainSubsystem() {
+    ShuffleboardTab shuffleboardTab = Shuffleboard.getTab("Drivetrain");
     frontLeftModule = Mk3SwerveModuleHelper.createFalcon500(
-            tab.getLayout("Front Left Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(0, 0),
-            Mk3SwerveModuleHelper.GearRatio.FAST,
-            Constants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
-            Constants.FRONT_LEFT_MODULE_STEER_MOTOR,
-            Constants.FRONT_LEFT_MODULE_STEER_ENCODER,
-            Constants.FRONT_LEFT_MODULE_STEER_OFFSET
-    );
+        shuffleboardTab.getLayout("Front Left Module", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(0, 0),
+        Mk3SwerveModuleHelper.GearRatio.STANDARD,
+        Constants.FRONT_LEFT_MODULE_DRIVE_MOTOR,
+        Constants.FRONT_LEFT_MODULE_STEER_MOTOR,
+        Constants.FRONT_LEFT_MODULE_STEER_ENCODER,
+        Constants.FRONT_LEFT_MODULE_STEER_OFFSET);
 
     frontRightModule = Mk3SwerveModuleHelper.createFalcon500(
-            tab.getLayout("Front Right Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(2, 0),
-            Mk3SwerveModuleHelper.GearRatio.FAST,
-            Constants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
-            Constants.FRONT_RIGHT_MODULE_STEER_MOTOR,
-            Constants.FRONT_RIGHT_MODULE_STEER_ENCODER,
-            Constants.FRONT_RIGHT_MODULE_STEER_OFFSET
-    );
+        shuffleboardTab.getLayout("Front Right Module", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(2, 0),
+        Mk3SwerveModuleHelper.GearRatio.STANDARD,
+        Constants.FRONT_RIGHT_MODULE_DRIVE_MOTOR,
+        Constants.FRONT_RIGHT_MODULE_STEER_MOTOR,
+        Constants.FRONT_RIGHT_MODULE_STEER_ENCODER,
+        Constants.FRONT_RIGHT_MODULE_STEER_OFFSET);
 
     backLeftModule = Mk3SwerveModuleHelper.createFalcon500(
-            tab.getLayout("Back Left Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(4, 0),
-            Mk3SwerveModuleHelper.GearRatio.FAST,
-            Constants.BACK_LEFT_MODULE_DRIVE_MOTOR,
-            Constants.BACK_LEFT_MODULE_STEER_MOTOR,
-            Constants.BACK_LEFT_MODULE_STEER_ENCODER,
-            Constants.BACK_LEFT_MODULE_STEER_OFFSET
-    );
+        shuffleboardTab.getLayout("Back Left Module", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(4, 0),
+        Mk3SwerveModuleHelper.GearRatio.STANDARD,
+        Constants.BACK_LEFT_MODULE_DRIVE_MOTOR,
+        Constants.BACK_LEFT_MODULE_STEER_MOTOR,
+        Constants.BACK_LEFT_MODULE_STEER_ENCODER,
+        Constants.BACK_LEFT_MODULE_STEER_OFFSET);
 
     backRightModule = Mk3SwerveModuleHelper.createFalcon500(
-            tab.getLayout("Back Right Module", BuiltInLayouts.kList)
-                    .withSize(2, 4)
-                    .withPosition(6, 0),
-            Mk3SwerveModuleHelper.GearRatio.FAST,
-            Constants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
-            Constants.BACK_RIGHT_MODULE_STEER_MOTOR,
-            Constants.BACK_RIGHT_MODULE_STEER_ENCODER,
-            Constants.BACK_RIGHT_MODULE_STEER_OFFSET
+        shuffleboardTab.getLayout("Back Right Module", BuiltInLayouts.kList)
+            .withSize(2, 4)
+            .withPosition(6, 0),
+        Mk3SwerveModuleHelper.GearRatio.STANDARD,
+        Constants.BACK_RIGHT_MODULE_DRIVE_MOTOR,
+        Constants.BACK_RIGHT_MODULE_STEER_MOTOR,
+        Constants.BACK_RIGHT_MODULE_STEER_ENCODER,
+        Constants.BACK_RIGHT_MODULE_STEER_OFFSET);
+  }
+
+  public void setStartingPosition(Pose2d startingPosition) {
+    odometry = new SwerveDriveOdometry(
+      Constants.KINEMATICS,
+      Rotation2d.fromDegrees(-gyroscope.getFusedHeading()),
+      startingPosition
     );
   }
 
@@ -108,15 +132,12 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public double getRequiredTurningSpeedForAngle(double angle) {
-    return getRequiredTurningSpeedForAngle(angle, false);
-  }
+    thetaController.enableContinuousInput(-180, 180);
 
-  public double getRequiredTurningSpeedForAngle(double angle, boolean reverseRotation) {
-    double currentAngle = getRotation().getDegrees() % 360;
-    double targetAngle = angle % 360;
-    double error = targetAngle - currentAngle;
-    double speed = (Constants.DRIVETRAIN_ROTATION_kP * error);
-    return reverseRotation ? speed : -speed;
+    double currentAngle = getRotation().getDegrees() % 180;
+    double targetAngle = angle % 180;
+    double speed = thetaController.calculate(currentAngle, targetAngle);
+    return -speed;
   }
 
   public void turnToAngle(double angle) {

@@ -5,13 +5,10 @@ import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.TurretSubsystem;
 
 public class ActivateClimbState extends CommandBase {
-  private final ClimbSubsystem climbSubsystem;
-  private final TurretSubsystem turretSubsystem;
+  private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
+  private final TurretSubsystem turretSubsystem = TurretSubsystem.getInstance();
 
-  public ActivateClimbState(ClimbSubsystem climbSubsystem, TurretSubsystem turretSubsystem) {
-    this.climbSubsystem = climbSubsystem;
-    this.turretSubsystem = turretSubsystem;
-
+  public ActivateClimbState() {
     addRequirements(climbSubsystem, turretSubsystem);
   }
 

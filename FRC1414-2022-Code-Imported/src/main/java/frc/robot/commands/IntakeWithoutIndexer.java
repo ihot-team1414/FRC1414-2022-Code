@@ -3,12 +3,10 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class IntakeRoll extends CommandBase {
-  private final IntakeSubsystem intakeSubsystem;
+public class IntakeWithoutIndexer extends CommandBase {
+  private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
-  public IntakeRoll(IntakeSubsystem intakeSubsystem) {
-    this.intakeSubsystem = intakeSubsystem;
-
+  public IntakeWithoutIndexer() {
     addRequirements(intakeSubsystem);
   }
 
@@ -20,7 +18,7 @@ public class IntakeRoll extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    this.intakeSubsystem.stop();
-    this.intakeSubsystem.close();
+    intakeSubsystem.stop();
+    intakeSubsystem.close();
   }
 }

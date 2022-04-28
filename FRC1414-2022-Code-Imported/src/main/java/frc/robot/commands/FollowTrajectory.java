@@ -4,13 +4,14 @@
 
 package frc.robot.commands;
 
+import javax.swing.plaf.basic.BasicInternalFrameUI.InternalFramePropertyChangeListener;
+
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DrivetrainSubsystem;
@@ -18,7 +19,7 @@ import frc.robot.subsystems.DrivetrainSubsystem;
 public class FollowTrajectory extends CommandBase {
 
   private Trajectory trajectory;
-  private DrivetrainSubsystem drivetrain;
+  private final DrivetrainSubsystem drivetrainSubsystem = DrivetrainSubsystem.getInstance();
 
   private boolean reverseRotation = false;
   private static HolonomicDriveController controller;
@@ -28,19 +29,17 @@ public class FollowTrajectory extends CommandBase {
   PIDController yController = new PIDController(Constants.DRIVETRAIN_PATH_Y_kP, 0, 0);
 
   ProfiledPIDController thetaController = new ProfiledPIDController(
-  Constants.DRIVETRAIN_PATH_THETA_kP, Constants.DRIVETRAIN_PATH_THETA_kI, Constants.DRIVETRAIN_PATH_THETA_kD, Constants.THETA_CONTROLLER_CONSTRAINTS);
-
-  public FollowTrajectory(DrivetrainSubsystem drivetrainSubsystem, Trajectory trajectory) {
-    this(drivetrainSubsystem, trajectory, false);
-  }
+    Constants.DRIVETRAIN_PATH_THETA_kP,
+    Constants.DRIVETRAIN_PATH_THETA_kI,
+    Constants.DRIVETRAIN_PATH_THETA_kD,
+    Constants.THETA_CONTROLLER_CONSTRAINTS
+  );
 
   /** Creates a new FollowTrajectory. */
-  public FollowTrajectory(DrivetrainSubsystem drivetrain, Trajectory trajectory, boolean reverseRotation) {
-    addRequirements(drivetrain);
+  public FollowTrajectory(Trajectory trajectory) {
+    addRequirements(drivetrainSubsystem);
 
     this.trajectory = trajectory;
-    this.drivetrain = drivetrain;
-    this.reverseRotation = reverseRotation;
 
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
@@ -59,26 +58,34 @@ public class FollowTrajectory extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    ChassisSpeeds speeds =
-        controller.calculate(drivetrain.getPose(), trajectory.sample(timer.get()), trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation());
+    ChassisSpeeds speeds = 
+      controller.calculate(
+        drivetrainSubsystem.getPose(),
+        trajectory.sample(timer.get()), 
+        trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation()
+      );
     
-
-    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(-speeds.vxMetersPerSecond, -speeds.vyMetersPerSecond, drivetrain.getRequiredTurningSpeedForAngle(trajectory.getStates().get(trajectory.getStates().size()-1).poseMeters.getRotation().getDegrees(), reverseRotation));
-    drivetrain.drive(invertedSpeeds);
-    SmartDashboard.putBoolean("Auto?", true);
-    SmartDashboard.putNumber("timer", timer.get());
+    ChassisSpeeds invertedSpeeds = new ChassisSpeeds(
+      -speeds.vxMetersPerSecond,
+      -speeds.vyMetersPerSecond,
+      drivetrainSubsystem.getRequiredTurningSpeedForAngle(
+        trajectory.getStates().get(trajectory.getStates().size() - 1
+      ).poseMeters.getRotation().getDegrees()));
+    drivetrainSubsystem.drive(invertedSpeeds);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    drivetrain.drive(new ChassisSpeeds(0,0,0));
-    SmartDashboard.putBoolean("AUto?", false);
+    drivetrainSubsystem.drive(new ChassisSpeeds(0, 0, 0));
   }
 
-  // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return timer.get() > trajectory.getTotalTimeSeconds();
+    boolean isCorrectX = Math.abs(drivetrainSubsystem.getPose().getX() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getX()) < 0.2;
+    boolean isCorrectY = Math.abs(drivetrainSubsystem.getPose().getY() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getY()) < 0.2;
+    boolean isCorrectAngle = Math.abs(drivetrainSubsystem.getPose().getRotation().getDegrees() - trajectory.getStates().get(trajectory.getStates().size() - 1).poseMeters.getRotation().getDegrees()) < 10;
+    
+    return (isCorrectX && isCorrectY && isCorrectAngle) || timer.get() > trajectory.getTotalTimeSeconds() + 2;
   }
 }

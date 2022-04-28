@@ -4,10 +4,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ClimbSubsystem;
 
 public class Spool extends CommandBase {
-  private final ClimbSubsystem climbSubsystem;
+  private final ClimbSubsystem climbSubsystem = ClimbSubsystem.getInstance();
 
-  public Spool(ClimbSubsystem climbSubsystem) {
-    this.climbSubsystem = climbSubsystem;
+  public Spool() {
     addRequirements(climbSubsystem);
   }
 

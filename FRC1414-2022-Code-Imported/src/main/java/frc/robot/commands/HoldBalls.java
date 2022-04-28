@@ -4,11 +4,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.IndexerSubsystem;
 
 public class HoldBalls extends CommandBase {
-  private final IndexerSubsystem indexerSubsystem;
+  private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
 
-  public HoldBalls(IndexerSubsystem indexerSubsystem) {
-    this.indexerSubsystem = indexerSubsystem;
-
+  public HoldBalls() {
     addRequirements(indexerSubsystem);
   }
 
@@ -19,6 +17,6 @@ public class HoldBalls extends CommandBase {
 
   @Override
   public void end(boolean interrupted) {
-    this.indexerSubsystem.stop();
+    indexerSubsystem.stop();
   }
 }

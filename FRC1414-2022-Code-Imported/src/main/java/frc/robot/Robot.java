@@ -3,10 +3,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.ClimbSubsystem;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  private Command m_testCommand;
 
   private RobotContainer m_robotContainer;
 
@@ -17,7 +17,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
   }
 
   @Override
@@ -35,7 +34,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    CommandScheduler.getInstance().run();
+  }
 
   @Override
   public void teleopInit() {
@@ -45,18 +46,23 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    CommandScheduler.getInstance().run();
+  }
 
   @Override
   public void testInit() {
-    m_testCommand = m_robotContainer.getTestCommand();
-    if (m_testCommand != null) {
-      m_testCommand.schedule();
-    }
+    // m_testCommand = m_robotContainer.getTestCommand();
+    // if (m_testCommand != null) {
+    //   m_testCommand.schedule();
+    // }
+
+    CommandScheduler.getInstance().disable();
+    ClimbSubsystem.getInstance().resetSpool();
   }
 
   @Override
   public void testPeriodic() {
-
+    ClimbSubsystem.getInstance().spool();
   }
 }

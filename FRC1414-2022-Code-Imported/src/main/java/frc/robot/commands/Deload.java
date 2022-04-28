@@ -6,13 +6,10 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 
 public class Deload extends CommandBase {
-  private final IndexerSubsystem indexerSubsystem;
-  private final IntakeSubsystem intakeSubsystem;
+  private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
+  private final IntakeSubsystem intakeSubsystem = IntakeSubsystem.getInstance();
 
-  public Deload(IndexerSubsystem indexerSubsystem, IntakeSubsystem intakeSubsystem) {
-    this.indexerSubsystem = indexerSubsystem;
-    this.intakeSubsystem = intakeSubsystem; 
-
+  public Deload() {
     addRequirements(indexerSubsystem, intakeSubsystem);
   }
 

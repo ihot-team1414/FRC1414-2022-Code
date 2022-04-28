@@ -12,9 +12,19 @@ import frc.robot.Constants;
 import frc.util.Limelight;
 
 public class TurretSubsystem extends SubsystemBase {
+  private static TurretSubsystem instance;
+
   private TalonSRX turretMotor = new TalonSRX(Constants.TURRET_MOTOR_ID);
   private PIDController visionController = new PIDController(Constants.TURRET_MOTOR_VISTION_kP,
     Constants.TURRET_MOTOR_VISTION_kI, Constants.TURRET_MOTOR_VISTION_kD);
+
+  public static synchronized TurretSubsystem getInstance() {
+    if (instance == null) {
+      instance = new TurretSubsystem();
+    }
+
+    return instance;
+  }
 
   public TurretSubsystem() {
     turretMotor.setInverted(true);
@@ -35,7 +45,8 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.configReverseSoftLimitThreshold(Constants.TURRET_MIN_POS);
     turretMotor.configReverseSoftLimitEnable(true);
     turretMotor.configForwardSoftLimitEnable(true);
-
+    turretMotor.enableVoltageCompensation(true);
+    turretMotor.configVoltageCompSaturation(12);
   }
 
   public void setTurret(double speed) {
@@ -43,7 +54,11 @@ public class TurretSubsystem extends SubsystemBase {
   }
 
   public void home() {
-    turretMotor.set(ControlMode.Position, 0);
+    setPosition(0);
+  }
+
+  public void setPosition(double pos) {
+    turretMotor.set(ControlMode.Position, pos);
   }
 
   public void zero() {
@@ -65,6 +80,10 @@ public class TurretSubsystem extends SubsystemBase {
 
   public boolean isWithinAllowedError() {
     return Math.abs(turretMotor.getClosedLoopError()) < Constants.TURRET_POSITION_ALLOWED_ERROR;
+  }
+
+  public boolean isWithinAllowedVisionError() {
+    return Math.abs(Limelight.getInstance().getDeltaX()) < Constants.TURRET_VISION_ALLOWED_ERROR;
   }
 
   public double getPosition() {
