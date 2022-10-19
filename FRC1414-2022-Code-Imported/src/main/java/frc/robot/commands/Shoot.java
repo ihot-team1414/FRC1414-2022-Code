@@ -15,16 +15,18 @@ public class Shoot extends CommandBase {
   private final ShooterSubsystem shooterSubsystem = ShooterSubsystem.getInstance();
   private final IndexerSubsystem indexerSubsystem = IndexerSubsystem.getInstance();
   private final HoodSubsystem hoodSubsystem = HoodSubsystem.getInstance();
+  private final XboxController operatorController;
 
   private double startTime;
   private double speed;
   private boolean withinError = false;
   private boolean linedUp = false;
 
-  public Shoot() {
+  public Shoot(XboxController operatorController) {
     startTime = Timer.getFPGATimestamp();
     withinError = false;
     addRequirements(shooterSubsystem, indexerSubsystem, hoodSubsystem);
+    this.operatorController = operatorController;
   }
 
   @Override
@@ -41,6 +43,9 @@ public class Shoot extends CommandBase {
       double ty = Limelight.getInstance().getDeltaY();
       speed = ShooterData.getInstance().getShooterSpeed(ty);
       hoodSubsystem.set(ShooterData.getInstance().getHoodAngle(ty));
+    } else {
+      speed = Constants.SHOOTER_DEFAULT_SPEED;
+      hoodSubsystem.set(Constants.HOOD_DEFAULT_ANGLE);
     }
   }
 
@@ -56,7 +61,7 @@ public class Shoot extends CommandBase {
     }
 
     // RPM + Time Based Indexing
-    if (linedUp) {
+    if (linedUp && operatorController.getRightTriggerAxis() > 0.5) {
       if (!Constants.MANUAL_SPEED_AND_ANGLE && !TurretSubsystem.getInstance().isWithinAllowedVisionError()) {
         linedUp = false;
       } else if (!withinError && shooterSubsystem.isWithinAllowedError()) {

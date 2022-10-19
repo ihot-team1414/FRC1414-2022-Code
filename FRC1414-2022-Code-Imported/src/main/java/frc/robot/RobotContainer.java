@@ -117,7 +117,7 @@ public class RobotContainer {
     new JoystickButton(operator, Button.kB.value).whileActiveContinuous(new IntakeAndHold());
 
     // Y Button starts shooter
-    new JoystickButton(operator, Button.kY.value).toggleWhenPressed(new Shoot());
+    new JoystickButton(operator, Button.kY.value).toggleWhenPressed(new Shoot(operator));
     new JoystickButton(operator, Button.kY.value).whileActiveContinuous(new AlignTurret());
     new JoystickButton(operator, Button.kY.value)
         .whenPressed(() -> turretSubsystem.setDefaultCommand(new AlignTurret()));

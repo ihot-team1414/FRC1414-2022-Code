@@ -114,6 +114,7 @@ public final class Constants {
   public static final int HOOD_SERVO_ID_2 = 8;
   public static final double HOOD_MIN = 0.24;
   public static final double HOOD_MAX = 0.5;
+  public static final double HOOD_DEFAULT_ANGLE = 0.3;
 
   public static final double SHOOTER_kF = 0.05;
   public static final double SHOOTER_kP = 0.075;
@@ -122,6 +123,7 @@ public final class Constants {
   public static final double SHOOTER_MAX_OUTPUT = 0.75;
   public static final double SHOOTER_ALLOWED_ERROR = 200;
   public static final double SHOOTER_LAYUP_SPEED = 3750;
+  public static final double SHOOTER_DEFAULT_SPEED = 8000;
   public static final double SHOOTER_MIN_LOAD_SPEED = 3000;
 
   public static final int TURRET_MOTOR_ID = 15;
