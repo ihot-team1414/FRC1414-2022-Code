@@ -41,6 +41,10 @@ public class Shoot extends CommandBase {
       double ty = Limelight.getInstance().getDeltaY();
       speed = ShooterData.getInstance().getShooterSpeed(ty);
       hoodSubsystem.set(ShooterData.getInstance().getHoodAngle(ty));
+    } else {
+      double ty = 0.0;
+      speed = ShooterData.getInstance().getShooterSpeed(ty);
+      hoodSubsystem.set(ShooterData.getInstance().getHoodAngle(ty));
     }
   }
 

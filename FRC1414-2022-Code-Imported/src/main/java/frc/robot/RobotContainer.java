@@ -40,7 +40,7 @@ public class RobotContainer {
     hoodSubsystem = HoodSubsystem.getInstance();
     drivetrainSubsystem = DrivetrainSubsystem.getInstance();
 
-    // STARTING POSITION CONFIG
+    // STARTING POSITION CONFIG 
     drivetrainSubsystem.setStartingPosition(Constants.STARTING_POSITIONS[0]);
 
     // CAMERA
@@ -77,22 +77,29 @@ public class RobotContainer {
     // Start button to zero gyroscope
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> drivetrainSubsystem.zeroGyroscope());
 
-    // Driver buttons for turn to angle
-    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(new TurnToAngle(
-        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 180));
-    new JoystickButton(driver, Button.kX.value).whileActiveContinuous(new TurnToAngle(
-        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 90));
-    new JoystickButton(driver, Button.kB.value).whileActiveContinuous(new TurnToAngle(
-        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), -90));
-    new JoystickButton(driver, Button.kY.value).whileActiveContinuous(new TurnToAngle(
-        () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1), 0));
+    // Left stick butto
+    
 
-    // Left bumper aims continuously
-    new JoystickButton(driver, Button.kLeftBumper.value).whileActiveContinuous(new AimContinuously(
+    // Left stick button aims continuously
+    new JoystickButton(driver, Button.kLeftStick.value).whileActiveContinuous(new AimContinuously(
         () -> Utils.deadband(driver.getRightX(), 0.1), () -> Utils.deadband(driver.getRightY(), 0.1)));
 
     // Back button resets climb state
     new JoystickButton(driver, Button.kBack.value).whenPressed(() -> climbSubsystem.resetState());
+
+    // A Button activates current climb state. The activate climb state checks if
+    // the turret is in the correct position.
+    new JoystickButton(driver, Button.kA.value).whileActiveContinuous(new ActivateClimbState());
+    new JoystickButton(driver, Button.kA.value)
+        .whenPressed(() -> turretSubsystem.setDefaultCommand(new DescheduleSubsystem(turretSubsystem)));
+    new JoystickButton(driver, Button.kA.value)
+        .whenPressed(() -> climbSubsystem.setDefaultCommand(new DescheduleSubsystem(climbSubsystem)));
+
+    // Left Bumper decreases climb state
+    new JoystickButton(driver, Button.kLeftBumper.value).whenPressed(() -> climbSubsystem.previousState());
+
+    // Right Bumper increases climb state
+    new JoystickButton(driver, Button.kRightBumper.value).whenPressed(() -> climbSubsystem.nextState());
 
     // OPERATOR CONTROLS
 
