@@ -173,8 +173,8 @@ public final class Constants {
   public static final double PIVOT_ARM_MOTOR_kP = 0.018;
   public static final double PIVOT_ARM_MOTOR_kI = 0;
   public static final double PIVOT_ARM_MOTOR_kD = 0;
-  public static final double PIVOT_ARM_MAX_VEL = 10000;
-  public static final double PIVOT_ARM_ACCEL = 2000;
+  public static final double PIVOT_ARM_MAX_VEL = 60000;
+  public static final double PIVOT_ARM_ACCEL = 45000;
 
   public static final PneumaticsModuleType PCM_TYPE = PneumaticsModuleType.CTREPCM;
 

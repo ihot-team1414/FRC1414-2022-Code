@@ -91,6 +91,6 @@ public class ShooterSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Shooter Target", shooterMotor1.getClosedLoopTarget());
     SmartDashboard.putNumber("Shooter Velocity", shooterMotor1.getSelectedSensorVelocity());
-    SmartDashboard.putNumber("Shooter Closed Loop Error", shooterMotor1.getClosedLoopError());
+    // SmartDashboard.putNumber("Shooter Closed Loop Error", shooterMotor1.getClosedLoopError());
   }
 }

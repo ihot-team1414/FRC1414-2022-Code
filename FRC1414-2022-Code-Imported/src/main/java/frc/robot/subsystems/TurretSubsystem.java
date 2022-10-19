@@ -103,7 +103,7 @@ public class TurretSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Turret Target", turretMotor.getClosedLoopTarget());
     SmartDashboard.putNumber("Turret Position", turretMotor.getSelectedSensorPosition());
 
-    SmartDashboard.putNumber("Turret Closed Loop Error", turretMotor.getClosedLoopError());
+    // SmartDashboard.putNumber("Turret Closed Loop Error", turretMotor.getClosedLoopError());
     SmartDashboard.putNumber("Turret Output Percent", turretMotor.getMotorOutputPercent());
   }
 }

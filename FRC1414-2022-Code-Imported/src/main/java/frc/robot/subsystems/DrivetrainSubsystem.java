@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.I2C;
@@ -16,9 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.lib.Mk3SwerveModuleHelper;
-import frc.lib.SdsModuleConfigurations;
-import frc.lib.SwerveModule;
+import frc.robot.Constants;
 
 public class DrivetrainSubsystem extends SubsystemBase {
   private static DrivetrainSubsystem instance;
@@ -97,15 +96,15 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void zeroGyroscope() {
-    navx.zeroYaw();
+    gyroscope.zeroYaw();
   }
 
   public Rotation2d getGyroscopeRotation() {
-   if (navx.isMagnetometerCalibrated()) {
-     return Rotation2d.fromDegrees(navx.getFusedHeading());
+   if (gyroscope.isMagnetometerCalibrated()) {
+     return Rotation2d.fromDegrees(gyroscope.getFusedHeading());
    }
 
-   return Rotation2d.fromDegrees(360.0 - navx.getYaw());
+   return Rotation2d.fromDegrees(360.0 - gyroscope.getYaw());
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {
@@ -114,13 +113,13 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SwerveModuleState[] states = kinematics.toSwerveModuleStates(chassisSpeeds);
-    SwerveDriveKinematics.normalizeWheelSpeeds(states, Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND);
+    SwerveModuleState[] states = Constants.KINEMATICS.toSwerveModuleStates(chassisSpeeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, Constants.DRIVETRAIN_MAX_VEL);
 
-    frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
-    frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
-    backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
-    backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VELOCITY_METERS_PER_SECOND * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
+    frontLeftModule.set(states[0].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[0].angle.getRadians());
+    frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
+    backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
+    backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
   }
 
   public Rotation2d getRotation() {

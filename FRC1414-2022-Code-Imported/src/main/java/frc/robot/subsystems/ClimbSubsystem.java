@@ -239,18 +239,18 @@ public class ClimbSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Pivot Target", pivotMotor.getClosedLoopTarget());
+    // SmartDashboard.putNumber("Pivot Target", pivotMotor.getClosedLoopTarget());
     SmartDashboard.putNumber("Pivot 1 Position", pivotMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Pivot 2 Position", pivotMotor2.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Pivot 1 Closed Loop Error", pivotMotor.getClosedLoopError());
-    SmartDashboard.putNumber("Pivot 2 Closed Loop Error", pivotMotor2.getClosedLoopError());
+    // SmartDashboard.putNumber("Pivot 1 Closed Loop Error", pivotMotor.getClosedLoopError());
+    // SmartDashboard.putNumber("Pivot 2 Closed Loop Error", pivotMotor2.getClosedLoopError());
 
-    SmartDashboard.putNumber("Telescope Target", telescopingMotor.getClosedLoopTarget());
+    // SmartDashboard.putNumber("Telescope Target", telescopingMotor.getClosedLoopTarget());
     SmartDashboard.putNumber("Telescope 1 Position", telescopingMotor.getSelectedSensorPosition());
     SmartDashboard.putNumber("Telescope 2 Position", telescopingMotor2.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Telescope 1 Closed Loop Error",
-        telescopingMotor.getClosedLoopError());
-    SmartDashboard.putNumber("Telescope 2 Closed Loop Error",
-        telescopingMotor2.getClosedLoopError());
+    // SmartDashboard.putNumber("Telescope 1 Closed Loop Error",
+    //     telescopingMotor.getClosedLoopError());
+    // SmartDashboard.putNumber("Telescope 2 Closed Loop Error",
+    //     telescopingMotor2.getClosedLoopError());
   }
 }
