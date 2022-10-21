@@ -47,7 +47,7 @@ public class Drive extends CommandBase {
             translationXPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
             translationYPercent * speedMultiplier * Constants.DRIVETRAIN_MAX_VEL,
             rotationPercent * Constants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND,
-            drivetrainSubsystem.getRotation()));
+            drivetrainSubsystem.getGyroscopeRotation()));
   }
 
   @Override

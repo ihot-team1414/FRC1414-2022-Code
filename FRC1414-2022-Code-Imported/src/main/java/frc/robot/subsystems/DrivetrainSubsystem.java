@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -96,6 +97,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void zeroGyroscope() {
+    // odometry.resetPosition(
+    //   new Pose2d(odometry.getPoseMeters().getTranslation(), Rotation2d.fromDegrees(0.0)),
+    //   Rotation2d.fromDegrees(-gyroscope.getFusedHeading()));  
+
     gyroscope.zeroYaw();
   }
 
@@ -120,6 +125,31 @@ public class DrivetrainSubsystem extends SubsystemBase {
     frontRightModule.set(states[1].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[1].angle.getRadians());
     backLeftModule.set(states[2].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[2].angle.getRadians());
     backRightModule.set(states[3].speedMetersPerSecond / Constants.DRIVETRAIN_MAX_VEL * Constants.DRIVETRAIN_MAX_VOLTAGE, states[3].angle.getRadians());
+
+    odometry.update(Rotation2d.fromDegrees(-gyroscope.getFusedHeading()), 
+      new SwerveModuleState(
+        -this.frontLeftModule.getDriveVelocity(), 
+        new Rotation2d(frontLeftModule.getSteerAngle())
+      ),
+      new SwerveModuleState(
+        -this.frontRightModule.getDriveVelocity(), 
+        new Rotation2d(frontRightModule.getSteerAngle())
+      ),
+      new SwerveModuleState(
+        -this.backLeftModule.getDriveVelocity(), 
+        new Rotation2d(backRightModule.getSteerAngle())
+      ),
+      new SwerveModuleState(
+        -this.backRightModule.getDriveVelocity(), 
+        new Rotation2d(backRightModule.getSteerAngle())
+      )
+    );
+
+    SmartDashboard.putNumber("Gyro Angle", getGyroAngle());
+    SmartDashboard.putNumber("Odometry X", odometry.getPoseMeters().getX());
+    SmartDashboard.putNumber("Odometry Y", odometry.getPoseMeters().getY());
+    SmartDashboard.putNumber("Odometry Rot", odometry.getPoseMeters().getRotation().getDegrees());
+
   }
 
   public Rotation2d getRotation() {

@@ -77,7 +77,7 @@ public class RobotContainer {
     // Start button to zero gyroscope
     new JoystickButton(driver, Button.kStart.value).whenPressed(() -> drivetrainSubsystem.zeroGyroscope());
 
-    // Left stick butto
+    // Left stick button
     
 
     // Left stick button aims continuously
