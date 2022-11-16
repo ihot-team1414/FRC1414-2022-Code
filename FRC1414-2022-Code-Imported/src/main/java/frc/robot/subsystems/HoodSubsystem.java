@@ -10,11 +10,14 @@ import frc.util.ShooterData;
 public class HoodSubsystem extends SubsystemBase {
   private static HoodSubsystem instance;
 
+  //Create object reference for servo hardware
   private final Servo servo1 = new Servo(Constants.HOOD_SERVO_ID_1);
   private final Servo servo2 = new Servo(Constants.HOOD_SERVO_ID_2);
 
+  //TODO
   private double dashboardTarget = 0;
   
+  //Return single instance of IndexerSubsystem Class (Singleton)
   public static synchronized HoodSubsystem getInstance() {
     if (instance == null) {
       instance = new HoodSubsystem();
@@ -23,6 +26,7 @@ public class HoodSubsystem extends SubsystemBase {
     return instance;
   }
 
+  //Constructor values are applied upon creation / reference of ShooterSubsystem object/class
   private HoodSubsystem() {
     if (Constants.MANUAL_SPEED_AND_ANGLE) {
       SmartDashboard.putNumber("Dashboard Hood Target", Constants.HOOD_MIN);

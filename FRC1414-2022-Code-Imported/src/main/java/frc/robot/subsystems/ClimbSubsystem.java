@@ -12,6 +12,7 @@ public class ClimbSubsystem extends SubsystemBase {
 
   private static ClimbSubsystem instance;
 
+  //Create object reference for climbing hardware
   private final TalonFX telescopingMotor = new TalonFX(Constants.TELESCOPING_ARM_1_MOTOR_ID);
   private final TalonFX telescopingMotor2 = new TalonFX(Constants.TELESCOPING_ARM_2_MOTOR_ID);
   private final TalonFX pivotMotor = new TalonFX(Constants.PIVOT_ARM_1_MOTOR_ID);
@@ -19,9 +20,12 @@ public class ClimbSubsystem extends SubsystemBase {
   private boolean isSpooled = false;
   private boolean isSpooled2 = false;
 
+  //index for the current state of climbing
   private int currentState = 0;
+  //Check whether a state had been triggered
   private boolean stateTriggered = false;
 
+  //Return single instance of IndexerSubsystem Class (Singleton)
   public static synchronized ClimbSubsystem getInstance() {
     if (instance == null) {
       instance = new ClimbSubsystem();
@@ -30,11 +34,16 @@ public class ClimbSubsystem extends SubsystemBase {
     return instance;
   }
 
+//Different pivoting positions
+//Uses the below * as format
   public enum PivotPosition {
     Starting(2000), Vertical(70000), Grabbing(62000), Tilting(100000), Lifting(40000);
 
     private int position;
 
+    // the format the positions follow (every "PivotPosition" is joined by @param encPos)
+    // example: Starting(2000) is a PivotPosition with an encoder position value of 2000
+    // Starting (alongside the encoder position value of 2000) is one of the values that PivotPosition can take 
     PivotPosition(int encPos) {
       position = encPos;
     }
@@ -45,10 +54,15 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public enum TelescopePosition {
+    //Different telescoping positions
+    //Uses the below * as format
     Neutral(100), Starting(1414), Intermediate(50000), FirstRung(150000), Extended(190000);
 
     private int position;
 
+    // the format the positions follow (every "TelescopePosition" is joined by @param encPos)
+    // example: Starting(1414) is a TelescopePosition with an encoder position value of 1414
+    // Starting (alongside the encoder position value of 1414) is one of the values that TelescopePosition can take 
     TelescopePosition(int encPos) {
       position = encPos;
     }
@@ -58,6 +72,7 @@ public class ClimbSubsystem extends SubsystemBase {
     }
   }
 
+  //Array of all possible telescoping states, in order of execution
   TelescopePosition[] telescopeStates = {
     TelescopePosition.Neutral,
     TelescopePosition.FirstRung,
@@ -81,6 +96,7 @@ public class ClimbSubsystem extends SubsystemBase {
     TelescopePosition.Neutral,
   };
 
+  //Array of all possible pivoting states, in order of execution
   PivotPosition[] pivotStates = {
     PivotPosition.Vertical,
     PivotPosition.Lifting,
@@ -104,32 +120,49 @@ public class ClimbSubsystem extends SubsystemBase {
     PivotPosition.Tilting,
   };
 
+  //Configure telescoping motors
+  //@param motor takes TalonFX motors as input for configuration
   private void configureTelescopingMotor(TalonFX motor) {
+
+    //TalonFX -- Connecting the integrated encoder to the motor
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
+    
+    //mode of operation whilst neutral (not moving -- brake)
     motor.setNeutralMode(NeutralMode.Brake);
 
+    //Configure the peak outputs for both direction of the motor
     motor.configPeakOutputForward(Constants.TELESCOPING_ARM_MOTOR_MAX_OUTPUT, 0);
     motor.configPeakOutputReverse(-Constants.TELESCOPING_ARM_MOTOR_MAX_OUTPUT, 0);
 
+    //Robot draws constant level of voltage, rather than proportionally scaling with voltage available
+    //If no more voltage is available, motors will stop functioning
     motor.enableVoltageCompensation(true);
+
+    //TODO
     motor.configVoltageCompSaturation(12.0, 30);
 
+    //TODO
     motor.configAllowableClosedloopError(0, Constants.TELESCOPING_ARM_ALLOWED_ERROR, 30);
 
+    //TODO
     motor.selectProfileSlot(0, 0);
     motor.config_kF(0, Constants.TELESCOPING_ARM_MOTOR_kF, 0);
     motor.config_kP(0, Constants.TELESCOPING_ARM_MOTOR_kP, 0);
     motor.config_kI(0, Constants.TELESCOPING_ARM_MOTOR_kI, 0);
     motor.config_kD(0, Constants.TELESCOPING_ARM_MOTOR_kD, 0);
 
+    //TODO
     motor.configMotionCruiseVelocity(Constants.TELESCOPING_ARM_MAX_VEL, 30);
     motor.configMotionAcceleration(Constants.TELESCOPING_ARM_ACCEL, 30);
   }
 
+  //Configure pivoting motors 
+  //@param motor takes TalonFX motors as input for configuration
   private void configurePivotMotor(TalonFX motor) {
     motor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, 0);
     motor.setNeutralMode(NeutralMode.Brake);
     
+  //Configure the peak outputs for both direction of the motor
     motor.configPeakOutputForward(Constants.PIVOT_ARM_MOTOR_MAX_OUTPUT, 0);
     motor.configPeakOutputReverse(-Constants.PIVOT_ARM_MOTOR_MAX_OUTPUT, 0);
 
@@ -145,35 +178,44 @@ public class ClimbSubsystem extends SubsystemBase {
     motor.configMotionAcceleration(Constants.PIVOT_ARM_ACCEL, 30);
   }
 
+  //Constructor values are applied upon creation / reference of ShooterSubsystem object/class
   private ClimbSubsystem() {
+    //Configures the telescopingMotor
     configureTelescopingMotor(telescopingMotor);
+    //Inverts motor
     telescopingMotor.setInverted(true);
-
+    //Configures the second telescopingMotor
     configureTelescopingMotor(telescopingMotor2);
-
+    //Configure first and second pivot motor
     configurePivotMotor(pivotMotor);
     configurePivotMotor(pivotMotor2);
+    //Set pivot motor two to be inverted
     pivotMotor2.setInverted(true);
   }
 
+  //Set the position of the pivot motors based on the inputed PivotPosition
   public void setPivot(PivotPosition pos) {
     pivotMotor.set(ControlMode.MotionMagic, pos.getPosition());
     pivotMotor2.set(ControlMode.MotionMagic, pos.getPosition());
   }
 
+  //Stop the first pivot motor from moving
   public void stopPivot() {
     pivotMotor.set(ControlMode.PercentOutput, 0.0);
   }
 
+  //Set the position of the telescoping motors based on the inputed TelescopePosition
   public void setTelescope(TelescopePosition pos) {
     telescopingMotor.set(ControlMode.Position, pos.getPosition());
     telescopingMotor2.set(ControlMode.Position, pos.getPosition());
   }
 
+  //Stop the telescoping motors from moving
   public void stopTelescope() {
     telescopingMotor.set(ControlMode.PercentOutput, 0.0);
     telescopingMotor2.set(ControlMode.PercentOutput, 0.0);
   }
+
 
   public void spool() {
     if (!isStalling(telescopingMotor) && !isSpooled) {
@@ -193,11 +235,13 @@ public class ClimbSubsystem extends SubsystemBase {
     }
   }
 
+  //Set spooled to false to reset spools later
   public void resetSpool() {
     isSpooled = false;
     isSpooled2 = false;
   }
 
+  //If the input current, in amps, is greater than 5, the motor is stalling
   public boolean isStalling(TalonFX motor) {
     return motor.getSupplyCurrent() >= 5;
   }
@@ -209,6 +253,7 @@ public class ClimbSubsystem extends SubsystemBase {
     stateTriggered = true;
   }
 
+  //
   public void nextState() {
     if (currentState + 1 < telescopeStates.length && stateTriggered) {
       currentState++;
@@ -237,6 +282,7 @@ public class ClimbSubsystem extends SubsystemBase {
       && telescopingMotor.getSelectedSensorPosition() > telescopePosition.getPosition() - Constants.TELESCOPING_ARM_ALLOWED_ERROR ;
   }
 
+  //Periodically (20 ms) update the following values for smart dashboard
   @Override
   public void periodic() {
     // SmartDashboard.putNumber("Pivot Target", pivotMotor.getClosedLoopTarget());

@@ -14,6 +14,18 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.util.Color;
 
 
+/*
+ * In PercentVbus, the output is between -1.0 and 1.0, with 0.0 as stopped.
+   * In Follower mode, the output is the integer device ID of the talon to
+   * duplicate.
+   * In Voltage mode, outputValue is in volts.
+   * In Current mode, outputValue is in amperes.
+   * In Speed mode, outputValue is in position change / 10ms.
+   * In Position mode, outputValue is in encoder ticks or an analog
+   * value, depending on the sensor.
+   *
+ */
+
 public final class Constants {
   public static final boolean MANUAL_SPEED_AND_ANGLE = false;
 
