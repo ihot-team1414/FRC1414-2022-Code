@@ -216,7 +216,7 @@ public class ClimbSubsystem extends SubsystemBase {
     telescopingMotor2.set(ControlMode.PercentOutput, 0.0);
   }
 
-
+  //TODO
   public void spool() {
     if (!isStalling(telescopingMotor) && !isSpooled) {
       telescopingMotor.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
@@ -226,6 +226,7 @@ public class ClimbSubsystem extends SubsystemBase {
       isSpooled = true;
     }
 
+    //TODO
     if (!isStalling(telescopingMotor2) && !isSpooled2) {
       telescopingMotor2.set(ControlMode.PercentOutput, -Constants.TELESCOPING_ARM_SPOOL_SPEED);
     } else {
@@ -246,37 +247,53 @@ public class ClimbSubsystem extends SubsystemBase {
     return motor.getSupplyCurrent() >= 5;
   }
 
+  //Activate the state at the currentState index
   public void activateState() {
     setTelescope(telescopeStates[currentState]);
     setPivot(pivotStates[currentState]);
 
+    //Selected state has been triggered
     stateTriggered = true;
   }
 
-  //
+  //Increment to next state in the array using the index
   public void nextState() {
+    //If the state you are moving to is within the length of the array and the latest state has been triggered
     if (currentState + 1 < telescopeStates.length && stateTriggered) {
+      
+      //Move to last state
       currentState++;
+      //Set state triggered to false
       stateTriggered = false;
     }
   }
 
+  //Increment to previous state in the array using the index
   public void previousState() {
+    //If the previous state is within the length of the array and the latest state has been triggered
     if (currentState - 1 > 0 && stateTriggered) {
+
+      //Move to the previous state
       currentState--;
+      //Set state triggered to false
       stateTriggered = false;
     }
   }
 
+  //Go back to the first state
   public void resetState() {
     currentState = 0;
   }
 
+  //Check if pivot is at its target position
   public boolean isPivotAtTarget(PivotPosition pivotPosition) {
+
+    //If the pivot motor encoder states that the pivot motor is between the error boundaries of the position, return true
     return pivotMotor.getSelectedSensorPosition() < Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET + pivotPosition.getPosition()
       && pivotMotor.getSelectedSensorPosition() > pivotPosition.getPosition() - Constants.PIVOT_ARM_ALLOWED_ERROR_FOR_TURRET ;
   }
 
+  //If the telescoping motor encoder states that the telescoping motor is between the error boundaries of the position, return true
   public boolean isTelescopeAtTarget(TelescopePosition telescopePosition) {
     return telescopingMotor.getSelectedSensorPosition() < Constants.TELESCOPING_ARM_ALLOWED_ERROR + telescopePosition.getPosition()
       && telescopingMotor.getSelectedSensorPosition() > telescopePosition.getPosition() - Constants.TELESCOPING_ARM_ALLOWED_ERROR ;
