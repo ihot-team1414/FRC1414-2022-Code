@@ -35,7 +35,7 @@ public class TurretSubsystem extends SubsystemBase {
     //Make motor inverted
     turretMotor.setInverted(true);
 
-
+    //Configure the feedback sensor / encoder
     turretMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
     turretMotor.setNeutralMode(NeutralMode.Brake);
     turretMotor.configNominalOutputForward(0.0, 30);
@@ -52,6 +52,8 @@ public class TurretSubsystem extends SubsystemBase {
     turretMotor.configReverseSoftLimitThreshold(Constants.TURRET_MIN_POS);
     turretMotor.configReverseSoftLimitEnable(true);
     turretMotor.configForwardSoftLimitEnable(true);
+
+    //Voltage compensation means that, 
     turretMotor.enableVoltageCompensation(true);
     turretMotor.configVoltageCompSaturation(12);
   }
